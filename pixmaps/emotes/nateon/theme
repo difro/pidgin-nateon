@@ -1,0 +1,14 @@
+Name=NateOn
+Description=NateOn smileys
+Icon=01.bmp
+Author=Hansun Lee
+
+### Following NateOn Messenger 3.7
+[NateOn]
+206.gif	            /쪼옥/
+201.gif             /깔깔/
+202.gif             /아휴/
+203.gif             /오우/
+204.gif             /엉엉/
+205.gif             /뻐끔/
+

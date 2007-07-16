@@ -1,0 +1,16 @@
+Pidgin-NateOn: NateOn protocol plugin for pidgin
+
+version 2.0.0+nateon-svn54
+	* Nateon show buddy name by tooltips
+
+version 2.0.0+nateon-svn53:
+	* Nateon can change own status
+
+version 2.0.0+nateon-svn51:
+	* Add nateon supporth
+
+version 2.0.0beta6-2:
+	* Fixed login bug
+
+version 2.0.0beta6-1:
+	* Initial release. 
