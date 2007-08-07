@@ -1,5 +1,8 @@
 Pidgin-NateOn: NateOn protocol plugin for pidgin
 
+version 2.0.0-svn64
+	* Detach nateon-prpl from pidgin
+
 version 2.0.0+nateon-svn54
 	* Nateon show buddy name by tooltips
 

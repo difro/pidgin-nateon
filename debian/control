@@ -1,0 +1,11 @@
+Source: pidgin-nateon
+Section: net 
+Priority: extra
+Maintainer: Hansun Lee <hansun.lee@gmail.com>
+Build-Depends: debhelper (>= 5), autotools-dev
+Standards-Version: 3.7.2
+
+Package: pidgin-nateon
+Architecture: any
+Depends: pidgin-data (>= 2.0.0) ${shlibs:Depends}, ${misc:Depends}
+Description: Nateon Protocol Plugin for Pidgin 
