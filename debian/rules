@@ -38,7 +38,7 @@ build-stamp:  config.status
 
 	# Add here commands to compile the package.
 	$(MAKE)
-	#docbook-to-man debian/gaim-nateon.sgml > gaim-nateon.1
+	#docbook-to-man debian/pidgin-nateon.sgml > pidgin-nateon.1
 
 	touch $@
 
@@ -65,8 +65,8 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/gaim-nateon.
-	$(MAKE) DESTDIR=$(CURDIR)/debian/gaim-nateon install
+	# Add here commands to install the package into debian/pidgin-nateon.
+	$(MAKE) DESTDIR=$(CURDIR)/debian/pidgin-nateon install
 
 
 # Build architecture-independent files here.
