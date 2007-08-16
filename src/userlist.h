@@ -70,7 +70,7 @@ struct _NateonUserList
 //					  NateonListId list_id, int group_id);
 //void nateon_got_rem_user(NateonSession *session, NateonUser *user,
 //					  NateonListId list_id, int group_id);
-void nateon_got_lst_user(NateonSession *session, NateonUser *user);
+void nateon_got_list_user(NateonSession *session, NateonUser *user, int list_op, GSList *group_ids);
 
 NateonUserList *nateon_userlist_new(NateonSession *session);
 void nateon_userlist_destroy(NateonUserList *userlist);

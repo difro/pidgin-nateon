@@ -70,9 +70,9 @@
 //#define PROFILE_URL "http://spaces.msn.com/profile.aspx?mem="
 //
 //#define USEROPT_HOTMAIL 0
-//
-//#define BUDDY_ALIAS_MAXLEN 387
-//
+
+#define BUDDY_ALIAS_MAXLEN 387
+
 //#define NATEON_FT_GUID "{5D3E02AB-6190-11d3-BBBB-00C04F795683}"
 //
 //#define NATEON_CLIENTINFO \
@@ -85,7 +85,7 @@ typedef enum
 	NATEON_LIST_FL_OP = 0x01,
 	NATEON_LIST_AL_OP = 0x02,
 	NATEON_LIST_BL_OP = 0x04,
-	NATEON_LIST_RL_OP = 0x08
+	NATEON_LIST_RL_OP = 0x08,
 
 } NateonListOp;
 

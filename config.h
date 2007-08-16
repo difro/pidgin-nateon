@@ -4,11 +4,20 @@
 /* Define if debugging is enabled. */
 /* #undef DEBUG */
 
+/* always defined to indicate that i18n is enabled */
+#define ENABLE_NLS 1
+
 /* Define to 1 if you have the <arpa/nameser_compat.h> header file. */
 #define HAVE_ARPA_NAMESER_COMPAT_H 1
 
 /* Define to 1 if you have the `atexit' function. */
 #define HAVE_ATEXIT 1
+
+/* Define to 1 if you have the `bind_textdomain_codeset' function. */
+#define HAVE_BIND_TEXTDOMAIN_CODESET 1
+
+/* Define to 1 if you have the `dcgettext' function. */
+#define HAVE_DCGETTEXT 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
@@ -19,8 +28,14 @@
 /* Define to 1 if you have the `getopt_long' function. */
 #define HAVE_GETOPT_LONG 1
 
+/* Define if the GNU gettext() function is already present or preinstalled. */
+#define HAVE_GETTEXT 1
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
+
+/* Define if your <locale.h> file defines LC_MESSAGES. */
+#define HAVE_LC_MESSAGES 1
 
 /* Define to 1 if you have the `nsl' library (-lnsl). */
 #define HAVE_LIBNSL 1
@@ -78,6 +93,9 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
+
+/* Define to 1 if your C compiler doesn't accept -c and -o together. */
+/* #undef NO_MINUS_C_MINUS_O */
 
 /* Name of package */
 #define PACKAGE "pidgin"

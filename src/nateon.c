@@ -121,24 +121,24 @@ nateon_act_id(PurpleConnection *gc, const char *entry)
 	NateonCmdProc *cmdproc;
 	NateonSession *session;
 	PurpleAccount *account;
-//	const char *alias;
-//
-//	session = gc->proto_data;
-//	cmdproc = session->notification->cmdproc;
-//	account = purple_connection_get_account(gc);
-//
-//	if(entry && strlen(entry))
-//		alias = purple_url_encode(entry);
-//	else
-//		alias = "";
-//
-//	if (strlen(alias) > BUDDY_ALIAS_MAXLEN)
-//	{
-//		purple_notify_error(gc, NULL,
-//						  _("Your new NATEON friendly name is too long."), NULL);
-//		return;
-//	}
-//
+	const char *alias;
+
+	session = gc->proto_data;
+	cmdproc = session->notification->cmdproc;
+	account = purple_connection_get_account(gc);
+
+	if(entry && strlen(entry))
+		alias = purple_url_encode(entry);
+	else
+		alias = "";
+
+	if (strlen(alias) > BUDDY_ALIAS_MAXLEN)
+	{
+		purple_notify_error(gc, NULL,
+						  _("Your new NATEON friendly name is too long."), NULL);
+		return;
+	}
+
 //	nateon_cmdproc_send(cmdproc, "REA", "%s %s",
 //					 purple_account_get_username(account),
 //					 alias);
@@ -507,18 +507,21 @@ nateon_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolea
 
 	user = buddy->proto_data;
 
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+	if (user)
+	{
+		purple_notify_user_info_add_pair(user_info, _("Name"), user->friendly_name);
+	}
+
 	if (purple_presence_is_online(presence))
 	{
 		purple_notify_user_info_add_pair(user_info, _("Status"), purple_presence_is_idle(presence) ? _("Idle") : purple_status_get_name(status));
 	}
 
-//	if (full && user)
-//	{
-//		g_string_append_printf(str, _("\n<b>%s:</b> %s"), _("Has you"),
-//							   (user->list_op & (1 << NATEON_LIST_RL)) ?
-//							   _("Yes") : _("No"));
-//	}
+	if (full && user)
+	{
+		purple_notify_user_info_add_pair(user_info, _("Has you"), ((user->list_op & (1 << NATEON_LIST_RL)) ? _("Yes") : _("No")));
+
+	}
 
 	/* XXX: This is being shown in non-full tooltips because the
 	 * XXX: blocked icon overlay isn't always accurate for NATEON.
@@ -526,11 +529,7 @@ nateon_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolea
 	 * XXX: this prpl always honors both the allow and deny lists. */
 	if (user)
 	{
-//		g_string_append_printf(str, _("\n<b>%s:</b> %s"), _("Blocked"),
-//							   (user->list_op & (1 << NATEON_LIST_BL)) ?
-//							   _("Yes") : _("No"));
-
-		purple_notify_user_info_add_pair(user_info, _("Name"), user->friendly_name);
+		purple_notify_user_info_add_pair(user_info, _("Blocked"), ((user->list_op & (1 << NATEON_LIST_BL)) ? _("Yes") : _("No")));
 	}
 }
 
@@ -579,7 +578,7 @@ nateon_actions(PurplePlugin *plugin, gpointer context)
 
 	act = purple_plugin_action_new(_("Set Friendly Name..."), nateon_show_set_friendly_name);
 	m = g_list_append(m, act);
-	m = g_list_append(m, NULL);
+//	m = g_list_append(m, NULL);
 
 //	act = purple_plugin_action_new(_("Set Home Phone Number..."),
 //								 nateon_show_set_home_phone);
@@ -634,7 +633,6 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 //	{
 //		if (user->mobile)
 //		{
-//			act = purple_menu_action_new(_("Send to Mobile"), NULL, NULL, NULL);
 //			act = purple_menu_action_new(_("Send to Mobile"),
 //			                           PURPLE_CALLBACK(show_send_to_mobile_cb),
 //			                           NULL, NULL);
@@ -642,14 +640,18 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 //		}
 //	}
 
-//	if (g_ascii_strcasecmp(buddy->name,
-//	                       purple_account_get_username(buddy->account)))
-//	{
+	act = purple_menu_action_new(_("Send SMS"), NULL, NULL, NULL);
+	m = g_list_append(m, act);
+
+	if (g_ascii_strcasecmp(buddy->name,
+	                       purple_account_get_username(buddy->account)))
+	{
+		act = purple_menu_action_new(_("Initiate _Chat"), NULL, NULL, NULL);
 //		act = purple_menu_action_new(_("Initiate _Chat"),
 //		                           PURPLE_CALLBACK(initiate_chat_cb),
 //		                           NULL, NULL);
-//		m = g_list_append(m, act);
-//	}
+		m = g_list_append(m, act);
+	}
 
 	return m;
 }

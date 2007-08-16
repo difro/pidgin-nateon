@@ -93,8 +93,9 @@
 #include <langinfo.h>
 #endif
 
+#include <gmodule.h>
+
 #ifdef PURPLE_PLUGINS
-# include <gmodule.h>
 # ifndef _WIN32
 #  include <dlfcn.h>
 # endif
@@ -111,15 +112,22 @@
 # include <unistd.h>
 #endif
 
-#ifndef MAXPATHLEN
-# define MAXPATHLEN 1024
+/* MAXPATHLEN should only be used with readlink() on glib < 2.4.0.  For
+ * anything else, use g_file_read_link() or other dynamic functions.  This is
+ * important because Hurd has no hard limits on path length. */
+#if !GLIB_CHECK_VERSION(2,4,0)
+# ifndef MAXPATHLEN
+#  ifdef PATH_MAX
+#   define MAXPATHLEN PATH_MAX
+#  else
+#   define MAXPATHLEN 1024
+#  endif
+# endif
 #endif
 
 #ifndef HOST_NAME_MAX
 # define HOST_NAME_MAX 255
 #endif
-
-#define PATHSIZE 1024
 
 #include <glib.h>
 #if !GLIB_CHECK_VERSION(2,4,0)
@@ -176,6 +184,14 @@
 #	endif
 #endif
 
+#ifndef G_GNUC_NULL_TERMINATED
+#	if     __GNUC__ >= 4
+#		define G_GNUC_NULL_TERMINATED __attribute__((__sentinel__))
+#	else
+#		define G_GNUC_NULL_TERMINATED
+#	endif
+#endif
+
 /* Safer ways to work with static buffers. When using non-static
  * buffers, either use g_strdup_* functions (preferred) or use
  * g_strlcpy/g_strlcpy directly. */
@@ -183,6 +199,7 @@
 #define purple_strlcat(dest, src) g_strlcat(dest, src, sizeof(dest))
 
 #define PURPLE_WEBSITE "http://pidgin.im/"
+#define PURPLE_DEVEL_WEBSITE "http://developer.pidgin.im/"
 
 /* This is for the accounts code to notify the buddy icon code that
  * it's done loading.  We may want to replace this with a signal. */

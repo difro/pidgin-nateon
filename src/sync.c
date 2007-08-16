@@ -110,14 +110,23 @@ static void list_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	char *account = NULL;
 	char *stored  = NULL;
 	char *friend  = NULL;
-	char *list_op = NULL;
+	int list_op;
 	NateonUser *user;
 
 	user_id  = cmd->params[5];
 	account  = cmd->params[4];
 	stored   = purple_url_decode(cmd->params[7]);
 	friend   = cmd->params[6];
-	list_op  = cmd->params[3];
+	list_op  = cmd->params[3][NATEON_LIST_FL]-'0' ? NATEON_LIST_FL_OP : 0; 
+	list_op += cmd->params[3][NATEON_LIST_AL]-'0' ? NATEON_LIST_AL_OP : 0; 
+	list_op += cmd->params[3][NATEON_LIST_BL]-'0' ? NATEON_LIST_BL_OP : 0; 
+	list_op += cmd->params[3][NATEON_LIST_RL]-'0' ? NATEON_LIST_RL_OP : 0;
+
+	purple_debug_info("nateon", "FL = %d\n", cmd->params[3][NATEON_LIST_FL]-'0'? NATEON_LIST_FL_OP : 0);
+	purple_debug_info("nateon", "AL = %d\n", cmd->params[3][NATEON_LIST_AL]-'0'? NATEON_LIST_AL_OP : 0);
+	purple_debug_info("nateon", "BL = %d\n", cmd->params[3][NATEON_LIST_BL]-'0'? NATEON_LIST_BL_OP : 0);
+	purple_debug_info("nateon", "RL = %d\n", cmd->params[3][NATEON_LIST_RL]-'0'? NATEON_LIST_RL_OP : 0);
+	purple_debug_info("nateon", "list_op = %d\n", list_op);
 
 	user = nateon_userlist_find_user_with_id(session->userlist, user_id);
 	if (user == NULL)
@@ -137,9 +146,7 @@ static void list_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	g_free(user->friendly_name);
 	user->friendly_name = g_strdup(friend);
 
-	user->list_op = g_strdup(list_op);
-
-	nateon_got_lst_user(session, user);
+	nateon_got_list_user(session, user, list_op, user->group_ids);
 
 	session->sync->last_user = user;
 

@@ -255,7 +255,7 @@ nateon_session_sync_users(NateonSession *session)
 
 					remote_user = nateon_userlist_find_user_with_name(session->userlist, b->name);
 
-					if ((remote_user != NULL) && (remote_user->list_op[NATEON_LIST_FL_OP] == '1'))
+					if ((remote_user != NULL) && (remote_user->list_op & NATEON_LIST_FL_OP))
 					{
 
 						int group_id;

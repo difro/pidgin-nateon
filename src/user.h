@@ -66,7 +66,7 @@ struct _NateonUser
 //
 //	GHashTable *clientcaps; /**< The client's capabilities.     */
 
-	char *list_op;
+	int list_op;
 };
 
 /**************************************************************************/

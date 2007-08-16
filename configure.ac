@@ -34,11 +34,19 @@ AC_PATH_PROG(sedpath, sed)
 
 # Checks for programs.
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 LIBTOOL="$LIBTOOL --silent"
 AC_PROG_INSTALL
+#AC_PROG_INTLTOOL
 PKG_PROG_PKG_CONFIG
+
+#GETTEXT_PACKAGE=pidgin
+#AC_SUBST(GETTEXT_PACKAGE)
+
+#ALL_LINGUAS="af am ar az bg bn bs ca ca@valencia cs da de dz el en_AU en_CA en_GB eo es et eu fa fi fr gl gu he hi hu id it ja ka kn ko ku lt mk my_MM nb ne nl nn pa pl pt_BR pt ps ro ru sk sl sq sr sr@Latn sv ta te th tr uk vi xh zh_CN zh_HK zh_TW"
+AM_GLIB_GNU_GETTEXT
 
 dnl Checks for header files.
 AC_HEADER_STDC

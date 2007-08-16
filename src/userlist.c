@@ -371,25 +371,23 @@ nateon_request_add_group(NateonUserList *userlist, const char *who,
 //}
 
 void
-nateon_got_lst_user(NateonSession *session, NateonUser *user)
+nateon_got_list_user(NateonSession *session, NateonUser *user, int list_op, GSList *group_ids)
 {
 	PurpleConnection *gc;
 	PurpleAccount *account;
 	const char *account_name;
 	const char *store;
-	char *list_op;
 
 	account = session->account;
 	gc = purple_account_get_connection(account);
 
 	account_name = nateon_user_get_account_name(user);
 	store = nateon_user_get_store_name(user);
-	list_op = user->list_op;
 
-	if (list_op[NATEON_LIST_FL_OP] == '1')
+	if (list_op & NATEON_LIST_FL_OP)
 	{
 		GList *c;
-		for (c = user->group_ids; c != NULL; c = c->next)
+		for (c = group_ids; c != NULL; c = c->next)
 		{
 			int group_id;
 			group_id = GPOINTER_TO_INT(c->data);
@@ -401,7 +399,7 @@ nateon_got_lst_user(NateonSession *session, NateonUser *user)
 		serv_got_alias(gc, account_name, store);
 	}
 //
-//	if (list_op[NATEON_LIST_AL_OP] == '1')
+//	if (list_op & NATEON_LIST_AL_OP)
 //	{
 //		/* These are users who are allowed to see our status. */
 //

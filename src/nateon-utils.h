@@ -24,8 +24,7 @@
 #ifndef _NATEON_UTILS_H_
 #define _NATEON_UTILS_H_
 
-static const char *
-encode_spaces(const char *str);
+const char *encode_spaces(const char *str);
 ///**
 // * Parses the NATEON message formatting into a format compatible with Purple.
 // *

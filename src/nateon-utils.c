@@ -143,7 +143,7 @@
  * We need this because we're only supposed to encode spaces in the font
  * names. purple_url_encode() isn't acceptable.
  */
-static const char *
+const char *
 encode_spaces(const char *str)
 {
 	static char buf[BUF_LEN];
