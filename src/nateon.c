@@ -114,13 +114,13 @@ static const char *nateon_normalize(const PurpleAccount *account, const char *st
 //
 //	return PURPLE_CMD_RET_OK;
 //}
-//
-//static void
-//nateon_act_id(PurpleConnection *gc, const char *entry)
-//{
-//	NateonCmdProc *cmdproc;
-//	NateonSession *session;
-//	PurpleAccount *account;
+
+static void
+nateon_act_id(PurpleConnection *gc, const char *entry)
+{
+	NateonCmdProc *cmdproc;
+	NateonSession *session;
+	PurpleAccount *account;
 //	const char *alias;
 //
 //	session = gc->proto_data;
@@ -142,8 +142,8 @@ static const char *nateon_normalize(const PurpleAccount *account, const char *st
 //	nateon_cmdproc_send(cmdproc, "REA", "%s %s",
 //					 purple_account_get_username(account),
 //					 alias);
-//}
-//
+}
+
 //static void
 //nateon_set_prp(PurpleConnection *gc, const char *type, const char *entry)
 //{
@@ -235,22 +235,24 @@ static const char *nateon_normalize(const PurpleAccount *account, const char *st
 //}
 //
 ///* -- */
-//
-//static void
-//nateon_show_set_friendly_name(PurplePluginAction *action)
-//{
-//	PurpleConnection *gc;
-//
-//	gc = (PurpleConnection *) action->context;
-//
-//	purple_request_input(gc, NULL, _("Set your friendly name."),
-//					   _("This is the name that other NATEON buddies will "
-//						 "see you as."),
-//					   purple_connection_get_display_name(gc), FALSE, FALSE, NULL,
-//					   _("OK"), G_CALLBACK(nateon_act_id),
-//					   _("Cancel"), NULL, gc);
-//}
-//
+
+static void
+nateon_show_set_friendly_name(PurplePluginAction *action)
+{
+	PurpleConnection *gc;
+
+	gc = (PurpleConnection *) action->context;
+
+	purple_request_input(gc, NULL, _("Set your friendly name."),
+					   _("This is the name that other NATEON buddies will "
+						 "see you as."),
+					   purple_connection_get_display_name(gc), FALSE, FALSE, NULL,
+					   _("OK"), G_CALLBACK(nateon_act_id),
+					   _("Cancel"), NULL,
+					  purple_connection_get_account(gc), NULL, NULL,
+					  gc);
+}
+
 //static void
 //nateon_show_set_home_phone(PurplePluginAction *action)
 //{
@@ -565,21 +567,20 @@ nateon_status_types(PurpleAccount *account)
 	return types;
 }
 
-//static GList *
-//nateon_actions(PurplePlugin *plugin, gpointer context)
-//{
-//	PurpleConnection *gc = (PurpleConnection *)context;
-//	PurpleAccount *account;
-//	const char *user;
-//
-//	GList *m = NULL;
-//	PurplePluginAction *act;
-//
-//	act = purple_plugin_action_new(_("Set Friendly Name..."),
-//								 nateon_show_set_friendly_name);
-//	m = g_list_append(m, act);
-//	m = g_list_append(m, NULL);
-//
+static GList *
+nateon_actions(PurplePlugin *plugin, gpointer context)
+{
+	PurpleConnection *gc = (PurpleConnection *)context;
+	PurpleAccount *account;
+	const char *user;
+
+	GList *m = NULL;
+	PurplePluginAction *act;
+
+	act = purple_plugin_action_new(_("Set Friendly Name..."), nateon_show_set_friendly_name);
+	m = g_list_append(m, act);
+	m = g_list_append(m, NULL);
+
 //	act = purple_plugin_action_new(_("Set Home Phone Number..."),
 //								 nateon_show_set_home_phone);
 //	m = g_list_append(m, act);
@@ -613,33 +614,34 @@ nateon_status_types(PurpleAccount *account)
 //				nateon_show_hotmail_inbox);
 //		m = g_list_append(m, act);
 //	}
-//
-//	return m;
-//}
-//
-//static GList *
-//nateon_buddy_menu(PurpleBuddy *buddy)
-//{
-//	NateonUser *user;
-//
-//	GList *m = NULL;
-//	PurpleMenuAction *act;
-//
-//	g_return_val_if_fail(buddy != NULL, NULL);
-//
-//	user = buddy->proto_data;
-//
+
+	return m;
+}
+
+static GList *
+nateon_buddy_menu(PurpleBuddy *buddy)
+{
+	NateonUser *user;
+
+	GList *m = NULL;
+	PurpleMenuAction *act;
+
+	g_return_val_if_fail(buddy != NULL, NULL);
+
+	user = buddy->proto_data;
+
 //	if (user != NULL)
 //	{
 //		if (user->mobile)
 //		{
+//			act = purple_menu_action_new(_("Send to Mobile"), NULL, NULL, NULL);
 //			act = purple_menu_action_new(_("Send to Mobile"),
 //			                           PURPLE_CALLBACK(show_send_to_mobile_cb),
 //			                           NULL, NULL);
 //			m = g_list_append(m, act);
 //		}
 //	}
-//
+
 //	if (g_ascii_strcasecmp(buddy->name,
 //	                       purple_account_get_username(buddy->account)))
 //	{
@@ -648,22 +650,21 @@ nateon_status_types(PurpleAccount *account)
 //		                           NULL, NULL);
 //		m = g_list_append(m, act);
 //	}
-//
-//	return m;
-//}
-//
-//static GList *
-//nateon_blist_node_menu(PurpleBlistNode *node)
-//{
-//	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
-//	{
-//		return nateon_buddy_menu((PurpleBuddy *) node);
-//	}
-//	else
-//	{
-//		return NULL;
-//	}
-//}
+
+	return m;
+}
+
+static GList *nateon_blist_node_menu(PurpleBlistNode *node)
+{
+	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
+	{
+		return nateon_buddy_menu((PurpleBuddy *) node);
+	}
+	else
+	{
+		return NULL;
+	}
+}
 
 static void
 nateon_login(PurpleAccount *account)
@@ -1942,7 +1943,7 @@ static PurplePluginProtocolInfo prpl_info =
 	nateon_status_text,			/* status_text */
 	nateon_tooltip_text,			/* tooltip_text */
 	nateon_status_types,			/* away_states */
-	NULL, //nateon_blist_node_menu,		/* blist_node_menu */
+	nateon_blist_node_menu,			/* blist_node_menu */
 	NULL,					/* chat_info */
 	NULL,					/* chat_info_defaults */
 	nateon_login,				/* login */
@@ -1993,6 +1994,14 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL, //nateon_new_xfer,			/* new_xfer */
 	NULL,					/* offline_message */
 	NULL,					/* whiteboard_prpl_ops */
+        NULL,                                   /* send_raw */
+        NULL,                                   /* roomlist_room_serialize */
+
+        /* padding */
+        NULL,
+        NULL,
+        NULL,
+        NULL
 };
 
 static PurplePluginInfo info =
@@ -2023,7 +2032,13 @@ static PurplePluginInfo info =
 	NULL,					/**< ui_info        */
 	&prpl_info, 				/**< extra_info     */
 	NULL, 					/**< prefs_info     */
-	NULL //nateon_actions
+	nateon_actions,
+
+        /* padding */
+        NULL,
+        NULL,
+        NULL,
+        NULL
 };
 
 static void
