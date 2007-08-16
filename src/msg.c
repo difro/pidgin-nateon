@@ -36,14 +36,13 @@
 //	purple_debug_info("nateon", "message new (%p)(%d)\n", msg, type);
 //#endif
 //
-//	msg->attr_table = g_hash_table_new_full(g_str_hash, g_str_equal,
-//											g_free, g_free);
+//	msg->attr_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 //
 //	nateon_message_ref(msg);
 //
 //	return msg;
 //}
-//
+
 //void
 //nateon_message_destroy(NateonMessage *msg)
 //{

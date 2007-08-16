@@ -37,6 +37,7 @@
 #include "cmds.h"
 #include "prpl.h"
 #include "util.h"
+#include "nateon-utils.h"
 #include "version.h"
 
 #include "switchboard.h"
@@ -505,18 +506,17 @@ nateon_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolea
 	user = buddy->proto_data;
 
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-//	if (purple_presence_is_online(presence))
-//	{
-//		g_string_append_printf(str, _("\n<b>%s:</b> %s"), _("Status"),
-//							   purple_presence_is_idle(presence) ?
-//							   _("Idle") : purple_status_get_name(status));
-//	}
-//
+	if (purple_presence_is_online(presence))
+	{
+		purple_notify_user_info_add_pair(user_info, _("Status"), purple_presence_is_idle(presence) ? _("Idle") : purple_status_get_name(status));
+	}
+
 //	if (full && user)
 //	{
 //		g_string_append_printf(str, _("\n<b>%s:</b> %s"), _("Has you"),
 //							   (user->list_op & (1 << NATEON_LIST_RL)) ?
 //							   _("Yes") : _("No"));
+//	}
 
 	/* XXX: This is being shown in non-full tooltips because the
 	 * XXX: blocked icon overlay isn't always accurate for NATEON.
@@ -730,6 +730,7 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 			PurpleMessageFlags flags)
 {
 	PurpleAccount *account;
+	PurpleBuddy *buddy = purple_find_buddy(gc->account, who);
 	NateonMessage *msg;
 //	char *msgformat;
 //	char *msgtext;
@@ -742,26 +743,18 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 
 	account = purple_connection_get_account(gc);
 
-	//msg = message;
+	if (buddy)
 	{
-		char buf[BUF_LEN] = {0};
-		const char *c;
-		char *d;
+                PurplePresence *p = purple_buddy_get_presence(buddy);
+//                if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_MOBILE)) {
+//                        char *text = purple_markup_strip_html(message);
+//                        send_to_mobile(gc, who, text);
+//                        g_free(text);
+//                        return 1;
+//                }
+        }
 
-		for (c = message, d = buf; *c != '\0'; c++)
-		{
-			if (*c == ' ')
-			{
-				*d++ = '%';
-				*d++ = '2';
-				*d++ = '0';
-			}
-			else
-				*d++ = *c;
-		}
-
-		msg = g_strdup_printf("MSG 굴림%%090%%09%%09%s", buf);
-	}
+	encode_spaces(msg);
 	purple_debug_info("nateon", "%s\n", msg);
 
 //	nateon_import_html(message, &msgformat, &msgtext);
@@ -783,16 +776,14 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 //
 //	g_free(msgformat);
 //	g_free(msgtext);
-//
-//	if (g_ascii_strcasecmp(who, purple_account_get_username(account)))
+
+	if (g_ascii_strcasecmp(who, purple_account_get_username(account)))
 	{
 		NateonSession *session;
 		NateonSwitchBoard *swboard;
 
 		session = gc->proto_data;
 		swboard = nateon_session_get_swboard(session, who, NATEON_SB_FLAG_IM);
-
-		//nateon_cmdproc_send(swboard->servconn->cmdproc, "MESG", "굴림%%090%%09%%09%s", message);
 
 		nateon_switchboard_send_msg(swboard, msg, TRUE);
 	}
@@ -1902,10 +1893,10 @@ nateon_convo_closed(PurpleConnection *gc, const char *who)
 //		purple_imgstore_unref(id);
 //#endif
 //}
-//
-//static void
-//nateon_get_info(PurpleConnection *gc, const char *name)
-//{
+
+static void
+nateon_get_info(PurpleConnection *gc, const char *name)
+{
 //	NateonGetInfoData *data;
 //	char *url;
 //
@@ -1920,7 +1911,7 @@ nateon_convo_closed(PurpleConnection *gc, const char *who)
 //				   TRUE, nateon_got_info, data);
 //
 //	g_free(url);
-//}
+}
 
 static gboolean nateon_load(PurplePlugin *plugin)
 {
@@ -1959,7 +1950,7 @@ static PurplePluginProtocolInfo prpl_info =
 	nateon_send_im,				/* send_im */
 	NULL,					/* set_info */
 	nateon_send_typing,			/* send_typing */
-	NULL, //nateon_get_info,			/* get_info */
+	nateon_get_info,			/* get_info */
 	nateon_set_status,			/* set_away */
 	nateon_set_idle,			/* set_idle */
 	NULL,					/* change_passwd */
@@ -2040,7 +2031,7 @@ init_plugin(PurplePlugin *plugin)
 {
 	PurpleAccountOption *option;
 
-	option = purple_account_option_string_new(_("Login server"), "server",
+	option = purple_account_option_string_new(_("Server"), "server",
 											NATEON_SERVER);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,
 											   option);

@@ -91,10 +91,10 @@ nateon_transaction_to_string(NateonTransaction *trans)
 	g_return_val_if_fail(trans != NULL, FALSE);
 
 	if (trans->params != NULL)
-		if (strcmp(trans->command, "CTOC"))
+//		if (strcmp(trans->command, "CTOC"))
 			str = g_strdup_printf("%s %u %s\r\n", trans->command, trans->trId, trans->params);
-		else
-			str = g_strdup_printf("%s %u %s", trans->command, trans->trId, trans->params);
+//		else
+//			str = g_strdup_printf("%s %u %s", trans->command, trans->trId, trans->params);
 	else
 		str = g_strdup_printf("%s %u\r\n", trans->command, trans->trId);
 

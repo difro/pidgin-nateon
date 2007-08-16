@@ -1,5 +1,5 @@
-#EXTRA_DIST = \
-#		Makefile.mingw
+EXTRA_DIST = \
+		Makefile.mingw
 
 pkgdir = $(libdir)/purple-$(PURPLE_MAJOR_VERSION)
 
@@ -18,6 +18,8 @@ NATEONSOURCES = \
 	msg.h \
 	nateon.c \
 	nateon.h \
+	nateon-utils.c \
+	nateon-utils.h \
 	notification.c \
 	notification.h \
 	servconn.c \
@@ -41,7 +43,7 @@ NATEONSOURCES = \
 
 AM_CFLAGS = $(st)
 
-libnateon_la_LDFLAGS = -module -avoid-version $(GLIB_LIBS)
+libnateon_la_LDFLAGS = -module -avoid-version
 
 if STATIC_NATEON
 

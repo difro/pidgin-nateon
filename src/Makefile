@@ -14,9 +14,6 @@
 
 
 
-#EXTRA_DIST = \
-#		Makefile.mingw
-
 
 srcdir = .
 top_srcdir = ..
@@ -56,15 +53,16 @@ libnateon_a_AR = $(AR) $(ARFLAGS)
 libnateon_a_LIBADD =
 am__libnateon_a_SOURCES_DIST = cmdproc.c cmdproc.h command.c command.h \
 	dialog.c dialog.h group.c group.h history.c history.h msg.c \
-	msg.h nateon.c nateon.h notification.c notification.h \
-	servconn.c servconn.h session.c session.h switchboard.c \
-	switchboard.h state.c state.h sync.c sync.h table.c table.h \
-	transaction.c transaction.h user.c user.h userlist.c \
-	userlist.h
+	msg.h nateon.c nateon.h nateon-utils.c nateon-utils.h \
+	notification.c notification.h servconn.c servconn.h session.c \
+	session.h switchboard.c switchboard.h state.c state.h sync.c \
+	sync.h table.c table.h transaction.c transaction.h user.c \
+	user.h userlist.c userlist.h
 am__objects_1 = libnateon_a-cmdproc.$(OBJEXT) \
 	libnateon_a-command.$(OBJEXT) libnateon_a-dialog.$(OBJEXT) \
 	libnateon_a-group.$(OBJEXT) libnateon_a-history.$(OBJEXT) \
 	libnateon_a-msg.$(OBJEXT) libnateon_a-nateon.$(OBJEXT) \
+	libnateon_a-nateon-utils.$(OBJEXT) \
 	libnateon_a-notification.$(OBJEXT) \
 	libnateon_a-servconn.$(OBJEXT) libnateon_a-session.$(OBJEXT) \
 	libnateon_a-switchboard.$(OBJEXT) libnateon_a-state.$(OBJEXT) \
@@ -87,15 +85,15 @@ libnateon_la_DEPENDENCIES =  \
 	$(am__DEPENDENCIES_1)
 am__libnateon_la_SOURCES_DIST = cmdproc.c cmdproc.h command.c \
 	command.h dialog.c dialog.h group.c group.h history.c \
-	history.h msg.c msg.h nateon.c nateon.h notification.c \
-	notification.h servconn.c servconn.h session.c session.h \
-	switchboard.c switchboard.h state.c state.h sync.c sync.h \
-	table.c table.h transaction.c transaction.h user.c user.h \
-	userlist.c userlist.h
+	history.h msg.c msg.h nateon.c nateon.h nateon-utils.c \
+	nateon-utils.h notification.c notification.h servconn.c \
+	servconn.h session.c session.h switchboard.c switchboard.h \
+	state.c state.h sync.c sync.h table.c table.h transaction.c \
+	transaction.h user.c user.h userlist.c userlist.h
 am__objects_2 = cmdproc.lo command.lo dialog.lo group.lo history.lo \
-	msg.lo nateon.lo notification.lo servconn.lo session.lo \
-	switchboard.lo state.lo sync.lo table.lo transaction.lo \
-	user.lo userlist.lo
+	msg.lo nateon.lo nateon-utils.lo notification.lo servconn.lo \
+	session.lo switchboard.lo state.lo sync.lo table.lo \
+	transaction.lo user.lo userlist.lo
 am_libnateon_la_OBJECTS = $(am__objects_2)
 libnateon_la_OBJECTS = $(am_libnateon_la_OBJECTS)
 am_libnateon_la_rpath = -rpath $(pkgdir)
@@ -116,14 +114,14 @@ DIST_SOURCES = $(am__libnateon_a_SOURCES_DIST) \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/haze11/pidgin-nateon/missing --run aclocal-1.9
+ACLOCAL = ${SHELL} /home/haze11/nateon/missing --run aclocal-1.9
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = ${SHELL} /home/haze11/pidgin-nateon/missing --run tar
+AMTAR = ${SHELL} /home/haze11/nateon/missing --run tar
 AR = ar
-AUTOCONF = ${SHELL} /home/haze11/pidgin-nateon/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/haze11/pidgin-nateon/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/haze11/pidgin-nateon/missing --run automake-1.9
+AUTOCONF = ${SHELL} /home/haze11/nateon/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/haze11/nateon/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/haze11/nateon/missing --run automake-1.9
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -146,6 +144,7 @@ EGREP = /bin/grep -E
 EXEEXT = 
 F77 = 
 FFLAGS = 
+GETTEXT_PACKAGE = pidgin
 GLIB_CFLAGS = -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  
 GLIB_GENMARSHAL = glib-genmarshal
 GLIB_LIBS = -lglib-2.0  
@@ -164,7 +163,7 @@ LIBS = -lnsl -lresolv
 LIBTOOL = $(SHELL) $(top_builddir)/libtool --silent
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/haze11/pidgin-nateon/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/haze11/nateon/missing --run makeinfo
 OBJEXT = o
 PACKAGE = pidgin
 PACKAGE_BUGREPORT = hansun.lee@gmail.com
@@ -219,7 +218,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = /home/haze11/pidgin-nateon/install-sh
+install_sh = /home/haze11/nateon/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -229,7 +228,7 @@ mkdir_p = mkdir -p --
 oldincludedir = /usr/include
 pdfdir = ${docdir}
 pidginpath = /usr/bin/pidgin
-prefix = /usr/local
+prefix = /home/haze11/nateon/usr
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
@@ -241,6 +240,9 @@ target_alias =
 target_cpu = i686
 target_os = linux-gnu
 target_vendor = pc
+EXTRA_DIST = \
+		Makefile.mingw
+
 pkgdir = $(libdir)/purple-$(PURPLE_MAJOR_VERSION)
 NATEONSOURCES = \
 	cmdproc.c \
@@ -257,6 +259,8 @@ NATEONSOURCES = \
 	msg.h \
 	nateon.c \
 	nateon.h \
+	nateon-utils.c \
+	nateon-utils.h \
 	notification.c \
 	notification.h \
 	servconn.c \
@@ -279,7 +283,7 @@ NATEONSOURCES = \
 	userlist.h
 
 AM_CFLAGS = $(st)
-libnateon_la_LDFLAGS = -module -avoid-version $(GLIB_LIBS)
+libnateon_la_LDFLAGS = -module -avoid-version
 st = 
 #st = -DGAIM_STATIC_PRPL
 #noinst_LIBRARIES = libnateon.a
@@ -381,6 +385,7 @@ include ./$(DEPDIR)/libnateon_a-dialog.Po
 include ./$(DEPDIR)/libnateon_a-group.Po
 include ./$(DEPDIR)/libnateon_a-history.Po
 include ./$(DEPDIR)/libnateon_a-msg.Po
+include ./$(DEPDIR)/libnateon_a-nateon-utils.Po
 include ./$(DEPDIR)/libnateon_a-nateon.Po
 include ./$(DEPDIR)/libnateon_a-notification.Po
 include ./$(DEPDIR)/libnateon_a-servconn.Po
@@ -393,6 +398,7 @@ include ./$(DEPDIR)/libnateon_a-transaction.Po
 include ./$(DEPDIR)/libnateon_a-user.Po
 include ./$(DEPDIR)/libnateon_a-userlist.Po
 include ./$(DEPDIR)/msg.Plo
+include ./$(DEPDIR)/nateon-utils.Plo
 include ./$(DEPDIR)/nateon.Plo
 include ./$(DEPDIR)/notification.Plo
 include ./$(DEPDIR)/servconn.Plo
@@ -523,6 +529,20 @@ libnateon_a-nateon.obj: nateon.c
 #	source='nateon.c' object='libnateon_a-nateon.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-nateon.obj `if test -f 'nateon.c'; then $(CYGPATH_W) 'nateon.c'; else $(CYGPATH_W) '$(srcdir)/nateon.c'; fi`
+
+libnateon_a-nateon-utils.o: nateon-utils.c
+	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-nateon-utils.o -MD -MP -MF "$(DEPDIR)/libnateon_a-nateon-utils.Tpo" -c -o libnateon_a-nateon-utils.o `test -f 'nateon-utils.c' || echo '$(srcdir)/'`nateon-utils.c; \
+	then mv -f "$(DEPDIR)/libnateon_a-nateon-utils.Tpo" "$(DEPDIR)/libnateon_a-nateon-utils.Po"; else rm -f "$(DEPDIR)/libnateon_a-nateon-utils.Tpo"; exit 1; fi
+#	source='nateon-utils.c' object='libnateon_a-nateon-utils.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-nateon-utils.o `test -f 'nateon-utils.c' || echo '$(srcdir)/'`nateon-utils.c
+
+libnateon_a-nateon-utils.obj: nateon-utils.c
+	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-nateon-utils.obj -MD -MP -MF "$(DEPDIR)/libnateon_a-nateon-utils.Tpo" -c -o libnateon_a-nateon-utils.obj `if test -f 'nateon-utils.c'; then $(CYGPATH_W) 'nateon-utils.c'; else $(CYGPATH_W) '$(srcdir)/nateon-utils.c'; fi`; \
+	then mv -f "$(DEPDIR)/libnateon_a-nateon-utils.Tpo" "$(DEPDIR)/libnateon_a-nateon-utils.Po"; else rm -f "$(DEPDIR)/libnateon_a-nateon-utils.Tpo"; exit 1; fi
+#	source='nateon-utils.c' object='libnateon_a-nateon-utils.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-nateon-utils.obj `if test -f 'nateon-utils.c'; then $(CYGPATH_W) 'nateon-utils.c'; else $(CYGPATH_W) '$(srcdir)/nateon-utils.c'; fi`
 
 libnateon_a-notification.o: notification.c
 	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-notification.o -MD -MP -MF "$(DEPDIR)/libnateon_a-notification.Tpo" -c -o libnateon_a-notification.o `test -f 'notification.c' || echo '$(srcdir)/'`notification.c; \

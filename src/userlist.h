@@ -30,18 +30,14 @@ typedef struct _NateonUserList NateonUserList;
 #include "user.h"
 #include "group.h"
 
-//typedef enum
-//{
-//	NATEON_LIST_FL,
-//	NATEON_LIST_AL,
-//	NATEON_LIST_BL,
-//	NATEON_LIST_RL
-//
-//} NateonListId;
-#define NATEON_LIST_FL	0x08
-#define NATEON_LIST_AL	0x04
-#define NATEON_LIST_BL	0x02
-#define NATEON_LIST_RL	0x01
+typedef enum
+{
+	NATEON_LIST_FL,
+	NATEON_LIST_AL,
+	NATEON_LIST_BL,
+	NATEON_LIST_RL
+
+} NateonListId;
 
 //typedef struct
 //{
