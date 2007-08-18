@@ -134,8 +134,7 @@ nateon_act_id(PurpleConnection *gc, const char *entry)
 
 	if (strlen(alias) > BUDDY_ALIAS_MAXLEN)
 	{
-		purple_notify_error(gc, NULL,
-						  _("Your new NATEON friendly name is too long."), NULL);
+		purple_notify_error(gc, NULL, _("Your new NATEON friendly name is too long."), NULL);
 		return;
 	}
 
@@ -757,7 +756,8 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 //                }
         }
 
-	encode_spaces(msg);
+	msg = purple_strreplace(message, " ", "%02");
+	msg = g_strdup_printf("MSG 굴림%%090%%09%%09%s", msg);
 	purple_debug_info("nateon", "%s\n", msg);
 
 //	nateon_import_html(message, &msgformat, &msgtext);

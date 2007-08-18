@@ -134,7 +134,7 @@ CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2
 CYGPATH_W = echo
 DATADIRNAME = share
-DEBUG_CFLAGS = -Wall  -Waggregate-return -Wcast-align -Wdeclaration-after-statement -Werror-implicit-function-declaration -Wextra -Wno-sign-compare -Wno-unused-parameter -Winit-self -Wmissing-declarations -Wmissing-prototypes -Wnested-externs -Wpointer-arith -Wundef -D_FORTIFY_SOURCE=2
+DEBUG_CFLAGS = -Wall  -Waggregate-return -Wcast-align -Wdeclaration-after-statement -Werror-implicit-function-declaration -Wextra -Wno-sign-compare -Wno-unused-parameter -Winit-self -Wmissing-declarations -Wmissing-prototypes -Wnested-externs -Wpointer-arith -Wundef
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 ECHO = echo

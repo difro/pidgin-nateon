@@ -642,7 +642,7 @@ s,@STATIC_NATEON_TRUE@,|#_!!_#|#,g
 s,@STATIC_NATEON_FALSE@,|#_!!_#|,g
 s,@PLUGINS_TRUE@,|#_!!_#|,g
 s,@PLUGINS_FALSE@,|#_!!_#|#,g
-s,@DEBUG_CFLAGS@,|#_!!_#|-Wall  -Waggregate-return -Wcast-align -Wdeclaration-after-statement -Werror-implicit-function-declaration -Wextra -Wno-sign-compare -Wno-unused-parameter -Winit-self -Wmissing-declarations -Wmissing-prototypes -Wnested-externs -Wpointer-arith -Wundef -D_FORTIFY_SOURCE=2,g
+s,@DEBUG_CFLAGS@,|#_!!_#|-Wall  -Waggregate-return -Wcast-align -Wdeclaration-after-statement -Werror-implicit-function-declaration -Wextra -Wno-sign-compare -Wno-unused-parameter -Winit-self -Wmissing-declarations -Wmissing-prototypes -Wnested-externs -Wpointer-arith -Wundef,g
 s,@GLIB_CFLAGS@,|#_!!_#|-I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include  ,g
 s,@GLIB_LIBS@,|#_!!_#|-lglib-2.0  ,g
 s,@GLIB_GENMARSHAL@,|#_!!_#|glib-genmarshal,g

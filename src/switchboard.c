@@ -1400,12 +1400,11 @@ nateon_switchboard_close(NateonSwitchBoard *swboard)
 
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 
-//	if (swboard->error != NATEON_SB_ERROR_NONE)
-//	{
-//		nateon_switchboard_destroy(swboard);
-//	}
-//	else if (g_queue_is_empty(swboard->msg_queue) ||
-	if (g_queue_is_empty(swboard->msg_queue) ||
+	if (swboard->error != NATEON_SB_ERROR_NONE)
+	{
+		nateon_switchboard_destroy(swboard);
+	}
+	else if (g_queue_is_empty(swboard->msg_queue) ||
 			 !swboard->session->connected)
 	{
 		NateonCmdProc *cmdproc;
