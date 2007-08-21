@@ -39,12 +39,12 @@ typedef enum
 
 } NateonListId;
 
-//typedef struct
-//{
-//	char *who;
-//	char *old_group_name;
-//
-//} NateonMoveBuddy;
+typedef struct
+{
+	char *who;
+	char *old_group_name;
+
+} NateonMoveBuddy;
 
 struct _NateonUserList
 {
@@ -87,11 +87,8 @@ const char *nateon_userlist_find_group_name(NateonUserList *userlist, int group_
 //void nateon_userlist_rename_group_id(NateonUserList *userlist, int group_id, const char *new_name);
 //void nateon_userlist_remove_group_id(NateonUserList *userlist, int group_id);
 
-//void nateon_userlist_rem_buddy(NateonUserList *userlist, const char *who,
-//							int list_id, const char *group_name);
+void nateon_userlist_rem_buddy(NateonUserList *userlist, const char *who, int list_id, const char *group_name);
 void nateon_userlist_add_buddy(NateonUserList *userlist, const char *who, int list_id, const char *group_name);
-//void nateon_userlist_move_buddy(NateonUserList *userlist, const char *who,
-//							 const char *old_group_name,
-//							 const char *new_group_name);
+void nateon_userlist_move_buddy(NateonUserList *userlist, const char *who, const char *old_group_name, const char *new_group_name);
 
 #endif /* _NATEON_USERLIST_H_ */

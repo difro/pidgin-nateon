@@ -24,7 +24,7 @@
 #include "nateon.h"
 #include "userlist.h"
 
-//const char *lists[] = { "FL", "AL", "BL", "RL" };
+const char *lists[] = { "FL", "AL", "BL", "RL" };
 
 typedef struct
 {
@@ -115,46 +115,46 @@ typedef struct
 //	g_free(msg);
 //}
 
-///**************************************************************************
-// * Utility functions
-// **************************************************************************/
-//
-//static gboolean
-//user_is_in_group(NateonUser *user, int group_id)
-//{
-//	if (user == NULL)
-//		return FALSE;
-//
-//	if (group_id < 0)
-//		return FALSE;
-//
-//	if (g_list_find(user->group_ids, GINT_TO_POINTER(group_id)))
-//		return TRUE;
-//
-//	return FALSE;
-//}
+/**************************************************************************
+ * Utility functions
+ **************************************************************************/
 
-//static gboolean
-//user_is_there(NateonUser *user, int list_id, int group_id)
-//{
-//	int list_op;
-//
-//	if (user == NULL)
-//		return FALSE;
-//
-//	list_op = 1 << list_id;
-//
-//	if (!(user->list_op & list_op))
-//		return FALSE;
-//
-//	if (list_id == NATEON_LIST_FL)
-//	{
-//		if (group_id >= 0)
-//			return user_is_in_group(user, group_id);
-//	}
-//
-//	return TRUE;
-//}
+static gboolean
+user_is_in_group(NateonUser *user, int group_id)
+{
+	if (user == NULL)
+		return FALSE;
+
+	if (group_id < 0)
+		return FALSE;
+
+	if (g_list_find(user->group_ids, GINT_TO_POINTER(group_id)))
+		return TRUE;
+
+	return FALSE;
+}
+
+static gboolean
+user_is_there(NateonUser *user, int list_id, int group_id)
+{
+	int list_op;
+
+	if (user == NULL)
+		return FALSE;
+
+	list_op = 1 << list_id;
+
+	if (!(user->list_op & list_op))
+		return FALSE;
+
+	if (list_id == NATEON_LIST_FL)
+	{
+		if (group_id >= 0)
+			return user_is_in_group(user, group_id);
+	}
+
+	return TRUE;
+}
 
 //static const char*
 //get_store_name(NateonUser *user)
@@ -188,28 +188,24 @@ static void
 nateon_request_add_group(NateonUserList *userlist, const char *who,
 					  const char *old_group_name, const char *new_group_name)
 {
-//	NateonCmdProc *cmdproc;
-//	NateonTransaction *trans;
-//	NateonMoveBuddy *data;
-//
+	NateonCmdProc *cmdproc;
+	NateonTransaction *trans;
+	NateonMoveBuddy *data;
+
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-//	cmdproc = userlist->session->notification->cmdproc;
-//	data = g_new0(NateonMoveBuddy, 1);
-//
-//	data->who = g_strdup(who);
-//
-//	if (old_group_name)
-//		data->old_group_name = g_strdup(old_group_name);
-//
-//	trans = nateon_transaction_new(cmdproc, "ADG", "%s %d",
-//								purple_url_encode(new_group_name),
-//								0);
-//
-//	nateon_transaction_set_data(trans, data);
-//
-//	nateon_cmdproc_send_trans(cmdproc, trans);
+	cmdproc = userlist->session->notification->cmdproc;
+	data = g_new0(NateonMoveBuddy, 1);
+
+	data->who = g_strdup(who);
+
+	if (old_group_name)
+		data->old_group_name = g_strdup(old_group_name);
+
+	trans = nateon_transaction_new(cmdproc, "ADDG", "%d %s", 0, purple_strreplace(new_group_name, " ", "%20"));
+
+	nateon_transaction_set_data(trans, data);
+
+	nateon_cmdproc_send_trans(cmdproc, trans);
 }
 
 ///**************************************************************************
@@ -641,44 +637,44 @@ nateon_userlist_find_group_name(NateonUserList *userlist, int group_id)
 //		nateon_group_destroy(group);
 //	}
 //}
-//
-//void
-//nateon_userlist_rem_buddy(NateonUserList *userlist,
-//					   const char *who, int list_id, const char *group_name)
-//{
-//	NateonUser *user;
-//	int group_id;
-//	const char *list;
-//
-//	user = nateon_userlist_find_user(userlist, who);
-//	group_id = -1;
-//
-//	if (group_name != NULL)
-//	{
-//		group_id = nateon_userlist_find_group_id(userlist, group_name);
-//
-//		if (group_id < 0)
-//		{
-//			/* Whoa, there is no such group. */
-//			purple_debug_error("nateon", "Group doesn't exist: %s\n", group_name);
-//			return;
-//		}
-//	}
-//
-//	/* First we're going to check if not there. */
-//	if (!(user_is_there(user, list_id, group_id)))
-//	{
-//		list = lists[list_id];
-//		purple_debug_error("nateon", "User '%s' is not there: %s\n",
-//						 who, list);
-//		return;
-//	}
-//
-//	/* Then request the rem to the server. */
-//	list = lists[list_id];
-//
-//	nateon_notification_rem_buddy(userlist->session->notification, list, who, group_id);
-//}
+
+void
+nateon_userlist_rem_buddy(NateonUserList *userlist,
+					   const char *who, int list_id, const char *group_name)
+{
+	NateonUser *user;
+	int group_id;
+	const char *list;
+
+	user = nateon_userlist_find_user_with_name(userlist, who);
+	group_id = -1;
+
+	if (group_name != NULL)
+	{
+		group_id = nateon_userlist_find_group_id(userlist, group_name);
+
+		if (group_id < 0)
+		{
+			/* Whoa, there is no such group. */
+			purple_debug_error("nateon", "Group doesn't exist: %s\n", group_name);
+			return;
+		}
+	}
+
+	/* First we're going to check if not there. */
+	if (!(user_is_there(user, list_id, group_id)))
+	{
+		list = lists[list_id];
+		purple_debug_error("nateon", "User '%s' is not there: %s\n",
+						 who, list);
+		return;
+	}
+
+	/* Then request the rem to the server. */
+	list = lists[list_id];
+
+	nateon_notification_rem_buddy(userlist->session->notification, list, who, group_id, user->id);
+}
 
 void
 nateon_userlist_add_buddy(NateonUserList *userlist,
@@ -739,20 +735,20 @@ nateon_userlist_add_buddy(NateonUserList *userlist,
 //							   store_name, group_id);
 }
 
-//void
-//nateon_userlist_move_buddy(NateonUserList *userlist, const char *who,
-//						const char *old_group_name, const char *new_group_name)
-//{
-//	int new_group_id;
-//
-//	new_group_id = nateon_userlist_find_group_id(userlist, new_group_name);
-//
-//	if (new_group_id < 0)
-//	{
-//		nateon_request_add_group(userlist, who, old_group_name, new_group_name);
-//		return;
-//	}
-//
+void
+nateon_userlist_move_buddy(NateonUserList *userlist, const char *who,
+						const char *old_group_name, const char *new_group_name)
+{
+	int new_group_id;
+
+	new_group_id = nateon_userlist_find_group_id(userlist, new_group_name);
+
+	if (new_group_id < 0)
+	{
+		nateon_request_add_group(userlist, who, old_group_name, new_group_name);
+		return;
+	}
+
 //	nateon_userlist_add_buddy(userlist, who, NATEON_LIST_FL, new_group_name);
 //	nateon_userlist_rem_buddy(userlist, who, NATEON_LIST_FL, old_group_name);
-//}
+}

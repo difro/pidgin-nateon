@@ -34,44 +34,60 @@ typedef struct
 
 } NateonAddRemData;
 
+/* Remove the buddy referenced by the MsnAddRemData before the serverside list is changed.
+ * If the buddy will be added, he'll be added back; if he will be removed, he won't be. */
+static void
+nateon_complete_sync_issue(NateonAddRemData *data)
+{
+        PurpleBuddy *buddy;
+        PurpleGroup *group = NULL;
+
+        if (data->group != NULL)
+                group = purple_find_group(data->group);
+
+        if (group != NULL)
+                buddy = purple_find_buddy_in_group(purple_connection_get_account(data->gc), data->who, group);
+        else
+                buddy = purple_find_buddy(purple_connection_get_account(data->gc), data->who);
+
+        if (buddy != NULL)
+                purple_blist_remove_buddy(buddy);
+}
+
 static void
 nateon_add_cb(NateonAddRemData *data)
 {
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+        NateonSession *session;
+        NateonUserList *userlist;
 
-	if (g_list_find(purple_connections_get_all(), data->gc) != NULL)
-	{
-		NateonSession *session = data->gc->proto_data;
-		NateonUserList *userlist = session->userlist;
+        nateon_complete_sync_issue(data);
 
-		//nateon_userlist_add_buddy(userlist, data->who, NATEON_LIST_FL, data->group);
-	}
+        session = data->gc->proto_data;
+        userlist = session->userlist;
 
-	if (data->group != NULL)
-		g_free(data->group);
+        nateon_userlist_add_buddy(userlist, data->who, NATEON_LIST_FL, data->group);
 
-	g_free(data->who);
-	g_free(data);
+        g_free(data->group);
+        g_free(data->who);
+        g_free(data);
 }
 
 static void
 nateon_rem_cb(NateonAddRemData *data)
 {
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+	NateonSession *session;
+        NateonUserList *userlist;
 
-	if (g_list_find(purple_connections_get_all(), data->gc) != NULL)
-	{
-		NateonSession *session = data->gc->proto_data;
-		NateonUserList *userlist = session->userlist;
+        nateon_complete_sync_issue(data);
 
-		//nateon_userlist_rem_buddy(userlist, data->who, NATEON_LIST_FL, data->group);
-	}
+        session = data->gc->proto_data;
+        userlist = session->userlist;
 
-	if (data->group != NULL)
-		g_free(data->group);
+        nateon_userlist_rem_buddy(userlist, data->who, NATEON_LIST_FL, data->group);
 
-	g_free(data->who);
-	g_free(data);
+        g_free(data->group);
+        g_free(data->who);
+        g_free(data);
 }
 
 void
@@ -82,8 +98,6 @@ nateon_show_sync_issue(NateonSession *session, const char *account_name,
 	PurpleAccount *account;
 	NateonAddRemData *data;
 	char *msg, *reason;
-	PurpleBuddy *buddy;
-	PurpleGroup *group = NULL;
 
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 
@@ -116,20 +130,10 @@ nateon_show_sync_issue(NateonSession *session, const char *account_name,
 	}
 
 	purple_request_action(gc, NULL, msg, reason, PURPLE_DEFAULT_ACTION_NONE, 
+						purple_connection_get_account(gc), data->who, NULL,
 						data, 2,
 						_("Yes"), G_CALLBACK(nateon_add_cb),
 						_("No"), G_CALLBACK(nateon_rem_cb));
-
-	if (group_name != NULL)
-		group = purple_find_group(group_name);
-
-	if (group != NULL)
-		buddy = purple_find_buddy_in_group(account, account_name, group);
-	else
-		buddy = purple_find_buddy(account, account_name);
-
-	if (buddy != NULL)
-		purple_blist_remove_buddy(buddy);
 
 	g_free(reason);
 	g_free(msg);

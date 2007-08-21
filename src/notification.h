@@ -47,9 +47,7 @@ void nateon_notification_init(void);
 //void nateon_notification_add_buddy(NateonNotification *notification,
 //								const char *list, const char *who,
 //								const char *store_name, int group_id);
-//void nateon_notification_rem_buddy(NateonNotification *notification,
-//								const char *list, const char *who,
-//								int group_id);
+void nateon_notification_rem_buddy(NateonNotification *notification, const char *list, const char *who, int group_id, const char *account);
 NateonNotification *nateon_notification_new(NateonSession *session);
 void nateon_notification_destroy(NateonNotification *notification);
 gboolean nateon_notification_connect(NateonNotification *notification,

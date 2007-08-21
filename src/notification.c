@@ -1452,24 +1452,25 @@ invt_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //		nateon_cmdproc_send(cmdproc, "ADD", "%s %s %s", list, who, store_name);
 //	}
 //}
-//
-//void
-//nateon_notification_rem_buddy(NateonNotification *notification, const char *list,
-//						   const char *who, int group_id)
-//{
-//	NateonCmdProc *cmdproc;
-//	cmdproc = notification->servconn->cmdproc;
-//
-//	if (group_id >= 0)
-//	{
+
+void
+nateon_notification_rem_buddy(NateonNotification *notification, const char *list, const char *who, int group_id, const char *account)
+{
+	NateonCmdProc *cmdproc;
+	cmdproc = notification->servconn->cmdproc;
+
+	if (group_id >= 0)
+	{
+		// ToDo: ListId check
+		nateon_cmdproc_send(cmdproc, "RMVB", "%s %s %s %d", list, account, who, group_id);
 //		nateon_cmdproc_send(cmdproc, "REM", "%s %s %d", list, who, group_id);
-//	}
+	}
 //	else
 //	{
 //		nateon_cmdproc_send(cmdproc, "REM", "%s %s", list, who);
 //	}
-//}
-//
+}
+
 /**************************************************************************
  * Init
  **************************************************************************/

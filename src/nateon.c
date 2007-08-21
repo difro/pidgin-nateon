@@ -1227,45 +1227,48 @@ nateon_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessag
 //		nateon_cmdproc_send_quick(cmdproc, "PNG", NULL, NULL);
 //	}
 //}
-//
-//static void
-//nateon_group_buddy(PurpleConnection *gc, const char *who,
-//				const char *old_group_name, const char *new_group_name)
-//{
-//	NateonSession *session;
-//	NateonUserList *userlist;
-//
-//	session = gc->proto_data;
-//	userlist = session->userlist;
-//
-//	nateon_userlist_move_buddy(userlist, who, old_group_name, new_group_name);
-//}
-//
-//static void
-//nateon_rename_group(PurpleConnection *gc, const char *old_name,
-//				 PurpleGroup *group, GList *moved_buddies)
-//{
-//	NateonSession *session;
-//	NateonCmdProc *cmdproc;
-//	int old_gid;
-//	const char *enc_new_group_name;
-//
-//	session = gc->proto_data;
-//	cmdproc = session->notification->cmdproc;
-//	enc_new_group_name = purple_url_encode(group->name);
-//
-//	old_gid = nateon_userlist_find_group_id(session->userlist, old_name);
-//
-//	if (old_gid >= 0)
-//	{
-//		nateon_cmdproc_send(cmdproc, "REG", "%d %s 0", old_gid,
-//						 enc_new_group_name);
-//	}
-//	else
-//	{
-//		nateon_cmdproc_send(cmdproc, "ADG", "%s 0", enc_new_group_name);
-//	}
-//}
+
+static void
+nateon_group_buddy(PurpleConnection *gc, const char *who,
+				const char *old_group_name, const char *new_group_name)
+{
+	NateonSession *session;
+	NateonUserList *userlist;
+
+	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+
+	session = gc->proto_data;
+	userlist = session->userlist;
+
+	nateon_userlist_move_buddy(userlist, who, old_group_name, new_group_name);
+}
+
+static void
+nateon_rename_group(PurpleConnection *gc, const char *old_name,
+				 PurpleGroup *group, GList *moved_buddies)
+{
+	NateonSession *session;
+	NateonCmdProc *cmdproc;
+	int old_gid;
+	const char *enc_new_group_name;
+
+	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+
+	session = gc->proto_data;
+	cmdproc = session->notification->cmdproc;
+	enc_new_group_name = purple_strreplace(group->name, " ", "%20");
+
+	old_gid = nateon_userlist_find_group_id(session->userlist, old_name);
+
+	if (old_gid >= 0)
+	{
+		nateon_cmdproc_send(cmdproc, "RENG", "0 %d %s", old_gid, enc_new_group_name);
+	}
+	else
+	{
+		nateon_cmdproc_send(cmdproc, "ADDG", "0 %s", enc_new_group_name);
+	}
+}
 
 static void
 nateon_convo_closed(PurpleConnection *gc, const char *who)
@@ -1312,23 +1315,23 @@ nateon_convo_closed(PurpleConnection *gc, const char *who)
 //
 //	nateon_change_status(session);
 //}
-//
-//static void
-//nateon_remove_group(PurpleConnection *gc, PurpleGroup *group)
-//{
-//	NateonSession *session;
-//	NateonCmdProc *cmdproc;
-//	int group_id;
-//
-//	session = gc->proto_data;
-//	cmdproc = session->notification->cmdproc;
-//
-//	if ((group_id = nateon_userlist_find_group_id(session->userlist, group->name)) >= 0)
-//	{
-//		nateon_cmdproc_send(cmdproc, "RMG", "%d", group_id);
-//	}
-//}
-//
+
+static void
+nateon_remove_group(PurpleConnection *gc, PurpleGroup *group)
+{
+	NateonSession *session;
+	NateonCmdProc *cmdproc;
+	int group_id;
+
+	session = gc->proto_data;
+	cmdproc = session->notification->cmdproc;
+
+	if ((group_id = nateon_userlist_find_group_id(session->userlist, group->name)) >= 0)
+	{
+		nateon_cmdproc_send(cmdproc, "RMVG", "0 %d", group_id);
+	}
+}
+
 //static char *
 //nateon_tooltip_info_text(NateonGetInfoData *info_data)
 //{
@@ -1978,13 +1981,13 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,					/* get_cb_info */
 	NULL,					/* get_cb_away */
 	NULL,					/* alias_buddy */
-	NULL, //nateon_group_buddy,		/* group_buddy */
-	NULL, //nateon_rename_group,		/* rename_group */
+	nateon_group_buddy,			/* group_buddy */
+	nateon_rename_group,			/* rename_group */
 	NULL,					/* buddy_free */
 	nateon_convo_closed,			/* convo_closed */
 	nateon_normalize,			/* normalize */
 	NULL, //nateon_set_buddy_icon,		/* set_buddy_icon */
-	NULL, //nateon_remove_group,		/* remove_group */
+	nateon_remove_group,			/* remove_group */
 	NULL,					/* get_cb_real_name */
 	NULL,					/* set_chat_topic */
 	NULL,					/* find_blist_chat */
