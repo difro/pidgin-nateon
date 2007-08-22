@@ -282,15 +282,15 @@ nateon_user_add_group_id(NateonUser *user, int id)
 	b->proto_data = user;
 }
 
-//void
-//nateon_user_remove_group_id(NateonUser *user, int id)
-//{
-//	g_return_if_fail(user != NULL);
-//	g_return_if_fail(id >= 0);
-//
-//	user->group_ids = g_list_remove(user->group_ids, GINT_TO_POINTER(id));
-//}
-//
+void
+nateon_user_remove_group_id(NateonUser *user, int id)
+{
+	g_return_if_fail(user != NULL);
+	g_return_if_fail(id >= 0);
+
+	user->group_ids = g_list_remove(user->group_ids, GINT_TO_POINTER(id));
+}
+
 //void
 //nateon_user_set_home_phone(NateonUser *user, const char *number)
 //{
@@ -357,13 +357,13 @@ const char *nateon_user_get_account_name(const NateonUser *user)
 	return user->account_name;
 }
 
-//const char *
-//nateon_user_get_friendly_name(const NateonUser *user)
-//{
-//	g_return_val_if_fail(user != NULL, NULL);
-//
-//	return user->friendly_name;
-//}
+const char *
+nateon_user_get_friendly_name(const NateonUser *user)
+{
+	g_return_val_if_fail(user != NULL, NULL);
+
+	return user->friendly_name;
+}
 
 const char *nateon_user_get_store_name(const NateonUser *user)
 {

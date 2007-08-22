@@ -64,12 +64,10 @@ struct _NateonUserList
 
 };
 
-//NateonListId nateon_get_list_id(const char *list);
-//
-//void nateon_got_add_user(NateonSession *session, NateonUser *user,
-//					  NateonListId list_id, int group_id);
-//void nateon_got_rem_user(NateonSession *session, NateonUser *user,
-//					  NateonListId list_id, int group_id);
+NateonListId nateon_get_list_id(const char *list);
+
+void nateon_got_add_user(NateonSession *session, NateonUser *user, NateonListId list_id, int group_id);
+void nateon_got_rem_user(NateonSession *session, NateonUser *user, NateonListId list_id, int group_id);
 void nateon_got_list_user(NateonSession *session, NateonUser *user, int list_op, GSList *group_ids);
 
 NateonUserList *nateon_userlist_new(NateonSession *session);
@@ -79,13 +77,13 @@ void nateon_userlist_add_user(NateonUserList *userlist, NateonUser *user);
 NateonUser *nateon_userlist_find_user_with_id(NateonUserList *userlist, const char *id);
 NateonUser *nateon_userlist_find_user_with_name(NateonUserList *userlist, const char *account_name);
 void nateon_userlist_add_group(NateonUserList *userlist, NateonGroup *group);
-//void nateon_userlist_remove_group(NateonUserList *userlist, NateonGroup *group);
+void nateon_userlist_remove_group(NateonUserList *userlist, NateonGroup *group);
 NateonGroup *nateon_userlist_find_group_with_id(NateonUserList *userlist, int id);
 NateonGroup *nateon_userlist_find_group_with_name(NateonUserList *userlist, const char *name);
 int nateon_userlist_find_group_id(NateonUserList *userlist, const char *group_name);
 const char *nateon_userlist_find_group_name(NateonUserList *userlist, int group_id);
 //void nateon_userlist_rename_group_id(NateonUserList *userlist, int group_id, const char *new_name);
-//void nateon_userlist_remove_group_id(NateonUserList *userlist, int group_id);
+void nateon_userlist_remove_group_id(NateonUserList *userlist, int group_id);
 
 void nateon_userlist_rem_buddy(NateonUserList *userlist, const char *who, int list_id, const char *group_name);
 void nateon_userlist_add_buddy(NateonUserList *userlist, const char *who, int list_id, const char *group_name);

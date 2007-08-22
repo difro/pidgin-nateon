@@ -128,7 +128,7 @@ nateon_act_id(PurpleConnection *gc, const char *entry)
 	account = purple_connection_get_account(gc);
 
 	if(entry && strlen(entry))
-		alias = purple_url_encode(entry);
+		alias = purple_strreplace(entry, " ", "%20");
 	else
 		alias = "";
 
@@ -138,9 +138,7 @@ nateon_act_id(PurpleConnection *gc, const char *entry)
 		return;
 	}
 
-//	nateon_cmdproc_send(cmdproc, "REA", "%s %s",
-//					 purple_account_get_username(account),
-//					 alias);
+	nateon_cmdproc_send(cmdproc, "CNIK", "%s", alias);
 }
 
 //static void
@@ -528,6 +526,7 @@ nateon_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolea
 	 * XXX: this prpl always honors both the allow and deny lists. */
 	if (user)
 	{
+		purple_debug_info("nateon", "%s - list_op=%d\n", __FUNCTION__, user->list_op);
 		purple_notify_user_info_add_pair(user_info, _("Blocked"), ((user->list_op & (1 << NATEON_LIST_BL)) ? _("Yes") : _("No")));
 	}
 }
@@ -946,9 +945,13 @@ nateon_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 	NateonUserList *userlist;
 	const char *who;
 
+	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+
 	session = gc->proto_data;
 	userlist = session->userlist;
 	who = nateon_normalize(gc->account, buddy->name);
+	g_free(buddy->name);
+	buddy->name = g_strdup(who);
 
 	if (!session->logged_in)
 	{
@@ -986,22 +989,24 @@ nateon_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 	nateon_userlist_add_buddy(userlist, who, NATEON_LIST_FL, group ? group->name : NULL);
 }
 
-//static void
-//nateon_rem_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
-//{
-//	NateonSession *session;
-//	NateonUserList *userlist;
-//
-//	session = gc->proto_data;
-//	userlist = session->userlist;
-//
-//	if (!session->logged_in)
-//		return;
-//
-//	/* XXX - Does buddy->name need to be nateon_normalize'd here?  --KingAnt */
-//	nateon_userlist_rem_buddy(userlist, buddy->name, NATEON_LIST_FL, group->name);
-//}
-//
+static void
+nateon_rem_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
+{
+	NateonSession *session;
+	NateonUserList *userlist;
+
+	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+
+	session = gc->proto_data;
+	userlist = session->userlist;
+
+	if (!session->logged_in)
+		return;
+
+	/* XXX - Does buddy->name need to be nateon_normalize'd here?  --KingAnt */
+	nateon_userlist_rem_buddy(userlist, buddy->name, NATEON_LIST_FL, group->name);
+}
+
 //static void
 //nateon_add_permit(PurpleConnection *gc, const char *who)
 //{
@@ -1236,6 +1241,7 @@ nateon_group_buddy(PurpleConnection *gc, const char *who,
 	NateonUserList *userlist;
 
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+	purple_debug_info("nateon", "who:%s, old:%s, new:%s\n", who, old_group_name, new_group_name);
 
 	session = gc->proto_data;
 	userlist = session->userlist;
@@ -1962,7 +1968,7 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,					/* change_passwd */
 	nateon_add_buddy,			/* add_buddy */
 	NULL,					/* add_buddies */
-	NULL, //nateon_rem_buddy,			/* remove_buddy */
+	nateon_rem_buddy,			/* remove_buddy */
 	NULL,					/* remove_buddies */
 	NULL, //nateon_add_permit,			/* add_permit */
 	NULL, //nateon_add_deny,			/* add_deny */

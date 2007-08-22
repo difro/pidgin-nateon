@@ -158,14 +158,14 @@ void nateon_user_set_buddy_icon(NateonUser *user, const char *filename);
  */
 void nateon_user_add_group_id(NateonUser *user, int id);
 
-///**
-// * Removes the group ID from a user.
-// *
-// * @param user The user.
-// * @param id   The group ID.
-// */
-//void nateon_user_remove_group_id(NateonUser *user, int id);
-//
+/**
+ * Removes the group ID from a user.
+ *
+ * @param user The user.
+ * @param id   The group ID.
+ */
+void nateon_user_remove_group_id(NateonUser *user, int id);
+
 ///**
 // * Sets the home phone number for a user.
 // *
@@ -216,14 +216,14 @@ void nateon_user_add_group_id(NateonUser *user, int id);
  */
 const char *nateon_user_get_account_name(const NateonUser *user);
 
-///**
-// * Returns the friendly name for a user.
-// *
-// * @param user The user.
-// *
-// * @return The friendly name.
-// */
-//const char *nateon_user_get_friendly_name(const NateonUser *user);
+/**
+ * Returns the friendly name for a user.
+ *
+ * @param user The user.
+ *
+ * @return The friendly name.
+ */
+const char *nateon_user_get_friendly_name(const NateonUser *user);
 
 /**
  * Returns the store name for a user.
