@@ -947,7 +947,8 @@ nateon_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 	NateonUserList *userlist;
 	const char *who;
 
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	purple_debug_info("nateon", "[%s] group_name(%s)\n", __FUNCTION__, group->name);
 
 	session = gc->proto_data;
 	userlist = session->userlist;

@@ -938,6 +938,7 @@ reng_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	group_id = atoi(params[1]);
 	group_name = purple_url_decode(params[2]);
 
+	purple_debug_info("nateon", "[%s] group_id(%d)\n", __FUNCTION__, group_id);
 	nateon_userlist_rename_group_id(session->userlist, group_id, group_name);
 }
 

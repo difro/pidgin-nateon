@@ -165,7 +165,7 @@ nateon_request_add_group(NateonUserList *userlist, const char *who,
 	if (old_group_name)
 		data->old_group_name = g_strdup(old_group_name);
 
-	trans = nateon_transaction_new(cmdproc, "ADDG", "%d %s", 0, purple_strreplace(new_group_name, " ", "%20"));
+	trans = nateon_transaction_new(cmdproc, "ADDG", "0 %s", purple_strreplace(new_group_name, " ", "%20"));
 
 	nateon_transaction_set_data(trans, data);
 
@@ -667,7 +667,7 @@ nateon_userlist_add_buddy(NateonUserList *userlist,
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
-	group_id = -1;
+	group_id = 0;
 
 	if (!purple_email_is_valid(who))
 	{

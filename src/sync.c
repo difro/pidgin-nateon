@@ -45,12 +45,14 @@ static void glst_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 		group = nateon_group_new(session->userlist, group_id, name);
 
-//		/* HACK */
-//		if (group_id == 0)
-//			/* Group of ungroupped buddies */
-//			return;
-
-		if (purple_find_group(name) == NULL)
+		/* HACK */
+		if (group_id == 0)
+		{
+			/* Group of ungroupped buddies */
+			g_free(group->name);
+			group->name = g_strdup("");
+		}
+		else if (purple_find_group(name) == NULL)
 		{
 			PurpleGroup *g = purple_group_new(name);
 			purple_blist_add_group(g, NULL);
@@ -79,10 +81,10 @@ static void glst_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 		user->group_ids = g_list_append(user->group_ids, GINT_TO_POINTER(group_id));
 	}
 
-	session->sync->num_groups++;
+	//session->sync->num_groups++;
 
 	/* end of group list */
-	if (session->sync->num_groups == atoi(cmd->params[2]))
+	if (atoi(cmd->params[1])+1 == atoi(cmd->params[2]))
 	{
 		nateon_cmdproc_send(cmdproc, "LIST", NULL);
 	}
