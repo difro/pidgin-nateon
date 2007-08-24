@@ -524,10 +524,10 @@ nateon_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolea
 	 * XXX: blocked icon overlay isn't always accurate for NATEON.
 	 * XXX: This can die as soon as purple_privacy_check() knows that
 	 * XXX: this prpl always honors both the allow and deny lists. */
-	if (user)
-	{
-		purple_notify_user_info_add_pair(user_info, _("Blocked"), ((user->list_op & (1 << NATEON_LIST_BL)) ? _("Yes") : _("No")));
-	}
+//	if (user)
+//	{
+//		purple_notify_user_info_add_pair(user_info, _("Blocked"), ((user->list_op & (1 << NATEON_LIST_BL)) ? _("Yes") : _("No")));
+//	}
 }
 
 static GList *
