@@ -10,6 +10,8 @@ NATEONSOURCES = \
 	command.h \
 	dialog.c \
 	dialog.h \
+	error.c \
+	error.h \
 	group.c \
 	group.h \
 	history.c \

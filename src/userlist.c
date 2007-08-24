@@ -86,22 +86,14 @@ got_new_entry(PurpleConnection *gc, const char *account_name, const char *friend
 static gboolean
 user_is_in_group(NateonUser *user, int group_id)
 {
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-
 	if (user == NULL)
 		return FALSE;
-
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 
 	if (group_id < 0)
 		return FALSE;
 
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-
 	if (g_list_find(user->group_ids, GINT_TO_POINTER(group_id)))
 		return TRUE;
-
-	purple_debug_info("nateon", "%s - FALSE\n", __FUNCTION__);
 
 	return FALSE;
 }
@@ -113,8 +105,6 @@ user_is_there(NateonUser *user, int list_id, int group_id)
 
 	if (user == NULL)
 		return FALSE;
-
-	purple_debug_info("nateon", "%s - list_id:%x, list_op:%x, user->list_op:%x, group_id:%d\n", __FUNCTION__, list_id, list_op, user->list_op, group_id);
 
 	list_op = 1 << list_id;
 
@@ -385,26 +375,14 @@ nateon_got_list_user(NateonSession *session, NateonUser *user, int list_op, GSLi
 	if (list_op & NATEON_LIST_AL_OP)
 	{
 		/* These are users who are allowed to see our status. */
-
-		if (g_slist_find_custom(account->deny, account_name,
-								(GCompareFunc)strcmp))
-		{
-			purple_privacy_deny_remove(gc->account, account_name, TRUE);
-		}
-
+		purple_privacy_deny_remove(gc->account, account_name, TRUE);
 		purple_privacy_permit_add(account, account_name, TRUE);
 	}
 
 	if (list_op & NATEON_LIST_BL_OP)
 	{
 		/* These are users who are not allowed to see our status. */
-
-		if (g_slist_find_custom(account->permit, account_name,
-								(GCompareFunc)strcmp))
-		{
-			purple_privacy_permit_remove(gc->account, account_name, TRUE);
-		}
-
+		purple_privacy_permit_remove(gc->account, account_name, TRUE);
 		purple_privacy_deny_add(account, account_name, TRUE);
 	}
 
@@ -599,17 +577,22 @@ nateon_userlist_find_group_name(NateonUserList *userlist, int group_id)
 		return NULL;
 }
 
-//void
-//nateon_userlist_rename_group_id(NateonUserList *userlist, int group_id,
-//							 const char *new_name)
-//{
-//	NateonGroup *group;
-//
-//	group = nateon_userlist_find_group_with_id(userlist, group_id);
-//
-//	if (group != NULL)
-//		nateon_group_set_name(group, new_name);
-//}
+void
+nateon_userlist_rename_group_id(NateonUserList *userlist, int group_id,
+							 const char *new_name)
+{
+	NateonGroup *group;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	group = nateon_userlist_find_group_with_id(userlist, group_id);
+
+	if (group != NULL)
+	{
+		purple_debug_info("nateon", "[%s] 그룹있음. 명칭바꿈\n", __FUNCTION__);
+		nateon_group_set_name(group, new_name);
+	}
+}
 
 void
 nateon_userlist_remove_group_id(NateonUserList *userlist, int group_id)
@@ -659,15 +642,15 @@ nateon_userlist_rem_buddy(NateonUserList *userlist,
 						 who, list);
 		return;
 	}
-	purple_debug_info("nateon", "%s - %s%s%s%s\n", __FUNCTION__,
-			(user->list_op & NATEON_LIST_FL_OP) ? "FL" : "",
-			(user->list_op & NATEON_LIST_AL_OP) ? "AL" : "",
-			(user->list_op & NATEON_LIST_BL_OP) ? "BL" : "",
+	purple_debug_info("nateon", "[%s] %s%s%s%s\n", __FUNCTION__,
+			(user->list_op & NATEON_LIST_FL_OP) ? "FL " : "",
+			(user->list_op & NATEON_LIST_AL_OP) ? "AL " : "",
+			(user->list_op & NATEON_LIST_BL_OP) ? "BL " : "",
 			(user->list_op & NATEON_LIST_RL_OP) ? "RL" : "");
 
 	/* Then request the rem to the server. */
 	list = lists[list_id];
-	purple_debug_info("nateon", "list=%s\n", list);
+	purple_debug_info("nateon", "[%s] remove %s\n", __FUNCTION__, list);
 
 	nateon_notification_rem_buddy(userlist->session->notification, list, who, group_id, user->id);
 }
@@ -680,7 +663,7 @@ nateon_userlist_add_buddy(NateonUserList *userlist,
 	NateonUser *user;
 	int group_id;
 	const char *list;
-	const char *store_name;
+	const char *user_id;
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
@@ -727,14 +710,14 @@ nateon_userlist_add_buddy(NateonUserList *userlist,
 		return;
 	}
 
-	store_name = (user != NULL) ? get_store_name(user) : who;
-	purple_debug_info("nateon", "[%s] store_name=%s\n", __FUNCTION__, store_name);
+	user_id = (user != NULL) ? user->id : NULL;
+	purple_debug_info("nateon", "[%s] user_id(%s)\n", __FUNCTION__, user_id);
 
 	/* Then request the add to the server. */
 	list = lists[list_id];
 
 	nateon_notification_add_buddy(userlist->session->notification, list, who,
-							   store_name, group_id);
+							   user_id, group_id);
 	purple_debug_info("nateon", "[%s] group_id=%d\n", __FUNCTION__, group_id);
 }
 
@@ -742,10 +725,15 @@ void
 nateon_userlist_move_buddy(NateonUserList *userlist, const char *who,
 						const char *old_group_name, const char *new_group_name)
 {
+	NateonUser *user;
+	int old_group_id;
 	int new_group_id;
+	const char *list;
 
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 
+	user = nateon_userlist_find_user_with_name(userlist, who);
+	old_group_id = nateon_userlist_find_group_id(userlist, old_group_name);
 	new_group_id = nateon_userlist_find_group_id(userlist, new_group_name);
 
 	if (new_group_id < 0)
@@ -754,6 +742,12 @@ nateon_userlist_move_buddy(NateonUserList *userlist, const char *who,
 		return;
 	}
 
-	nateon_userlist_rem_buddy(userlist, who, NATEON_LIST_FL, old_group_name);
-	nateon_userlist_add_buddy(userlist, who, NATEON_LIST_FL, new_group_name);
+	if (user_is_there(user, NATEON_LIST_FL, new_group_id))
+	{
+		list = lists[NATEON_LIST_FL];
+		purple_debug_error("nateon", "User '%s' is already there: %s\n", who, list);
+		return;
+	}
+	
+	nateon_notification_move_buddy(userlist->session->notification, who, user->id, old_group_id, new_group_id);
 }

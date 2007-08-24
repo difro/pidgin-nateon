@@ -74,14 +74,14 @@ void nateon_group_destroy(NateonGroup *group);
 // * @param id    The ID.
 // */
 //void nateon_group_set_id(NateonGroup *group, int id);
-//
-///**
-// * Sets the name for a group.
-// *
-// * @param group The group.
-// * @param name  The name.
-// */
-//void nateon_group_set_name(NateonGroup *group, const char *name);
+
+/**
+ * Sets the name for a group.
+ *
+ * @param group The group.
+ * @param name  The name.
+ */
+void nateon_group_set_name(NateonGroup *group, const char *name);
 
 /**
  * Returns the ID for a group.

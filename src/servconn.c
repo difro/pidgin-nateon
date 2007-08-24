@@ -23,7 +23,7 @@
  */
 #include "nateon.h"
 #include "servconn.h"
-//#include "error.h"
+#include "error.h"
 
 static void read_cb(gpointer data, gint source, PurpleInputCondition cond);
 

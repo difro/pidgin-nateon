@@ -1,5 +1,5 @@
 /**
- * @file table.h NATEON helper structure
+ * @file error.h Error functions
  *
  * purple
  *
@@ -21,32 +21,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _NATEON_TABLE_H_
-#define _NATEON_TABLE_H_
+#ifndef _NATEON_ERROR_H_
+#define _NATEON_ERROR_H_
 
-typedef struct _NateonTable NateonTable;
+#include "session.h"
 
-#include "cmdproc.h"
-#include "transaction.h"
-#include "msg.h"
+/**
+ * Returns the string representation of an error type.
+ *
+ * @param type The error type.
+ * @param debug Whether this should be treated as a debug log message or a user-visible error
+ *
+ * @return The string representation of the error type.
+ */
+const char *nateon_error_get_text(unsigned int type, gboolean *debug);
 
-//typedef void (*NateonMsgTypeCb)(NateonCmdProc *cmdproc, NateonMessage *msg);
+/**
+ * Handles an error.
+ *
+ * @param session The current session.
+ * @param type    The error type.
+ */
+void nateon_error_handle(NateonSession *session, unsigned int type);
 
-struct _NateonTable
-{
-	GHashTable *cmds;
-//	GHashTable *msgs;
-	GHashTable *errors;
-
-	GHashTable *async;
-//	GHashTable *fallback;
-};
-
-NateonTable *nateon_table_new(void);
-void nateon_table_destroy(NateonTable *table);
-
-void nateon_table_add_cmd(NateonTable *table, char *command, char *answer, NateonTransCb cb);
-void nateon_table_add_error(NateonTable *table, char *answer, NateonErrorCb cb);
-//void nateon_table_add_msg_type(NateonTable *table, char *type, NateonMsgTypeCb cb);
-//
-#endif /* _NATEON_TABLE_H_ */
+#endif /* _NATEON_ERROR_H_ */

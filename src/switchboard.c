@@ -28,7 +28,7 @@
 //#include "notification.h"
 //#include "utils.h"
 
-//#include "error.h"
+#include "error.h"
 
 static NateonTable *cbs_table;
 

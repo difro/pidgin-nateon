@@ -28,7 +28,7 @@ typedef struct _NateonCmdProc NateonCmdProc;
 
 #include "session.h"
 #include "servconn.h"
-//#include "error.h"
+#include "error.h"
 #include "command.h"
 #include "table.h"
 #include "history.h"

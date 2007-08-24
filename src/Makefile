@@ -48,16 +48,17 @@ ARFLAGS = cru
 libnateon_a_AR = $(AR) $(ARFLAGS)
 libnateon_a_LIBADD =
 am__libnateon_a_SOURCES_DIST = cmdproc.c cmdproc.h command.c command.h \
-	dialog.c dialog.h group.c group.h history.c history.h msg.c \
-	msg.h nateon.c nateon.h nateon-utils.c nateon-utils.h \
-	notification.c notification.h servconn.c servconn.h session.c \
-	session.h switchboard.c switchboard.h state.c state.h sync.c \
-	sync.h table.c table.h transaction.c transaction.h user.c \
-	user.h userlist.c userlist.h
+	dialog.c dialog.h error.c error.h group.c group.h history.c \
+	history.h msg.c msg.h nateon.c nateon.h nateon-utils.c \
+	nateon-utils.h notification.c notification.h servconn.c \
+	servconn.h session.c session.h switchboard.c switchboard.h \
+	state.c state.h sync.c sync.h table.c table.h transaction.c \
+	transaction.h user.c user.h userlist.c userlist.h
 am__objects_1 = libnateon_a-cmdproc.$(OBJEXT) \
 	libnateon_a-command.$(OBJEXT) libnateon_a-dialog.$(OBJEXT) \
-	libnateon_a-group.$(OBJEXT) libnateon_a-history.$(OBJEXT) \
-	libnateon_a-msg.$(OBJEXT) libnateon_a-nateon.$(OBJEXT) \
+	libnateon_a-error.$(OBJEXT) libnateon_a-group.$(OBJEXT) \
+	libnateon_a-history.$(OBJEXT) libnateon_a-msg.$(OBJEXT) \
+	libnateon_a-nateon.$(OBJEXT) \
 	libnateon_a-nateon-utils.$(OBJEXT) \
 	libnateon_a-notification.$(OBJEXT) \
 	libnateon_a-servconn.$(OBJEXT) libnateon_a-session.$(OBJEXT) \
@@ -80,16 +81,17 @@ am__DEPENDENCIES_1 =
 libnateon_la_DEPENDENCIES =  \
 	$(am__DEPENDENCIES_1)
 am__libnateon_la_SOURCES_DIST = cmdproc.c cmdproc.h command.c \
-	command.h dialog.c dialog.h group.c group.h history.c \
-	history.h msg.c msg.h nateon.c nateon.h nateon-utils.c \
-	nateon-utils.h notification.c notification.h servconn.c \
-	servconn.h session.c session.h switchboard.c switchboard.h \
-	state.c state.h sync.c sync.h table.c table.h transaction.c \
-	transaction.h user.c user.h userlist.c userlist.h
-am__objects_2 = cmdproc.lo command.lo dialog.lo group.lo history.lo \
-	msg.lo nateon.lo nateon-utils.lo notification.lo servconn.lo \
-	session.lo switchboard.lo state.lo sync.lo table.lo \
-	transaction.lo user.lo userlist.lo
+	command.h dialog.c dialog.h error.c error.h group.c group.h \
+	history.c history.h msg.c msg.h nateon.c nateon.h \
+	nateon-utils.c nateon-utils.h notification.c notification.h \
+	servconn.c servconn.h session.c session.h switchboard.c \
+	switchboard.h state.c state.h sync.c sync.h table.c table.h \
+	transaction.c transaction.h user.c user.h userlist.c \
+	userlist.h
+am__objects_2 = cmdproc.lo command.lo dialog.lo error.lo group.lo \
+	history.lo msg.lo nateon.lo nateon-utils.lo notification.lo \
+	servconn.lo session.lo switchboard.lo state.lo sync.lo \
+	table.lo transaction.lo user.lo userlist.lo
 am_libnateon_la_OBJECTS = $(am__objects_2)
 libnateon_la_OBJECTS = $(am_libnateon_la_OBJECTS)
 libnateon_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -266,6 +268,8 @@ NATEONSOURCES = \
 	command.h \
 	dialog.c \
 	dialog.h \
+	error.c \
+	error.h \
 	group.c \
 	group.h \
 	history.c \
@@ -392,11 +396,13 @@ distclean-compile:
 include ./$(DEPDIR)/cmdproc.Plo
 include ./$(DEPDIR)/command.Plo
 include ./$(DEPDIR)/dialog.Plo
+include ./$(DEPDIR)/error.Plo
 include ./$(DEPDIR)/group.Plo
 include ./$(DEPDIR)/history.Plo
 include ./$(DEPDIR)/libnateon_a-cmdproc.Po
 include ./$(DEPDIR)/libnateon_a-command.Po
 include ./$(DEPDIR)/libnateon_a-dialog.Po
+include ./$(DEPDIR)/libnateon_a-error.Po
 include ./$(DEPDIR)/libnateon_a-group.Po
 include ./$(DEPDIR)/libnateon_a-history.Po
 include ./$(DEPDIR)/libnateon_a-msg.Po
@@ -488,6 +494,20 @@ libnateon_a-dialog.obj: dialog.c
 #	source='dialog.c' object='libnateon_a-dialog.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-dialog.obj `if test -f 'dialog.c'; then $(CYGPATH_W) 'dialog.c'; else $(CYGPATH_W) '$(srcdir)/dialog.c'; fi`
+
+libnateon_a-error.o: error.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-error.o -MD -MP -MF $(DEPDIR)/libnateon_a-error.Tpo -c -o libnateon_a-error.o `test -f 'error.c' || echo '$(srcdir)/'`error.c
+	mv -f $(DEPDIR)/libnateon_a-error.Tpo $(DEPDIR)/libnateon_a-error.Po
+#	source='error.c' object='libnateon_a-error.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-error.o `test -f 'error.c' || echo '$(srcdir)/'`error.c
+
+libnateon_a-error.obj: error.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-error.obj -MD -MP -MF $(DEPDIR)/libnateon_a-error.Tpo -c -o libnateon_a-error.obj `if test -f 'error.c'; then $(CYGPATH_W) 'error.c'; else $(CYGPATH_W) '$(srcdir)/error.c'; fi`
+	mv -f $(DEPDIR)/libnateon_a-error.Tpo $(DEPDIR)/libnateon_a-error.Po
+#	source='error.c' object='libnateon_a-error.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-error.obj `if test -f 'error.c'; then $(CYGPATH_W) 'error.c'; else $(CYGPATH_W) '$(srcdir)/error.c'; fi`
 
 libnateon_a-group.o: group.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-group.o -MD -MP -MF $(DEPDIR)/libnateon_a-group.Tpo -c -o libnateon_a-group.o `test -f 'group.c' || echo '$(srcdir)/'`group.c

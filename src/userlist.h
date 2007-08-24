@@ -82,7 +82,7 @@ NateonGroup *nateon_userlist_find_group_with_id(NateonUserList *userlist, int id
 NateonGroup *nateon_userlist_find_group_with_name(NateonUserList *userlist, const char *name);
 int nateon_userlist_find_group_id(NateonUserList *userlist, const char *group_name);
 const char *nateon_userlist_find_group_name(NateonUserList *userlist, int group_id);
-//void nateon_userlist_rename_group_id(NateonUserList *userlist, int group_id, const char *new_name);
+void nateon_userlist_rename_group_id(NateonUserList *userlist, int group_id, const char *new_name);
 void nateon_userlist_remove_group_id(NateonUserList *userlist, int group_id);
 
 void nateon_userlist_rem_buddy(NateonUserList *userlist, const char *who, int list_id, const char *group_name);

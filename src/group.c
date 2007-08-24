@@ -59,18 +59,20 @@ nateon_group_destroy(NateonGroup *group)
 //
 //	group->id = id;
 //}
-//
-//void
-//nateon_group_set_name(NateonGroup *group, const char *name)
-//{
-//	g_return_if_fail(group != NULL);
-//	g_return_if_fail(name  != NULL);
-//
-//	if (group->name != NULL)
-//		g_free(group->name);
-//
-//	group->name = g_strdup(name);
-//}
+
+void
+nateon_group_set_name(NateonGroup *group, const char *name)
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	g_return_if_fail(group != NULL);
+	g_return_if_fail(name  != NULL);
+
+	if (group->name != NULL)
+		g_free(group->name);
+
+	group->name = g_strdup(name);
+}
 
 int
 nateon_group_get_id(const NateonGroup *group)

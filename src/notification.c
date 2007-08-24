@@ -179,45 +179,46 @@ nateon_notification_disconnect(NateonNotification *notification)
  * Util
  **************************************************************************/
 
-//static void
-//group_error_helper(NateonSession *session, const char *msg, int group_id, int error)
-//{
-//	PurpleAccount *account;
-//	PurpleConnection *gc;
-//	char *reason = NULL;
-//	char *title = NULL;
-//
-//	account = session->account;
-//	gc = purple_account_get_connection(account);
-//
-//	if (error == 224)
-//	{
-//		if (group_id == 0)
-//		{
-//			return;
-//		}
-//		else
-//		{
-//			const char *group_name;
-//			group_name =
-//				nateon_userlist_find_group_name(session->userlist,
-//											 group_id);
-//			reason = g_strdup_printf(_("%s is not a valid group."),
-//									 group_name);
-//		}
-//	}
-//	else
-//	{
-//		reason = g_strdup(_("Unknown error."));
-//	}
-//
-//	title = g_strdup_printf(_("%s on %s (%s)"), msg,
-//						  purple_account_get_username(account),
-//						  purple_account_get_protocol_name(account));
-//	purple_notify_error(gc, NULL, title, reason);
-//	g_free(title);
-//	g_free(reason);
-//}
+static void
+group_error_helper(NateonSession *session, const char *msg, int group_id, int error)
+{
+	PurpleAccount *account;
+	PurpleConnection *gc;
+	char *reason = NULL;
+	char *title = NULL;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	account = session->account;
+	gc = purple_account_get_connection(account);
+
+	if (error == 304)
+	{
+
+		if (group_id == 0)
+		{
+			purple_debug_info("nateon", "[%s] 기본그룹의 명칭을 변경하려고 함.\n", __FUNCTION__);
+			return;
+		}
+		else
+		{
+			const char *group_name;
+			group_name = nateon_userlist_find_group_name(session->userlist, group_id);
+			reason = g_strdup_printf(_("%s is not a valid group."), group_name);
+		}
+	}
+	else
+	{
+		reason = g_strdup(_("Unknown error."));
+	}
+
+	title = g_strdup_printf(_("%s on %s (%s)"), msg,
+						  purple_account_get_username(account),
+						  purple_account_get_protocol_name(account));
+	purple_notify_error(gc, NULL, title, reason);
+	g_free(title);
+	g_free(reason);
+}
 
 /**************************************************************************
  * Login
@@ -284,21 +285,21 @@ nateon_notification_disconnect(NateonNotification *notification)
 //	}
 //}
 
-static void error_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
-{
-	NateonErrorType nateonerr = 0;
-
-	switch (atoi(cmd->command))
-	{
-		case 301:
-			nateonerr = NATEON_ERROR_AUTH;
-			break;
-		default:
-			return;
-			break;
-	}
-	nateon_session_set_error(cmdproc->session, nateonerr, NULL);
-}
+//static void error_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+//{
+//	NateonErrorType nateonerr = 0;
+//
+//	switch (atoi(cmd->command))
+//	{
+//		case 301:
+//			nateonerr = NATEON_ERROR_AUTH;
+//			break;
+//		default:
+//			return;
+//			break;
+//	}
+//	nateon_session_set_error(cmdproc->session, nateonerr, NULL);
+//}
 
 //static void
 //usr_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
@@ -407,9 +408,6 @@ static void ntfy_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
 	NateonSession *session = cmdproc->session;
 	NateonUser *user;
-
-	purple_debug_info("nateon", "notification-%s\n", __FUNCTION__);
-	purple_debug_info("nateon", "%s\n", cmd->params[1]);
 
 	user = nateon_userlist_find_user_with_name(session->userlist, cmd->params[1]);
 
@@ -659,42 +657,43 @@ adsb_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 static void
 addg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
-//	NateonGroup *group;
-//	NateonSession *session;
-//	gint group_id;
-//	char **params;
-//	const char *group_name;
-//
+	NateonGroup *group;
+	NateonSession *session;
+	gint group_id;
+	char **params;
+	const char *group_name;
+
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-//
-//	session = cmdproc->session;
-//
-//	group_id = atoi(cmd->params[2]);
-//
-//	params = g_strsplit(cmd->trans->params, " ", 0);
-//	group_name = purple_url_decode(params[1]);
-//
-//	purple_debug_info("nateon", "%s %d\n", group_name, group_id);
-//
-//	group = nateon_group_new(session->userlist, group_id, group_name);
-//
-//	/* There is a user that must me moved to this group */
-//	if (cmd->trans->data)
-//	{
-//		/* nateon_userlist_move_buddy(); */
-//		NateonUserList *userlist = cmdproc->session->userlist;
-//		NateonMoveBuddy *data = cmd->trans->data;
-//
-//		if (data->old_group_name != NULL)
-//		{
-//			nateon_userlist_rem_buddy(userlist, data->who, NATEON_LIST_FL, data->old_group_name);
-//			g_free(data->old_group_name);
-//		}
-//
-//		nateon_userlist_add_buddy(userlist, data->who, NATEON_LIST_FL, group_name);
-//		g_free(data->who);
-//
-//	}
+
+	session = cmdproc->session;
+
+	group_id = atoi(cmd->params[2]);
+
+	params = g_strsplit(cmd->trans->params, " ", 0);
+	group_name = purple_url_decode(params[1]);
+
+	group = nateon_group_new(session->userlist, group_id, group_name);
+
+	/* There is a user that must me moved to this group */
+	if (cmd->trans->data)
+	{
+		/* nateon_userlist_move_buddy(); */
+		NateonUserList *userlist = cmdproc->session->userlist;
+		NateonMoveBuddy *data = cmd->trans->data;
+
+		if (data->old_group_name != NULL)
+		{
+			nateon_userlist_move_buddy(userlist, data->who, data->old_group_name, group_name);
+			g_free(data->old_group_name);
+		}
+		else
+		{
+			nateon_userlist_add_buddy(userlist, data->who, NATEON_LIST_FL, group_name);
+		}
+
+		g_free(data->who);
+
+	}
 }
 
 //static void
@@ -923,35 +922,40 @@ nnik_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //			nateon_user_set_mobile_phone(session->user, NULL);
 //	}
 //}
-//
-//static void
-//reg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
-//{
-//	NateonSession *session;
-//	int group_id;
-//	const char *group_name;
-//
-//	session = cmdproc->session;
-//	group_id = atoi(cmd->params[2]);
-//	group_name = purple_url_decode(cmd->params[3]);
-//
-//	nateon_userlist_rename_group_id(session->userlist, group_id, group_name);
-//}
-//
-//static void
-//reg_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
-//{
-//	int group_id;
-//	char **params;
-//
-//	params = g_strsplit(trans->params, " ", 0);
-//
-//	group_id = atoi(params[0]);
-//
-//	group_error_helper(cmdproc->session, _("Unable to rename group"), group_id, error);
-//
-//	g_strfreev(params);
-//}
+
+static void
+reng_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	NateonSession *session;
+	char *params;
+	int group_id;
+	const char *group_name;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	session = cmdproc->session;
+	params = g_strsplit(cmd->trans->params, " ", 0);
+	group_id = atoi(params[1]);
+	group_name = purple_url_decode(params[2]);
+
+	nateon_userlist_rename_group_id(session->userlist, group_id, group_name);
+}
+
+static void
+reng_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
+{
+	int group_id;
+	char **params;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	params = g_strsplit(trans->params, " ", 0);
+	group_id = atoi(params[1]);
+
+	group_error_helper(cmdproc->session, _("Unable to rename group"), group_id, error);
+
+	g_strfreev(params);
+}
 
 static void
 rmvb_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
@@ -1009,6 +1013,34 @@ rmvg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	group_id = atoi(params[1]);
 
 	nateon_userlist_remove_group_id(session->userlist, group_id);
+}
+
+static void
+mvbg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	NateonSession *session;
+	NateonUser *user;
+	char **params;
+	const char *account;
+	int old_group_id;
+	int new_group_id;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	params   = g_strsplit(cmd->trans->params, " ", 0);
+	account  = params[3];
+	old_group_id = atoi(params[4]);
+	new_group_id = atoi(params[5]);
+
+	purple_debug_info("nateon", "[%s] account(%s), old(%d), new(%d)\n", __FUNCTION__, account, old_group_id, new_group_id);
+
+	session = cmdproc->session;
+
+	user = nateon_userlist_find_user_with_name(session->userlist, account);
+
+	nateon_user_add_group_id(user, new_group_id);
+	nateon_user_remove_group_id(user, old_group_id);
+	nateon_user_update(user);
 }
 
 //static void
@@ -1486,7 +1518,7 @@ invt_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 void
 nateon_notification_add_buddy(NateonNotification *notification, const char *list,
-						   const char *who, const char *store_name,
+						   const char *who, const char *user_id,
 						   int group_id)
 {
 	NateonCmdProc *cmdproc;
@@ -1494,16 +1526,16 @@ nateon_notification_add_buddy(NateonNotification *notification, const char *list
 
 	purple_debug_info("nateon", "[%s] group_id(%d), list(%s)\n", __FUNCTION__, group_id, strcmp(list,"FL")?"":"FL");
 
-	if (group_id < 0 && !strcmp(list, "FL"))
-		group_id = 0;
-
-	if (group_id >= 0)
+	if (!strcmp(list, "FL"))
 	{
+		if (group_id < 0)
+			group_id = 0;
+
 		nateon_cmdproc_send(cmdproc, "ADSB", "REQST %%00 %s %d", who, group_id);
 	}
 	else
 	{
-		purple_debug_info("nateon", "%s - group_id < 0 ?\n", __FUNCTION__);
+		nateon_cmdproc_send(cmdproc, "ADDB", "%s %s %s", list, user_id, who);
 	}
 }
 
@@ -1511,8 +1543,10 @@ void
 nateon_notification_rem_buddy(NateonNotification *notification, const char *list, const char *who, int group_id, const char *account)
 {
 	NateonCmdProc *cmdproc;
+	NateonUser *user ;
+
 	cmdproc = notification->servconn->cmdproc;
-	NateonUser *user = cmdproc->session->user;
+	user = cmdproc->session->user;
 
         purple_debug_info("nateon", "%s - %s%s%s%s\n", __FUNCTION__,
                         (user->list_op & NATEON_LIST_FL_OP) ? "FL" : "",
@@ -1530,6 +1564,17 @@ nateon_notification_rem_buddy(NateonNotification *notification, const char *list
 //	{
 //		nateon_cmdproc_send(cmdproc, "REM", "%s %s", list, who);
 //	}
+}
+
+void nateon_notification_move_buddy(NateonNotification *notification, const char *who, const char *user_id, int old_group_id, int new_group_id)
+{
+	NateonCmdProc *cmdproc;
+	char *cmd;
+
+	cmdproc = notification->servconn->cmdproc;
+	cmd = g_strdup_printf("0 %s %s %d %d", user_id, who, old_group_id, new_group_id);
+
+	nateon_cmdproc_send(cmdproc, "MVBG", "0 %d\r\n%s", strlen(cmd)+2, cmd);
 }
 
 /**************************************************************************
@@ -1554,11 +1599,13 @@ nateon_notification_init(void)
 	nateon_table_add_cmd(cbs_table, "LSIN", "LSIN", lsin_cmd);
 	nateon_table_add_cmd(cbs_table, "ONST", "ONST", NULL);
 
-	// Buddy
+	// Buddy & Group
 	nateon_table_add_cmd(cbs_table, "ADSB", "ADSB", adsb_cmd);
 	nateon_table_add_cmd(cbs_table, "RMVB", "RMVB", rmvb_cmd);
 	nateon_table_add_cmd(cbs_table, "ADDG", "ADDG", addg_cmd);
 	nateon_table_add_cmd(cbs_table, "RMVG", "RMVG", rmvg_cmd);
+	nateon_table_add_cmd(cbs_table, "RENG", "RENG", reng_cmd);
+	nateon_table_add_cmd(cbs_table, "MVBG", "MVBG", mvbg_cmd);
 	
 //	nateon_table_add_cmd(cbs_table, "CHG", "CHG", NULL);
 //	nateon_table_add_cmd(cbs_table, "CHG", "ILN", iln_cmd);
@@ -1604,12 +1651,12 @@ nateon_notification_init(void)
 //
 //	nateon_table_add_cmd(cbs_table, "fallback", "XFR", xfr_cmd);
 //
+	nateon_table_add_error(cbs_table, "RENG", reng_error);
 //	nateon_table_add_error(cbs_table, "ADD", add_error);
 //	nateon_table_add_error(cbs_table, "REG", reg_error);
 //	nateon_table_add_error(cbs_table, "RMG", rmg_error);
 //	/* nateon_table_add_error(cbs_table, "REA", rea_error); */
 //	nateon_table_add_error(cbs_table, "USR", usr_error);
-	nateon_table_add_cmd(cbs_table, NULL, "301", error_cmd);
 //
 //	nateon_table_add_msg_type(cbs_table,
 //						   "text/x-msmsgsprofile",

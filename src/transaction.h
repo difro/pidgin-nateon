@@ -31,8 +31,7 @@ typedef struct _NateonTransaction NateonTransaction;
 
 typedef void (*NateonTransCb)(NateonCmdProc *cmdproc, NateonCommand *cmd);
 //typedef void (*NateonTimeoutCb)(NateonCmdProc *cmdproc, NateonTransaction *trans);
-//typedef void (*NateonErrorCb)(NateonCmdProc *cmdproc, NateonTransaction *trans,
-//						   int error);
+typedef void (*NateonErrorCb)(NateonCmdProc *cmdproc, NateonTransaction *trans, int error);
 
 /**
  * A transaction. A sending command that will initiate the transaction.
@@ -50,7 +49,7 @@ struct _NateonTransaction
 	void *data; /**< The data to be used on the different callbacks. */
 	GHashTable *callbacks;
 	gboolean has_custom_callbacks;
-//	NateonErrorCb error_cb;
+	NateonErrorCb error_cb;
 //	NateonTimeoutCb timeout_cb;
 //
 	char *payload;

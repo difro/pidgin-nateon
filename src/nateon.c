@@ -526,7 +526,6 @@ nateon_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolea
 	 * XXX: this prpl always honors both the allow and deny lists. */
 	if (user)
 	{
-		purple_debug_info("nateon", "%s - list_op=%d\n", __FUNCTION__, user->list_op);
 		purple_notify_user_info_add_pair(user_info, _("Blocked"), ((user->list_op & (1 << NATEON_LIST_BL)) ? _("Yes") : _("No")));
 	}
 }
@@ -559,6 +558,9 @@ nateon_status_types(PurpleAccount *account)
 
 	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE,
 			NULL, NULL, FALSE, TRUE, FALSE);
+	types = g_list_append(types, status);
+	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE,
+			"F", NULL, FALSE, TRUE, FALSE);
 	types = g_list_append(types, status);
 
 	return types;
@@ -1007,13 +1009,15 @@ nateon_rem_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 	nateon_userlist_rem_buddy(userlist, buddy->name, NATEON_LIST_FL, group->name);
 }
 
-//static void
-//nateon_add_permit(PurpleConnection *gc, const char *who)
-//{
+static void
+nateon_add_permit(PurpleConnection *gc, const char *who)
+{
 //	NateonSession *session;
 //	NateonUserList *userlist;
 //	NateonUser *user;
 //
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
 //	session = gc->proto_data;
 //	userlist = session->userlist;
 //	user = nateon_userlist_find_user(userlist, who);
@@ -1025,35 +1029,39 @@ nateon_rem_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 //		nateon_userlist_rem_buddy(userlist, who, NATEON_LIST_BL, NULL);
 //
 //	nateon_userlist_add_buddy(userlist, who, NATEON_LIST_AL, NULL);
-//}
-//
-//static void
-//nateon_add_deny(PurpleConnection *gc, const char *who)
-//{
+}
+
+static void
+nateon_add_deny(PurpleConnection *gc, const char *who)
+{
+	NateonSession *session;
+	NateonUserList *userlist;
+	NateonUser *user;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	session = gc->proto_data;
+	userlist = session->userlist;
+	user = nateon_userlist_find_user_with_name(userlist, who);
+
+	if (!session->logged_in)
+		return;
+
+	if (user != NULL && user->list_op & NATEON_LIST_AL_OP)
+		nateon_userlist_rem_buddy(userlist, who, NATEON_LIST_AL, NULL);
+
+	nateon_userlist_add_buddy(userlist, who, NATEON_LIST_BL, NULL);
+}
+
+static void
+nateon_rem_permit(PurpleConnection *gc, const char *who)
+{
 //	NateonSession *session;
 //	NateonUserList *userlist;
 //	NateonUser *user;
 //
-//	session = gc->proto_data;
-//	userlist = session->userlist;
-//	user = nateon_userlist_find_user(userlist, who);
-//
-//	if (!session->logged_in)
-//		return;
-//
-//	if (user != NULL && user->list_op & NATEON_LIST_AL_OP)
-//		nateon_userlist_rem_buddy(userlist, who, NATEON_LIST_AL, NULL);
-//
-//	nateon_userlist_add_buddy(userlist, who, NATEON_LIST_BL, NULL);
-//}
-//
-//static void
-//nateon_rem_permit(PurpleConnection *gc, const char *who)
-//{
-//	NateonSession *session;
-//	NateonUserList *userlist;
-//	NateonUser *user;
-//
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
 //	session = gc->proto_data;
 //	userlist = session->userlist;
 //
@@ -1066,36 +1074,40 @@ nateon_rem_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 //
 //	if (user != NULL && user->list_op & NATEON_LIST_RL_OP)
 //		nateon_userlist_add_buddy(userlist, who, NATEON_LIST_BL, NULL);
-//}
-//
-//static void
-//nateon_rem_deny(PurpleConnection *gc, const char *who)
-//{
-//	NateonSession *session;
-//	NateonUserList *userlist;
-//	NateonUser *user;
-//
-//	session = gc->proto_data;
-//	userlist = session->userlist;
-//
-//	if (!session->logged_in)
-//		return;
-//
-//	user = nateon_userlist_find_user(userlist, who);
-//
-//	nateon_userlist_rem_buddy(userlist, who, NATEON_LIST_BL, NULL);
-//
-//	if (user != NULL && user->list_op & NATEON_LIST_RL_OP)
-//		nateon_userlist_add_buddy(userlist, who, NATEON_LIST_AL, NULL);
-//}
-//
-//static void
-//nateon_set_permit_deny(PurpleConnection *gc)
-//{
+}
+
+static void
+nateon_rem_deny(PurpleConnection *gc, const char *who)
+{
+	NateonSession *session;
+	NateonUserList *userlist;
+	NateonUser *user;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	session = gc->proto_data;
+	userlist = session->userlist;
+
+	if (!session->logged_in)
+		return;
+
+	user = nateon_userlist_find_user_with_name(userlist, who);
+
+	nateon_userlist_rem_buddy(userlist, who, NATEON_LIST_BL, NULL);
+
+	if (user != NULL && user->list_op & NATEON_LIST_RL_OP)
+		nateon_userlist_add_buddy(userlist, who, NATEON_LIST_AL, NULL);
+}
+
+static void
+nateon_set_permit_deny(PurpleConnection *gc)
+{
 //	PurpleAccount *account;
 //	NateonSession *session;
 //	NateonCmdProc *cmdproc;
 //
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
 //	account = purple_connection_get_account(gc);
 //	session = gc->proto_data;
 //	cmdproc = session->notification->cmdproc;
@@ -1109,7 +1121,7 @@ nateon_rem_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 //	{
 //		nateon_cmdproc_send(cmdproc, "BLP", "%s", "BL");
 //	}
-//}
+}
 
 static void
 nateon_chat_invite(PurpleConnection *gc, int id, const char *msg,
@@ -1970,11 +1982,11 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,					/* add_buddies */
 	nateon_rem_buddy,			/* remove_buddy */
 	NULL,					/* remove_buddies */
-	NULL, //nateon_add_permit,			/* add_permit */
-	NULL, //nateon_add_deny,			/* add_deny */
-	NULL, //nateon_rem_permit,			/* rem_permit */
-	NULL, //nateon_rem_deny,			/* rem_deny */
-	NULL, //nateon_set_permit_deny,		/* set_permit_deny */
+	nateon_add_permit,			/* add_permit */
+	nateon_add_deny,			/* add_deny */
+	nateon_rem_permit,			/* rem_permit */
+	nateon_rem_deny,			/* rem_deny */
+	nateon_set_permit_deny,			/* set_permit_deny */
 	NULL,					/* join_chat */
 	NULL,					/* reject chat invite */
 	NULL,					/* get_chat_name */

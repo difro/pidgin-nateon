@@ -251,10 +251,13 @@ nateon_user_add_group_id(NateonUser *user, int id)
 	const char *account_name;
 	const char *group_name;
 
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
 	g_return_if_fail(user != NULL);
 	g_return_if_fail(id >= 0);
 
-//	user->group_ids = g_list_append(user->group_ids, GINT_TO_POINTER(id));
+	if (g_list_find(user->group_ids, GINT_TO_POINTER(id)) == NULL)
+		user->group_ids = g_list_append(user->group_ids, GINT_TO_POINTER(id));
 
 	userlist = user->userlist;
 	account = userlist->session->account;

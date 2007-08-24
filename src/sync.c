@@ -33,11 +33,10 @@ static void glst_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 	if (cmd->param_count < 6) return;
 
-	/* 그룹 목록 */
+	/* Group */
 	if (!strcmp(cmd->params[3], "Y"))
 	{
 		NateonGroup *group;
-		PurpleGroup *g;
 		const char *name;
 		int group_id;
 
@@ -51,14 +50,14 @@ static void glst_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //			/* Group of ungroupped buddies */
 //			return;
 
-		if ((g = purple_find_group(name)) == NULL)
+		if (purple_find_group(name) == NULL)
 		{
-			g = purple_group_new(name);
+			PurpleGroup *g = purple_group_new(name);
 			purple_blist_add_group(g, NULL);
 		}
 
 	}
-	/* 사용자 그룹정보 */
+	/* User's group info */
 	else
 	{
 		NateonUser *user;
@@ -78,20 +77,6 @@ static void glst_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 		}
 
 		user->group_ids = g_list_append(user->group_ids, GINT_TO_POINTER(group_id));
-		
-//		/* TODO: This can be improved */
-//
-//		if (user->list_op[NATEON_LIST_FL_OP] == '1')
-//		{
-//			GSList *group_ids = NULL;
-//			group_ids = g_slist_append(group_ids, GINT_TO_POINTER(group_id));
-//			nateon_got_lst_user(session, user, user->list_op, group_ids);
-//			g_slist_free(group_ids);
-//		}
-//		else
-//		{
-//			nateon_got_lst_user(session, user, user->list_op, NULL);
-//		}
 	}
 
 	session->sync->num_groups++;
@@ -122,21 +107,20 @@ static void list_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	list_op += cmd->params[3][NATEON_LIST_BL]-'0' ? NATEON_LIST_BL_OP : 0; 
 	list_op += cmd->params[3][NATEON_LIST_RL]-'0' ? NATEON_LIST_RL_OP : 0;
 
-	purple_debug_info("nateon", "FL = %d\n", cmd->params[3][NATEON_LIST_FL]-'0'? NATEON_LIST_FL_OP : 0);
-	purple_debug_info("nateon", "AL = %d\n", cmd->params[3][NATEON_LIST_AL]-'0'? NATEON_LIST_AL_OP : 0);
-	purple_debug_info("nateon", "BL = %d\n", cmd->params[3][NATEON_LIST_BL]-'0'? NATEON_LIST_BL_OP : 0);
-	purple_debug_info("nateon", "RL = %d\n", cmd->params[3][NATEON_LIST_RL]-'0'? NATEON_LIST_RL_OP : 0);
-	purple_debug_info("nateon", "list_op = %d\n", list_op);
+	purple_debug_info("nateon", "[%s] %s%s%s%s\n", __FUNCTION__, 
+			cmd->params[3][NATEON_LIST_FL]-'0'? "FL ": "",
+			cmd->params[3][NATEON_LIST_AL]-'0'? "AL ": "",
+			cmd->params[3][NATEON_LIST_BL]-'0'? "BL ": "",
+			cmd->params[3][NATEON_LIST_RL]-'0'? "RL": "");
 
 	user = nateon_userlist_find_user_with_id(session->userlist, user_id);
 	if (user == NULL)
 	{
-		user = nateon_user_new(session->userlist, "", "", user_id);
+		user = nateon_user_new(session->userlist, account, stored, user_id);
 		user->group_ids = NULL;
-		user->group_ids = g_list_append(user->group_ids, GINT_TO_POINTER(0));
-
 		nateon_userlist_add_user(session->userlist, user);
 	}
+
 	g_free(user->account_name);
 	user->account_name = g_strdup(account);
 

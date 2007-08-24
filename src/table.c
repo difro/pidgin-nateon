@@ -29,10 +29,10 @@ null_cmd_cb(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
 }
 
-//static void
-//null_error_cb(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
-//{
-//}
+static void
+null_error_cb(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
+{
+}
 
 NateonTable *
 nateon_table_new()
@@ -43,8 +43,8 @@ nateon_table_new()
 
 	table->cmds = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
 //	table->msgs = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
-//	table->errors = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
-//
+	table->errors = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
+
 	table->async = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
 //	table->fallback = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
 
@@ -58,8 +58,8 @@ nateon_table_destroy(NateonTable *table)
 
 	g_hash_table_destroy(table->cmds);
 //	g_hash_table_destroy(table->msgs);
-//	g_hash_table_destroy(table->errors);
-//
+	g_hash_table_destroy(table->errors);
+
 	g_hash_table_destroy(table->async);
 //	g_hash_table_destroy(table->fallback);
 
@@ -102,19 +102,19 @@ nateon_table_add_cmd(NateonTable *table,
 	g_hash_table_insert(cbs, answer, cb);
 }
 
-//void
-//nateon_table_add_error(NateonTable *table,
-//					char *answer, NateonErrorCb cb)
-//{
-//	g_return_if_fail(table  != NULL);
-//	g_return_if_fail(answer != NULL);
-//
-//	if (cb == NULL)
-//		cb = null_error_cb;
-//
-//	g_hash_table_insert(table->errors, answer, cb);
-//}
-//
+void
+nateon_table_add_error(NateonTable *table,
+					char *answer, NateonErrorCb cb)
+{
+	g_return_if_fail(table  != NULL);
+	g_return_if_fail(answer != NULL);
+
+	if (cb == NULL)
+		cb = null_error_cb;
+
+	g_hash_table_insert(table->errors, answer, cb);
+}
+
 //void
 //nateon_table_add_msg_type(NateonTable *table,
 //					   char *type, NateonMsgTypeCb cb)

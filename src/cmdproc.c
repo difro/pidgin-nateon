@@ -264,32 +264,35 @@ nateon_cmdproc_process_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	{
 		if (trans != NULL)
 		{
-//			NateonErrorCb error_cb = NULL;
-//			int error;
-//
-//			error = atoi(cmd->command);
-//
-//			if (trans->error_cb != NULL)
-//				error_cb = trans->error_cb;
-//
-//			if (error_cb == NULL && cmdproc->cbs_table->errors != NULL)
-//				error_cb = g_hash_table_lookup(cmdproc->cbs_table->errors, trans->command);
-//
-//			if (error_cb != NULL)
-//			{
-//				error_cb(cmdproc, trans, error);
-//			}
-//			else
-//			{
-//#if 1
-//				nateon_error_handle(cmdproc->session, error);
-//#else
-//				purple_debug_warning("nateon", "Unhandled error '%s'\n",
-//								   cmd->command);
-//#endif
-//			}
-//
-//			return;
+			NateonErrorCb error_cb = NULL;
+			int error;
+
+			error = atoi(cmd->command);
+			purple_debug_info("nateon", "[%s] error(%d)\n", __FUNCTION__, error);
+
+			if (trans->error_cb != NULL)
+				error_cb = trans->error_cb;
+
+			if (error_cb == NULL && cmdproc->cbs_table->errors != NULL)
+				error_cb = g_hash_table_lookup(cmdproc->cbs_table->errors, trans->command);
+
+			if (error_cb != NULL)
+			{
+				purple_debug_info("nateon", "[%s] 에러콜백있음\n", __FUNCTION__);
+				error_cb(cmdproc, trans, error);
+			}
+			else
+			{
+				purple_debug_info("nateon", "[%s] 에러콜백없음\n", __FUNCTION__);
+#if 1
+				nateon_error_handle(cmdproc->session, error);
+#else
+				purple_debug_warning("nateon", "Unhandled error '%s'\n",
+								   cmd->command);
+#endif
+			}
+
+			return;
 		}
 	}
 
