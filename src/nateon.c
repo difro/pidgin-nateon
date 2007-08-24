@@ -872,10 +872,13 @@ static void nateon_set_status(PurpleAccount *account, PurpleStatus *status)
 	PurpleConnection *gc;
 	NateonSession *session;
 
+	purple_debug_info("nateon" ,"[%s]\n", __FUNCTION__);
+
 	gc = purple_account_get_connection(account);
 
 	if (gc != NULL)
 	{
+		purple_debug_info("nateon" ,"[%s] gc존재\n", __FUNCTION__);
 		session = gc->proto_data;
 		nateon_change_status(session);
 	}
@@ -884,6 +887,8 @@ static void nateon_set_status(PurpleAccount *account, PurpleStatus *status)
 static void nateon_set_idle(PurpleConnection *gc, int idle)
 {
 	NateonSession *session;
+
+	purple_debug_info("nateon" ,"[%s]\n", __FUNCTION__);
 
 	session = gc->proto_data;
 

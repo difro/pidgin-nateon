@@ -42,18 +42,23 @@
 void
 nateon_change_status(NateonSession *session)
 {
-	PurpleAccount *account = session->account;
+	PurpleAccount *account;
 	NateonCmdProc *cmdproc;
 //	NateonUser *user;
 //	NateonObject *nateonobj;
 	const char *state_text;
 
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
 	g_return_if_fail(session != NULL);
 	g_return_if_fail(session->notification != NULL);
 
+	account = session->account;
 	cmdproc = session->notification->cmdproc;
 //	user = session->user;
 	state_text = nateon_state_get_text(nateon_state_from_account(account));
+
+	purple_debug_info("nateon", "[%s] state_text(%s)\n", __FUNCTION__, state_text);
 
 	/* If we're not logged in yet, don't send the status to the server,
 	 * it will be sent when login completes
@@ -108,9 +113,13 @@ nateon_state_from_account(PurpleAccount *account)
 	PurpleStatus *status;
 	const char *status_id;
 
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
 	presence = purple_account_get_presence(account);
 	status = purple_presence_get_active_status(presence);
 	status_id = purple_status_get_id(status);
+
+	purple_debug_info("nateon", "[%s] status_id(%s)\n", __FUNCTION__, status_id);
 
 	if (!strcmp(status_id, "A"))
 		nateonstatus = NATEON_AWAY;
@@ -123,8 +132,12 @@ nateon_state_from_account(PurpleAccount *account)
 	else
 		nateonstatus = NATEON_ONLINE;
 
-	if ((nateonstatus == NATEON_ONLINE) && purple_presence_is_idle(presence))
-		nateonstatus = NATEON_IDLE;
+	purple_debug_info("nateon", "[%s] nateonstatus(%s)\n", __FUNCTION__, nateon_state_get_text(nateonstatus));
+
+//	if ((nateonstatus == NATEON_ONLINE) && purple_presence_is_idle(presence))
+//		nateonstatus = NATEON_IDLE;
+
+	purple_debug_info("nateon", "[%s] nateonstatus(%s)\n", __FUNCTION__, nateon_state_get_text(nateonstatus));
 
 	return nateonstatus;
 }
