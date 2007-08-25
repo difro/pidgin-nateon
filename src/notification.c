@@ -447,6 +447,54 @@ nateon_notification_close(NateonNotification *notification)
 	nateon_notification_disconnect(notification);
 }
 
+/**************************************************************************
+ * CTOC: Clent to Clent 
+ **************************************************************************/
+
+static void
+ctoc_cmd_post(NateonCmdProc *cmdproc, NateonCommand *cmd, char *payload,
+			 size_t len)
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	purple_debug_info("nateon", "[%s] %s\n", __FUNCTION__, payload);
+
+//	NateonMessage *msg;
+//
+//	msg = nateon_message_new_from_cmd(cmdproc->session, cmd);
+//
+//	nateon_message_parse_payload(msg, payload, len);
+//#ifdef NATEON_DEBUG_NS
+//	nateon_message_show_readable(msg, "Notification", TRUE);
+//#endif
+//
+//	nateon_cmdproc_process_msg(cmdproc, msg);
+//
+//	nateon_message_destroy(msg);
+}
+
+static void
+ctoc_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	cmdproc->last_cmd->payload_cb  = ctoc_cmd_post;
+	cmdproc->servconn->payload_len = atoi(cmd->params[2]);
+//	/* NOTE: cmd is not always cmdproc->last_cmd, sometimes cmd is a queued
+//	 * command and we are processing it */
+//
+//	if (cmd->payload == NULL)
+//	{
+//		cmdproc->last_cmd->payload_cb  = msg_cmd_post;
+//		cmdproc->servconn->payload_len = atoi(cmd->params[2]);
+//	}
+//	else
+//	{
+//		g_return_if_fail(cmd->payload_cb != NULL);
+//
+//		cmd->payload_cb(cmdproc, cmd, cmd->payload, cmd->payload_len);
+//	}
+}
+
 ///**************************************************************************
 // * Messages
 // **************************************************************************/
@@ -1591,12 +1639,12 @@ nateon_notification_init(void)
 
 	/* Synchronous */
 
-	/* Login/Dispatch server */
+	// Login/Dispatch server
 	nateon_table_add_cmd(cbs_table, "PVER", "PVER", pver_cmd);
 	nateon_table_add_cmd(cbs_table, "AUTH", "AUTH", auth_cmd);
 	nateon_table_add_cmd(cbs_table, "REQS", "REQS", reqs_cmd);
 
-	/* Notification server */
+	// Notification server
 	nateon_table_add_cmd(cbs_table, "LSIN", "LSIN", lsin_cmd);
 	nateon_table_add_cmd(cbs_table, "ONST", "ONST", NULL);
 
@@ -1630,6 +1678,7 @@ nateon_notification_init(void)
 	nateon_table_add_cmd(cbs_table, NULL, "INFY", infy_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "NTFY", ntfy_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "PING", ping_cmd);
+	nateon_table_add_cmd(cbs_table, NULL, "CTOC", ctoc_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "IPG", ipg_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "MSG", msg_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "NOT", not_cmd);

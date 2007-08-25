@@ -29,8 +29,7 @@ typedef struct _NateonCommand NateonCommand;
 #include "cmdproc.h"
 #include "transaction.h"
 
-//typedef void (*NateonPayloadCb)(NateonCmdProc *cmdproc, NateonCommand *cmd,
-//							 char *payload, size_t len);
+typedef void (*NateonPayloadCb)(NateonCmdProc *cmdproc, NateonCommand *cmd, char *payload, size_t len);
 
 /**
  * A received command.
@@ -50,7 +49,7 @@ struct _NateonCommand
 	char *payload;
 	size_t payload_len;
 
-//	NateonPayloadCb payload_cb;
+	NateonPayloadCb payload_cb;
 };
 
 NateonCommand *nateon_command_from_string(const char *string);

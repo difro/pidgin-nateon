@@ -206,22 +206,22 @@ nateon_cmdproc_send(NateonCmdProc *cmdproc, const char *command,
 	nateon_cmdproc_send_trans(cmdproc, trans);
 }
 
-//void
-//nateon_cmdproc_process_payload(NateonCmdProc *cmdproc, char *payload,
-//							int payload_len)
-//{
-//	NateonCommand *last;
-//
-//	g_return_if_fail(cmdproc != NULL);
-//
-//	last = cmdproc->last_cmd;
-//	last->payload = g_memdup(payload, payload_len);
-//	last->payload_len = payload_len;
-//
-//	if (last->payload_cb != NULL)
-//		last->payload_cb(cmdproc, last, payload, payload_len);
-//}
-//
+void
+nateon_cmdproc_process_payload(NateonCmdProc *cmdproc, char *payload,
+							int payload_len)
+{
+	NateonCommand *last;
+
+	g_return_if_fail(cmdproc != NULL);
+
+	last = cmdproc->last_cmd;
+	last->payload = g_memdup(payload, payload_len);
+	last->payload_len = payload_len;
+
+	if (last->payload_cb != NULL)
+		last->payload_cb(cmdproc, last, payload, payload_len);
+}
+
 //void
 //nateon_cmdproc_process_msg(NateonCmdProc *cmdproc, NateonMessage *msg)
 //{

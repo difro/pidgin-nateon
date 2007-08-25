@@ -388,9 +388,7 @@ read_cb(gpointer data, gint source, PurpleInputCondition cond)
 	else if (len <= 0)
 	{
 		purple_debug_error("nateon", "servconn read error, len: %d error: %s\n", len, strerror(errno));
-
 		nateon_servconn_got_error(servconn, NATEON_SERVCONN_ERROR_READ);
-
 		return;
 	}
 
@@ -434,8 +432,7 @@ read_cb(gpointer data, gint source, PurpleInputCondition cond)
 
 		if (servconn->payload_len)
 		{
-			purple_debug_info("nateon", "payload\n");
-//			nateon_cmdproc_process_payload(servconn->cmdproc, cur, cur_len);
+			nateon_cmdproc_process_payload(servconn->cmdproc, cur, cur_len);
 			servconn->payload_len = 0;
 		}
 		else

@@ -65,9 +65,8 @@ void nateon_cmdproc_send(NateonCmdProc *cmdproc, const char *command,
 //							 NateonMessage *msg);
 void nateon_cmdproc_process_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd);
 void nateon_cmdproc_process_cmd_text(NateonCmdProc *cmdproc, const char *command);
-//void nateon_cmdproc_process_payload(NateonCmdProc *cmdproc,
-//								 char *payload, int payload_len);
-//
+void nateon_cmdproc_process_payload(NateonCmdProc *cmdproc, char *payload, int payload_len);
+
 //void nateon_cmdproc_disconnect(NateonCmdProc *cmdproc);
 
 #endif /* _NATEON_CMDPROC_H_ */
