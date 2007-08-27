@@ -225,6 +225,12 @@ nateon_act_id(PurpleConnection *gc, const char *entry)
 //	g_free(data);
 //}
 //
+static void
+send_sms_cb(char *data, const char *entry)
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+}
+//
 //static void
 //close_mobile_page_cb(NateonMobileData *data, const char *entry)
 //{
@@ -356,6 +362,67 @@ nateon_show_set_friendly_name(PurplePluginAction *action)
 //					   _("Close"), G_CALLBACK(close_mobile_page_cb),
 //					   data);
 //}
+//
+static void
+show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
+{
+	PurpleBuddy *buddy;
+	PurpleConnection *gc;
+//	NateonSession *session;
+//	NateonMobileData *data;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	g_return_if_fail(PURPLE_BLIST_NODE_IS_BUDDY(node));
+
+	buddy = (PurpleBuddy *) node;
+	gc = purple_account_get_connection(buddy->account);
+//
+//	session = gc->proto_data;
+//
+//	data = g_new0(NateonMobileData, 1);
+//	data->gc = gc;
+//	data->passport = buddy->name;
+
+//	purple_request_input(gc, NULL, _("Send a mobile message."), NULL,
+//					   NULL, TRUE, FALSE, NULL,
+//					   _("Page"), G_CALLBACK(send_to_mobile_cb),
+//					   _("Close"), G_CALLBACK(close_mobile_page_cb),
+//					   data);
+////
+//	purple_request_input(gc, _("title"), _("primary"), _("secondary"),
+//					   _("default_value"), FALSE, TRUE, _("hint"),
+//					   _("ok"), G_CALLBACK(send_sms_cb),
+//					   _("cancle"), NULL,
+//					   purple_connection_get_account(gc), NULL, NULL,
+//					   gc);
+
+	{
+		PurpleRequestFields *fields;
+		PurpleRequestFieldGroup *g;
+		PurpleRequestField *f;
+
+		fields = purple_request_fields_new();
+
+//		g = purple_request_field_group_new(NULL);
+//		f = purple_request_field_account_new("account", "account", NULL);
+//		purple_request_field_group_add_field(g, f);
+//		purple_request_fields_add_group(fields, g);
+
+		g = purple_request_field_group_new(NULL);
+		f = purple_request_field_string_new("text", buddy->name, NULL, TRUE);
+		purple_request_field_group_add_field(g, f);
+//		purple_request_fields_add_group(fields, g);
+
+//		g = purple_request_field_group_new(NULL);
+		f = purple_request_field_bool_new("check", "수신확인", FALSE);
+		purple_request_field_group_add_field(g, f);
+		purple_request_fields_add_group(fields, g);
+
+		purple_request_fields(gc, "쪽지쓰기", NULL, NULL, fields, _("_Send"), G_CALLBACK(send_sms_cb), _("Close"), NULL, purple_connection_get_account(gc), "who", NULL, gc);
+	}
+
+}
 //
 //static void
 //initiate_chat_cb(PurpleBlistNode *node, gpointer data)
@@ -629,8 +696,8 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 
 	user = buddy->proto_data;
 
-//	if (user != NULL)
-//	{
+	if (user != NULL)
+	{
 //		if (user->mobile)
 //		{
 //			act = purple_menu_action_new(_("Send to Mobile"),
@@ -638,10 +705,10 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 //			                           NULL, NULL);
 //			m = g_list_append(m, act);
 //		}
-//	}
-
-	act = purple_menu_action_new(_("Send SMS"), NULL, NULL, NULL);
-	m = g_list_append(m, act);
+//		
+		act = purple_menu_action_new(_("Send SMS"), PURPLE_CALLBACK(show_send_sms_cb), NULL, NULL);
+		m = g_list_append(m, act);
+	}
 
 	if (g_ascii_strcasecmp(buddy->name,
 	                       purple_account_get_username(buddy->account)))

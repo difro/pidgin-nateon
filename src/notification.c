@@ -455,21 +455,14 @@ static void
 ctoc_cmd_post(NateonCmdProc *cmdproc, NateonCommand *cmd, char *payload,
 			 size_t len)
 {
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-	purple_debug_info("nateon", "[%s] %s\n", __FUNCTION__, payload);
+	char *command;
 
-//	NateonMessage *msg;
-//
-//	msg = nateon_message_new_from_cmd(cmdproc->session, cmd);
-//
-//	nateon_message_parse_payload(msg, payload, len);
-//#ifdef NATEON_DEBUG_NS
-//	nateon_message_show_readable(msg, "Notification", TRUE);
-//#endif
-//
-//	nateon_cmdproc_process_msg(cmdproc, msg);
-//
-//	nateon_message_destroy(msg);
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	purple_debug_info("nateon", "[%s]\n%s\n", __FUNCTION__, payload);
+
+	command = purple_strreplace(payload, " ", "%20");
+	command = purple_strreplace(command, "\r\n", " ");
+	nateon_cmdproc_process_cmd_text(cmdproc, command);
 }
 
 static void
@@ -479,20 +472,6 @@ ctoc_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 	cmdproc->last_cmd->payload_cb  = ctoc_cmd_post;
 	cmdproc->servconn->payload_len = atoi(cmd->params[2]);
-//	/* NOTE: cmd is not always cmdproc->last_cmd, sometimes cmd is a queued
-//	 * command and we are processing it */
-//
-//	if (cmd->payload == NULL)
-//	{
-//		cmdproc->last_cmd->payload_cb  = msg_cmd_post;
-//		cmdproc->servconn->payload_len = atoi(cmd->params[2]);
-//	}
-//	else
-//	{
-//		g_return_if_fail(cmd->payload_cb != NULL);
-//
-//		cmd->payload_cb(cmdproc, cmd, cmd->payload, cmd->payload_len);
-//	}
 }
 
 ///**************************************************************************
@@ -1146,11 +1125,11 @@ mvbg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //		cmdproc->cbs_table = sync->cbs_table;
 //	}
 //}
-//
-///**************************************************************************
-// * Misc commands
-// **************************************************************************/
-//
+
+/**************************************************************************
+ * Misc commands
+ **************************************************************************/
+
 //static void
 //url_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //{
@@ -1280,6 +1259,60 @@ mvbg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //#endif
 //	}
 //}
+
+static void imsg_cb()
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+}
+
+static void
+imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	NateonSession *session;
+	PurpleConnection *gc;
+	PurpleRequestFields *fields;
+	PurpleRequestFieldGroup *g;
+	PurpleRequestField *f;
+	const char *buddy_name;
+	char *contents;
+	int i;
+
+	session = cmdproc->session;
+	gc = session->account->gc;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	purple_debug_info("nateon", "[%s] param_count(%d)\n", __FUNCTION__, cmd->param_count);
+
+	for (i = 0; i < (cmd->param_count-1); i++)
+	{
+		char **params;
+		
+		purple_debug_info("nateon", "%d: [%s]\n", i, cmd->params[i]);
+
+		if (!strcmp(cmd->params[i], ""))
+			break;
+
+		params = g_strsplit(cmd->params[i], ":", 0);
+
+		if (!strcmp(params[0], "from"))
+		{
+			buddy_name = params[1];
+			purple_debug_info("nateon", "[%s] buddy_name(%s)\n", __FUNCTION__, buddy_name);
+		}
+	}
+	contents = purple_strreplace(cmd->params[cmd->param_count-1], "%20", " ");
+	purple_debug_info("nateon", "[%s] contnets(%s)\n", __FUNCTION__, contents);
+
+	fields = purple_request_fields_new();
+	g = purple_request_field_group_new(NULL);
+	f = purple_request_field_string_new("text", buddy_name, contents, TRUE);
+	purple_request_field_string_set_editable(f, FALSE);
+	purple_request_field_group_add_field(g, f);
+	purple_request_fields_add_group(fields, g);
+
+	purple_request_fields(gc, "쪽지", NULL, NULL, fields, _("답장"), G_CALLBACK(imsg_cb), _("Close"), NULL, purple_connection_get_account(gc), "who", NULL, gc);
+}
+
 /**************************************************************************
  * Switchboards
  **************************************************************************/
@@ -1353,11 +1386,11 @@ invt_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //
 //	g_free(host);
 //}
-//
-///**************************************************************************
-// * Message Types
-// **************************************************************************/
-//
+
+/**************************************************************************
+ * Message Types
+ **************************************************************************/
+
 //static void
 //profile_msg(NateonCmdProc *cmdproc, NateonMessage *msg)
 //{
@@ -1679,6 +1712,9 @@ nateon_notification_init(void)
 	nateon_table_add_cmd(cbs_table, NULL, "NTFY", ntfy_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "PING", ping_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "CTOC", ctoc_cmd);
+
+	// CTOC
+	nateon_table_add_cmd(cbs_table, NULL, "IMSG", imsg_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "IPG", ipg_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "MSG", msg_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "NOT", not_cmd);
