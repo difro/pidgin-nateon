@@ -44,7 +44,7 @@
 #include "switchboard.h"
 #include "notification.h"
 #include "sync.h"
-//#include "slplink.h"
+#include "slplink.h"
 
 //#if PHOTO_SUPPORT
 //#include "imgstore.h"
@@ -243,8 +243,6 @@ send_sop(PurpleConnection *gc, const char *who, const char *entry)
 	char *payload;
 	size_t payload_len;
 
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-
 	account = purple_connection_get_account(gc);
 	session = gc->proto_data;
 	cmdproc = session->notification->cmdproc;
@@ -266,8 +264,6 @@ send_sop(PurpleConnection *gc, const char *who, const char *entry)
 static void
 send_sop_cb(NateonSendData *data, const char *entry)
 {
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-
 	send_sop(data->gc, data->account, entry);
 	g_free(data);
 }
@@ -275,8 +271,6 @@ send_sop_cb(NateonSendData *data, const char *entry)
 static void
 close_sop_cb(NateonSendData *data, const char *entry)
 {
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-
 	g_free(data);
 }
 
@@ -434,7 +428,7 @@ show_send_sop_cb(PurpleBlistNode *node, gpointer ignored)
 	purple_request_input(gc, NULL, buddy->name, NULL,
 					   NULL, TRUE, FALSE, NULL,
 					   _("_Send"), G_CALLBACK(send_sop_cb),
-					   _("Close"), NULL,
+					   _("Close"), G_CALLBACK(close_sop_cb),
 					   purple_connection_get_account(gc), NULL, NULL,
 					   data);
 }
@@ -527,20 +521,24 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 //	purple_conv_chat_add_user(PURPLE_CONV_CHAT(swboard->conv),
 //							purple_account_get_username(buddy->account), NULL, PURPLE_CBFLAGS_NONE, TRUE);
 //}
-//
-//static void
-//t_nateon_xfer_init(PurpleXfer *xfer)
-//{
+
+static void
+t_nateon_xfer_init(PurpleXfer *xfer)
+{
 //	NateonSlpLink *slplink;
-//	const char *filename;
-//	FILE *fp;
-//
-//	filename = purple_xfer_get_local_filename(xfer);
-//
+	const char *filename;
+	FILE *fp;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	filename = purple_xfer_get_local_filename(xfer);
+	purple_debug_info("nateon", "[%s] filename(%s)\n", __FUNCTION__, filename);
+
 //	slplink = xfer->data;
-//
-//	if ((fp = g_fopen(filename, "rb")) == NULL)
-//	{
+
+	if ((fp = g_fopen(filename, "rb")) == NULL)
+	{
+		purple_debug_info("nateon", "[%s] xfer_error\n", __FUNCTION__, filename);
 //		PurpleAccount *account;
 //		PurpleConnection *gc;
 //		const char *who;
@@ -556,44 +554,49 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 //		purple_xfer_cancel_local(xfer);
 //		g_free(msg);
 //
-//		return;
-//	}
-//	fclose(fp);
-//
+		return;
+	}
+	fclose(fp);
+
 //	nateon_slplink_request_ft(slplink, xfer);
-//}
-//
-//static PurpleXfer*
-//nateon_new_xfer(PurpleConnection *gc, const char *who)
-//{
-//	NateonSession *session;
-//	NateonSlpLink *slplink;
-//	PurpleXfer *xfer;
-//
-//	session = gc->proto_data;
-//
-//	xfer = purple_xfer_new(gc->account, PURPLE_XFER_SEND, who);
-//
+}
+
+static PurpleXfer*
+nateon_new_xfer(PurpleConnection *gc, const char *who)
+{
+	NateonSession *session;
+	NateonSlpLink *slplink;
+	PurpleXfer *xfer;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	session = gc->proto_data;
+
+	xfer = purple_xfer_new(gc->account, PURPLE_XFER_SEND, who);
+
 //	slplink = nateon_session_get_slplink(session, who);
-//
-//	xfer->data = slplink;
-//
-//	purple_xfer_set_init_fnc(xfer, t_nateon_xfer_init);
-//
-//	return xfer;
-//}
-//
-//static void
-//nateon_send_file(PurpleConnection *gc, const char *who, const char *file)
-//{
-//	PurpleXfer *xfer = nateon_new_xfer(gc, who);
-//
-//	if (file)
-//		purple_xfer_request_accepted(xfer, file);
-//	else
-//		purple_xfer_request(xfer);
-//}
-//
+
+	xfer->data = slplink;
+
+	purple_xfer_set_init_fnc(xfer, t_nateon_xfer_init);
+
+	return xfer;
+}
+
+static void
+nateon_send_file(PurpleConnection *gc, const char *who, const char *file)
+{
+	PurpleXfer *xfer = nateon_new_xfer(gc, who);
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	purple_debug_info("nateon", "[%s] who(%s), file(%s)\n", __FUNCTION__, who, file);
+
+	if (file)
+		purple_xfer_request_accepted(xfer, file);
+	else
+		purple_xfer_request(xfer);
+}
+
 //static gboolean
 //nateon_can_receive_file(PurpleConnection *gc, const char *who)
 //{
@@ -784,8 +787,8 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 		act = purple_menu_action_new(_("Send SOP"), PURPLE_CALLBACK(show_send_sop_cb), NULL, NULL);
 		m = g_list_append(m, act);
 
-//		act = purple_menu_action_new(_("Send SMS"), PURPLE_CALLBACK(show_send_sms_cb), NULL, NULL);
-//		m = g_list_append(m, act);
+		act = purple_menu_action_new(_("Send SMS"), NULL, NULL, NULL);
+		m = g_list_append(m, act);
 	}
 
 	if (g_ascii_strcasecmp(buddy->name,
@@ -2164,7 +2167,7 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,					/* roomlist_cancel */
 	NULL,					/* roomlist_expand_category */
 	NULL, //nateon_can_receive_file,	/* can_receive_file */
-	NULL, //nateon_send_file,			/* send_file */
+	nateon_send_file,			/* send_file */
 	NULL, //nateon_new_xfer,			/* new_xfer */
 	NULL,					/* offline_message */
 	NULL,					/* whiteboard_prpl_ops */

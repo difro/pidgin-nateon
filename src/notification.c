@@ -460,8 +460,7 @@ ctoc_cmd_post(NateonCmdProc *cmdproc, NateonCommand *cmd, char *payload,
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 	purple_debug_info("nateon", "[%s]\n%s\n", __FUNCTION__, payload);
 
-	command = purple_strreplace(payload, " ", "%20");
-	command = purple_strreplace(command, "\r\n", " ");
+	command = purple_strreplace(payload, "\r\n", " ");
 	nateon_cmdproc_process_cmd_text(cmdproc, command);
 }
 
@@ -1279,21 +1278,24 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 	purple_debug_info("nateon", "[%s] param_count(%d)\n", __FUNCTION__, cmd->param_count);
 
-	for (i = 0; i < (cmd->param_count-1); i++)
+	for (i = 0; i < (cmd->param_count - 1); i++)
 	{
 		char **params;
 		
 		purple_debug_info("nateon", "%d: [%s]\n", i, cmd->params[i]);
 
 		if (!strcmp(cmd->params[i], ""))
+		{
+			params = &cmd->params[i+1];
+			contents = g_strjoinv(" ", params);
 			break;
+		}
 
 		params = g_strsplit(cmd->params[i], ":", 0);
 
 		if (!strcmp(params[0], "from"))
 		{
 			buddy_name = params[1];
-			purple_debug_info("nateon", "[%s] buddy_name(%s)\n", __FUNCTION__, buddy_name);
 		}
 		else if (!strcmp(params[0], "date"))
 		{
@@ -1302,7 +1304,7 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 			date = g_strdup_printf("%04d-%02d-%2d %02d:%02d:%02d", year, mon, day, hour, min, sec);
 		}
 	}
-	contents = purple_strreplace(cmd->params[cmd->param_count-1], "%20", " ");
+
 	purple_debug_info("nateon", "[%s] contnets(%s)\n", __FUNCTION__, contents);
 
 	purple_notify_formatted(gc, "쪽지", buddy_name, date, contents, NULL, gc);

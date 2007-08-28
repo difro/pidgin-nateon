@@ -100,7 +100,7 @@ struct _NateonSession
 	int servconns_count; /**< The count of server connections. */
 	GList *switches; /**< The list of all the switchboards. */
 //	GList *directconns; /**< The list of all the directconnections. */
-//	GList *slplinks; /**< The list of all the slplinks. */
+	GList *slplinks; /**< The list of all the slplinks. */
 
 	int conv_seq; /**< The current conversation sequence number. */
 

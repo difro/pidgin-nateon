@@ -51,10 +51,10 @@ am__libnateon_a_SOURCES_DIST = cmdproc.c cmdproc.h command.c command.h \
 	dialog.c dialog.h error.c error.h group.c group.h history.c \
 	history.h msg.c msg.h nateon.c nateon.h nateon-utils.c \
 	nateon-utils.h notification.c notification.h servconn.c \
-	servconn.h session.c session.h sop.c sop.h switchboard.c \
-	switchboard.h state.c state.h sync.c sync.h table.c table.h \
-	transaction.c transaction.h user.c user.h userlist.c \
-	userlist.h
+	servconn.h session.c session.h slplink.c slplink.h sop.c sop.h \
+	switchboard.c switchboard.h state.c state.h sync.c sync.h \
+	table.c table.h transaction.c transaction.h user.c user.h \
+	userlist.c userlist.h
 am__objects_1 = libnateon_a-cmdproc.$(OBJEXT) \
 	libnateon_a-command.$(OBJEXT) libnateon_a-dialog.$(OBJEXT) \
 	libnateon_a-error.$(OBJEXT) libnateon_a-group.$(OBJEXT) \
@@ -63,10 +63,11 @@ am__objects_1 = libnateon_a-cmdproc.$(OBJEXT) \
 	libnateon_a-nateon-utils.$(OBJEXT) \
 	libnateon_a-notification.$(OBJEXT) \
 	libnateon_a-servconn.$(OBJEXT) libnateon_a-session.$(OBJEXT) \
-	libnateon_a-sop.$(OBJEXT) libnateon_a-switchboard.$(OBJEXT) \
-	libnateon_a-state.$(OBJEXT) libnateon_a-sync.$(OBJEXT) \
-	libnateon_a-table.$(OBJEXT) libnateon_a-transaction.$(OBJEXT) \
-	libnateon_a-user.$(OBJEXT) libnateon_a-userlist.$(OBJEXT)
+	libnateon_a-slplink.$(OBJEXT) libnateon_a-sop.$(OBJEXT) \
+	libnateon_a-switchboard.$(OBJEXT) libnateon_a-state.$(OBJEXT) \
+	libnateon_a-sync.$(OBJEXT) libnateon_a-table.$(OBJEXT) \
+	libnateon_a-transaction.$(OBJEXT) libnateon_a-user.$(OBJEXT) \
+	libnateon_a-userlist.$(OBJEXT)
 #am_libnateon_a_OBJECTS = $(am__objects_1)
 libnateon_a_OBJECTS = $(am_libnateon_a_OBJECTS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -85,14 +86,14 @@ am__libnateon_la_SOURCES_DIST = cmdproc.c cmdproc.h command.c \
 	command.h dialog.c dialog.h error.c error.h group.c group.h \
 	history.c history.h msg.c msg.h nateon.c nateon.h \
 	nateon-utils.c nateon-utils.h notification.c notification.h \
-	servconn.c servconn.h session.c session.h sop.c sop.h \
-	switchboard.c switchboard.h state.c state.h sync.c sync.h \
-	table.c table.h transaction.c transaction.h user.c user.h \
-	userlist.c userlist.h
+	servconn.c servconn.h session.c session.h slplink.c slplink.h \
+	sop.c sop.h switchboard.c switchboard.h state.c state.h sync.c \
+	sync.h table.c table.h transaction.c transaction.h user.c \
+	user.h userlist.c userlist.h
 am__objects_2 = cmdproc.lo command.lo dialog.lo error.lo group.lo \
 	history.lo msg.lo nateon.lo nateon-utils.lo notification.lo \
-	servconn.lo session.lo sop.lo switchboard.lo state.lo sync.lo \
-	table.lo transaction.lo user.lo userlist.lo
+	servconn.lo session.lo slplink.lo sop.lo switchboard.lo \
+	state.lo sync.lo table.lo transaction.lo user.lo userlist.lo
 am_libnateon_la_OBJECTS = $(am__objects_2)
 libnateon_la_OBJECTS = $(am_libnateon_la_OBJECTS)
 libnateon_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -287,6 +288,8 @@ NATEONSOURCES = \
 	servconn.h \
 	session.c \
 	session.h \
+	slplink.c \
+	slplink.h \
 	sop.c \
 	sop.h \
 	switchboard.c \
@@ -414,6 +417,7 @@ include ./$(DEPDIR)/libnateon_a-nateon.Po
 include ./$(DEPDIR)/libnateon_a-notification.Po
 include ./$(DEPDIR)/libnateon_a-servconn.Po
 include ./$(DEPDIR)/libnateon_a-session.Po
+include ./$(DEPDIR)/libnateon_a-slplink.Po
 include ./$(DEPDIR)/libnateon_a-sop.Po
 include ./$(DEPDIR)/libnateon_a-state.Po
 include ./$(DEPDIR)/libnateon_a-switchboard.Po
@@ -428,6 +432,7 @@ include ./$(DEPDIR)/nateon.Plo
 include ./$(DEPDIR)/notification.Plo
 include ./$(DEPDIR)/servconn.Plo
 include ./$(DEPDIR)/session.Plo
+include ./$(DEPDIR)/slplink.Plo
 include ./$(DEPDIR)/sop.Plo
 include ./$(DEPDIR)/state.Plo
 include ./$(DEPDIR)/switchboard.Plo
@@ -625,6 +630,20 @@ libnateon_a-session.obj: session.c
 #	source='session.c' object='libnateon_a-session.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-session.obj `if test -f 'session.c'; then $(CYGPATH_W) 'session.c'; else $(CYGPATH_W) '$(srcdir)/session.c'; fi`
+
+libnateon_a-slplink.o: slplink.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-slplink.o -MD -MP -MF $(DEPDIR)/libnateon_a-slplink.Tpo -c -o libnateon_a-slplink.o `test -f 'slplink.c' || echo '$(srcdir)/'`slplink.c
+	mv -f $(DEPDIR)/libnateon_a-slplink.Tpo $(DEPDIR)/libnateon_a-slplink.Po
+#	source='slplink.c' object='libnateon_a-slplink.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-slplink.o `test -f 'slplink.c' || echo '$(srcdir)/'`slplink.c
+
+libnateon_a-slplink.obj: slplink.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-slplink.obj -MD -MP -MF $(DEPDIR)/libnateon_a-slplink.Tpo -c -o libnateon_a-slplink.obj `if test -f 'slplink.c'; then $(CYGPATH_W) 'slplink.c'; else $(CYGPATH_W) '$(srcdir)/slplink.c'; fi`
+	mv -f $(DEPDIR)/libnateon_a-slplink.Tpo $(DEPDIR)/libnateon_a-slplink.Po
+#	source='slplink.c' object='libnateon_a-slplink.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-slplink.obj `if test -f 'slplink.c'; then $(CYGPATH_W) 'slplink.c'; else $(CYGPATH_W) '$(srcdir)/slplink.c'; fi`
 
 libnateon_a-sop.o: sop.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-sop.o -MD -MP -MF $(DEPDIR)/libnateon_a-sop.Tpo -c -o libnateon_a-sop.o `test -f 'sop.c' || echo '$(srcdir)/'`sop.c
