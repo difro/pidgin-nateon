@@ -28,6 +28,8 @@ NATEONSOURCES = \
 	servconn.h \
 	session.c \
 	session.h \
+	sop.c \
+	sop.h \
 	switchboard.c \
 	switchboard.h \
 	state.c \

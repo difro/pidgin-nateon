@@ -27,6 +27,13 @@
 
 static NateonTable *cbs_table;
 
+static void conf_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	nateon_cmdproc_send(cmdproc, "GLST", NULL);
+}
+
 static void glst_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
 	NateonSession *session = cmdproc->session;
@@ -336,6 +343,7 @@ nateon_sync_init(void)
 	cbs_table = nateon_table_new();
 
 	/* Syncing */
+	nateon_table_add_cmd(cbs_table, "CONF", "CONF", conf_cmd);
 	nateon_table_add_cmd(cbs_table, "GLST", "GLST", glst_cmd);
 	nateon_table_add_cmd(cbs_table, "LIST", "LIST", list_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "GTC", NULL);

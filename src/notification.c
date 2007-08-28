@@ -389,7 +389,7 @@ static void lsin_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	g_free(user->friendly_name);
 	user->friendly_name = g_strdup(friend);
 
-	//nateon_cmdproc_send(cmdproc, "CONF", "2283 0");
+	//nateon_cmdproc_send(cmdproc, "CONF", "0 0");
 	nateon_cmdproc_send(cmdproc, "GLST", NULL);
 }
 
@@ -1260,11 +1260,6 @@ mvbg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //	}
 //}
 
-static void imsg_cb()
-{
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-}
-
 static void
 imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
@@ -1275,6 +1270,7 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	PurpleRequestField *f;
 	const char *buddy_name;
 	char *contents;
+	char *date;
 	int i;
 
 	session = cmdproc->session;
@@ -1299,18 +1295,17 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 			buddy_name = params[1];
 			purple_debug_info("nateon", "[%s] buddy_name(%s)\n", __FUNCTION__, buddy_name);
 		}
+		else if (!strcmp(params[0], "date"))
+		{
+			int year, mon, day, hour, min, sec;
+			sscanf(params[1], "%04d%02d%02d%02d%02d%02d", &year, &mon, &day, &hour, &min, &sec);
+			date = g_strdup_printf("%04d-%02d-%2d %02d:%02d:%02d", year, mon, day, hour, min, sec);
+		}
 	}
 	contents = purple_strreplace(cmd->params[cmd->param_count-1], "%20", " ");
 	purple_debug_info("nateon", "[%s] contnets(%s)\n", __FUNCTION__, contents);
 
-	fields = purple_request_fields_new();
-	g = purple_request_field_group_new(NULL);
-	f = purple_request_field_string_new("text", buddy_name, contents, TRUE);
-	purple_request_field_string_set_editable(f, FALSE);
-	purple_request_field_group_add_field(g, f);
-	purple_request_fields_add_group(fields, g);
-
-	purple_request_fields(gc, "쪽지", NULL, NULL, fields, _("답장"), G_CALLBACK(imsg_cb), _("Close"), NULL, purple_connection_get_account(gc), "who", NULL, gc);
+	purple_notify_formatted(gc, "쪽지", buddy_name, date, contents, NULL, gc);
 }
 
 /**************************************************************************

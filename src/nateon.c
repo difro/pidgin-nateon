@@ -29,6 +29,7 @@
 #include "accountopt.h"
 //#include "msg.h"
 //#include "page.h"
+#include "sop.h"
 #include "pluginpref.h"
 #include "prefs.h"
 #include "session.h"
@@ -48,14 +49,14 @@
 //#if PHOTO_SUPPORT
 //#include "imgstore.h"
 //#endif
-//
-//typedef struct
-//{
-//	PurpleConnection *gc;
-//	const char *passport;
-//
-//} NateonMobileData;
-//
+
+typedef struct
+{
+	PurpleConnection *gc;
+	const char *account;
+
+} NateonSendData;
+
 //typedef struct
 //{
 //	PurpleConnection *gc;
@@ -224,20 +225,68 @@ nateon_act_id(PurpleConnection *gc, const char *entry)
 //	send_to_mobile(data->gc, data->passport, entry);
 //	g_free(data);
 //}
-//
-static void
-send_sms_cb(char *data, const char *entry)
-{
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-}
-//
+
 //static void
 //close_mobile_page_cb(NateonMobileData *data, const char *entry)
 //{
 //	g_free(data);
 //}
-//
-///* -- */
+
+static void
+send_sop(PurpleConnection *gc, const char *who, const char *entry)
+{
+	PurpleAccount *account;
+	NateonTransaction *trans;
+	NateonSession *session;
+	NateonCmdProc *cmdproc;
+	NateonSop *sop;
+	char *payload;
+	size_t payload_len;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	account = purple_connection_get_account(gc);
+	session = gc->proto_data;
+	cmdproc = session->notification->cmdproc;
+
+	sop = nateon_sop_new(purple_account_get_username(account), who);
+	nateon_sop_set_body(sop, entry);
+
+	payload = nateon_sop_gen_payload(sop, &payload_len);
+
+	trans = nateon_transaction_new(cmdproc, "CMSG", "N %d", payload_len);
+
+	nateon_transaction_set_payload(trans, payload, payload_len);
+
+	nateon_sop_destroy(sop);
+
+	nateon_cmdproc_send_trans(cmdproc, trans);
+}
+
+static void
+send_sop_cb(NateonSendData *data, const char *entry)
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	send_sop(data->gc, data->account, entry);
+	g_free(data);
+}
+
+static void
+close_sop_cb(NateonSendData *data, const char *entry)
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	g_free(data);
+}
+
+static void
+send_sms_cb(char *data, const char *entry)
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+}
+
+/* -- */
 
 static void
 nateon_show_set_friendly_name(PurplePluginAction *action)
@@ -362,7 +411,34 @@ nateon_show_set_friendly_name(PurplePluginAction *action)
 //					   _("Close"), G_CALLBACK(close_mobile_page_cb),
 //					   data);
 //}
-//
+
+static void
+show_send_sop_cb(PurpleBlistNode *node, gpointer ignored)
+{
+	PurpleBuddy *buddy;
+	PurpleConnection *gc;
+	NateonSession *session;
+	NateonSendData *data;
+
+	g_return_if_fail(PURPLE_BLIST_NODE_IS_BUDDY(node));
+
+	buddy = (PurpleBuddy *) node;
+	gc = purple_account_get_connection(buddy->account);
+
+	session = gc->proto_data;
+
+	data = g_new0(NateonSendData, 1);
+	data->gc = gc;
+	data->account = buddy->name;
+
+	purple_request_input(gc, NULL, buddy->name, NULL,
+					   NULL, TRUE, FALSE, NULL,
+					   _("_Send"), G_CALLBACK(send_sop_cb),
+					   _("Close"), NULL,
+					   purple_connection_get_account(gc), NULL, NULL,
+					   data);
+}
+
 static void
 show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 {
@@ -397,31 +473,30 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 //					   purple_connection_get_account(gc), NULL, NULL,
 //					   gc);
 
-	{
-		PurpleRequestFields *fields;
-		PurpleRequestFieldGroup *g;
-		PurpleRequestField *f;
-
-		fields = purple_request_fields_new();
-
+//	{
+//		PurpleRequestFields *fields;
+//		PurpleRequestFieldGroup *g;
+//		PurpleRequestField *f;
+//
+//		fields = purple_request_fields_new();
+//
+////		g = purple_request_field_group_new(NULL);
+////		f = purple_request_field_account_new("account", "account", NULL);
+////		purple_request_field_group_add_field(g, f);
+////		purple_request_fields_add_group(fields, g);
+//
 //		g = purple_request_field_group_new(NULL);
-//		f = purple_request_field_account_new("account", "account", NULL);
+//		f = purple_request_field_string_new("text", buddy->name, NULL, TRUE);
+//		purple_request_field_group_add_field(g, f);
+////		purple_request_fields_add_group(fields, g);
+//
+////		g = purple_request_field_group_new(NULL);
+//		f = purple_request_field_bool_new("check", "수신확인", FALSE);
 //		purple_request_field_group_add_field(g, f);
 //		purple_request_fields_add_group(fields, g);
-
-		g = purple_request_field_group_new(NULL);
-		f = purple_request_field_string_new("text", buddy->name, NULL, TRUE);
-		purple_request_field_group_add_field(g, f);
-//		purple_request_fields_add_group(fields, g);
-
-//		g = purple_request_field_group_new(NULL);
-		f = purple_request_field_bool_new("check", "수신확인", FALSE);
-		purple_request_field_group_add_field(g, f);
-		purple_request_fields_add_group(fields, g);
-
-		purple_request_fields(gc, "쪽지쓰기", NULL, NULL, fields, _("_Send"), G_CALLBACK(send_sms_cb), _("Close"), NULL, purple_connection_get_account(gc), "who", NULL, gc);
-	}
-
+//
+//		purple_request_fields(gc, "쪽지쓰기", NULL, NULL, fields, _("_Send"), G_CALLBACK(send_sms_cb), _("Close"), NULL, purple_connection_get_account(gc), "who", NULL, gc);
+//	}
 }
 //
 //static void
@@ -706,8 +781,11 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 //			m = g_list_append(m, act);
 //		}
 //		
-		act = purple_menu_action_new(_("Send SMS"), PURPLE_CALLBACK(show_send_sms_cb), NULL, NULL);
+		act = purple_menu_action_new(_("Send SOP"), PURPLE_CALLBACK(show_send_sop_cb), NULL, NULL);
 		m = g_list_append(m, act);
+
+//		act = purple_menu_action_new(_("Send SMS"), PURPLE_CALLBACK(show_send_sms_cb), NULL, NULL);
+//		m = g_list_append(m, act);
 	}
 
 	if (g_ascii_strcasecmp(buddy->name,

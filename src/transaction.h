@@ -66,8 +66,7 @@ NateonTransaction *nateon_transaction_new(NateonCmdProc *cmdproc, const char *co
 char *nateon_transaction_to_string(NateonTransaction *trans);
 //void nateon_transaction_queue_cmd(NateonTransaction *trans, NateonCommand *cmd);
 //void nateon_transaction_unqueue_cmd(NateonTransaction *trans, NateonCmdProc *cmdproc);
-//void nateon_transaction_set_payload(NateonTransaction *trans,
-//								 const char *payload, int payload_len);
+void nateon_transaction_set_payload(NateonTransaction *trans, const char *payload, int payload_len);
 void nateon_transaction_set_data(NateonTransaction *trans, void *data);
 void nateon_transaction_add_cb(NateonTransaction *trans, char *answer, NateonTransCb cb);
 //void nateon_transaction_set_error_cb(NateonTransaction *trans, NateonErrorCb cb);

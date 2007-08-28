@@ -147,17 +147,17 @@ nateon_transaction_to_string(NateonTransaction *trans)
 //		nateon_cmdproc_send_trans(cmdproc, elem);
 //}
 //#endif
-//
-//void
-//nateon_transaction_set_payload(NateonTransaction *trans,
-//							const char *payload, int payload_len)
-//{
-//	g_return_if_fail(trans   != NULL);
-//	g_return_if_fail(payload != NULL);
-//
-//	trans->payload = g_strdup(payload);
-//	trans->payload_len = payload_len ? payload_len : strlen(trans->payload);
-//}
+
+void
+nateon_transaction_set_payload(NateonTransaction *trans,
+							const char *payload, int payload_len)
+{
+	g_return_if_fail(trans   != NULL);
+	g_return_if_fail(payload != NULL);
+
+	trans->payload = g_strdup(payload);
+	trans->payload_len = payload_len ? payload_len : strlen(trans->payload);
+}
 
 void
 nateon_transaction_set_data(NateonTransaction *trans, void *data)
