@@ -699,7 +699,7 @@ addg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	group_id = atoi(cmd->params[2]);
 
 	params = g_strsplit(cmd->trans->params, " ", 0);
-	group_name = purple_url_decode(params[1]);
+	group_name = purple_strreplace(params[1], "%20", " ");
 
 	group = nateon_group_new(session->userlist, group_id, group_name);
 
@@ -956,7 +956,7 @@ static void
 reng_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
 	NateonSession *session;
-	char *params;
+	char **params;
 	int group_id;
 	const char *group_name;
 
@@ -965,9 +965,8 @@ reng_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	session = cmdproc->session;
 	params = g_strsplit(cmd->trans->params, " ", 0);
 	group_id = atoi(params[1]);
-	group_name = purple_url_decode(params[2]);
+	group_name = purple_strreplace(params[2], "%20", " ");
 
-	purple_debug_info("nateon", "[%s] group_id(%d)\n", __FUNCTION__, group_id);
 	nateon_userlist_rename_group_id(session->userlist, group_id, group_name);
 }
 
@@ -1297,13 +1296,6 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 		
 		purple_debug_info("nateon", "%d: [%s]\n", i, cmd->params[i]);
 
-		if (!strcmp(cmd->params[i], ""))
-		{
-			params = &cmd->params[i+1];
-			contents = g_strjoinv(" ", params);
-			break;
-		}
-
 		params = g_strsplit(cmd->params[i], ":", 0);
 
 		if (!strcmp(params[0], "from"))
@@ -1316,7 +1308,16 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 			sscanf(params[1], "%04d%02d%02d%02d%02d%02d", &year, &mon, &day, &hour, &min, &sec);
 			date = g_strdup_printf("%04d-%02d-%2d %02d:%02d:%02d", year, mon, day, hour, min, sec);
 		}
+		else if (!strcmp(params[0], "uuid"))
+		{
+			params = &cmd->params[i+1];
+			contents = g_strjoinv(" ", params);
+			contents = purple_strreplace(contents, "\n", "<br>");
+			g_strstrip(contents);
+			break;
+		}
 	}
+
 
 	purple_debug_info("nateon", "[%s] contnets(%s)\n", __FUNCTION__, contents);
 

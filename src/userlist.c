@@ -155,17 +155,19 @@ nateon_request_add_group(NateonUserList *userlist, const char *who,
 	NateonCmdProc *cmdproc;
 	NateonTransaction *trans;
 	NateonMoveBuddy *data;
+	const char *enc_new_group_name;
 
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 	cmdproc = userlist->session->notification->cmdproc;
 	data = g_new0(NateonMoveBuddy, 1);
+	enc_new_group_name = purple_strreplace(new_group_name, " ", "%20");
 
 	data->who = g_strdup(who);
 
 	if (old_group_name)
 		data->old_group_name = g_strdup(old_group_name);
 
-	trans = nateon_transaction_new(cmdproc, "ADDG", "0 %s", purple_strreplace(new_group_name, " ", "%20"));
+	trans = nateon_transaction_new(cmdproc, "ADDG", "0 %s", enc_new_group_name);
 
 	nateon_transaction_set_data(trans, data);
 

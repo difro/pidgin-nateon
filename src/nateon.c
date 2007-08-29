@@ -1417,6 +1417,7 @@ nateon_rename_group(PurpleConnection *gc, const char *old_name,
 				 PurpleGroup *group, GList *moved_buddies)
 {
 	NateonSession *session;
+	NateonUserList *userlist;
 	NateonCmdProc *cmdproc;
 	int old_gid;
 	const char *enc_new_group_name;
@@ -1424,12 +1425,34 @@ nateon_rename_group(PurpleConnection *gc, const char *old_name,
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 
 	session = gc->proto_data;
+	userlist = session->userlist;
 	cmdproc = session->notification->cmdproc;
 	enc_new_group_name = purple_strreplace(group->name, " ", "%20");
 
-	old_gid = nateon_userlist_find_group_id(session->userlist, old_name);
+	old_gid = nateon_userlist_find_group_id(userlist, old_name);
 
-	if (old_gid >= 0)
+	purple_debug_info("nateon", "[%s] old_gid(%d)\n", __FUNCTION__, old_gid);
+
+	if (old_gid == 0) // '기타'그룹
+	{
+		GList *l;
+		PurpleGroup *g;
+
+		for (l = userlist->users; l != NULL; l = l->next)
+		{
+			NateonUser *user = (NateonUser *)l->data;
+
+			if (g_list_find(user->group_ids, GINT_TO_POINTER(0)) != NULL)
+			{
+				nateon_userlist_move_buddy(userlist, user->account_name, old_name, group->name);
+			}
+		}
+
+		nateon_group_new(userlist, 0, old_name);
+		g = purple_group_new(old_name);
+		purple_blist_add_group(g, NULL);
+	}
+	else if (old_gid > 0)
 	{
 		nateon_cmdproc_send(cmdproc, "RENG", "0 %d %s", old_gid, enc_new_group_name);
 	}
