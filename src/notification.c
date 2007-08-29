@@ -376,7 +376,7 @@ static void lsin_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	cmdproc->cbs_table = sync->cbs_table;
 
 	user_id = cmd->params[1];
-	stored  = cmd->params[3]; // 별칭
+	stored  = purple_strreplace(cmd->params[3], "%20", " "); // 별칭
 	friend  = cmd->params[2]; // 본명
 
 	user = session->user;
@@ -388,7 +388,7 @@ static void lsin_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	user->store_name = g_strdup(stored);
 
 	g_free(user->friendly_name);
-	user->friendly_name = purple_strreplace(friend, "%20", " ");
+	user->friendly_name = g_strdup(friend);
 
 	purple_connection_set_display_name(gc, stored);
 
