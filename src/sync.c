@@ -52,14 +52,15 @@ static void glst_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 		group = nateon_group_new(session->userlist, group_id, name);
 
-		/* HACK */
-		if (group_id == 0)
-		{
-			/* Group of ungroupped buddies */
-			g_free(group->name);
-			group->name = g_strdup("");
-		}
-		else if (purple_find_group(name) == NULL)
+//		/* HACK */
+//		if (group_id == 0)
+//		{
+//			/* Group of ungroupped buddies */
+//			g_free(group->name);
+//			group->name = g_strdup("");
+//		}
+
+		if (purple_find_group(name) == NULL)
 		{
 			PurpleGroup *g = purple_group_new(name);
 			purple_blist_add_group(g, NULL);

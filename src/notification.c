@@ -359,11 +359,13 @@ static void reqs_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 static void lsin_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
 	NateonSession *session;
+	PurpleConnection *gc;
 	NateonSync *sync;
 	NateonUser *user;
-	char *user_id, *account, *stored, *friend;
+	char *user_id, *stored, *friend;
 
 	session = cmdproc->session;
+	gc = purple_account_get_connection(session->account);
 
 	nateon_session_set_login_step(session, NATEON_LOGIN_STEP_AUTH);
 
@@ -374,9 +376,8 @@ static void lsin_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	cmdproc->cbs_table = sync->cbs_table;
 
 	user_id = cmd->params[1];
-	account = cmd->params[13];
-	stored  = cmd->params[3];
-	friend  = cmd->params[2];
+	stored  = cmd->params[3]; // 별칭
+	friend  = cmd->params[2]; // 본명
 
 	user = session->user;
 
@@ -387,7 +388,9 @@ static void lsin_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	user->store_name = g_strdup(stored);
 
 	g_free(user->friendly_name);
-	user->friendly_name = g_strdup(friend);
+	user->friendly_name = purple_strreplace(friend, "%20", " ");
+
+	purple_connection_set_display_name(gc, stored);
 
 	//nateon_cmdproc_send(cmdproc, "CONF", "0 0");
 	nateon_cmdproc_send(cmdproc, "GLST", NULL);
@@ -1260,9 +1263,20 @@ mvbg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //}
 
 static void
+cnik_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	PurpleConnection *gc;
+	char *friendly;
+
+	gc = purple_account_get_connection(cmdproc->session->account);
+
+	friendly = purple_strreplace(cmd->trans->params, "%20", " ");
+	purple_connection_set_display_name(gc, friendly);
+}
+
+static void
 imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
-	NateonSession *session;
 	PurpleConnection *gc;
 	PurpleRequestFields *fields;
 	PurpleRequestFieldGroup *g;
@@ -1272,8 +1286,7 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	char *date;
 	int i;
 
-	session = cmdproc->session;
-	gc = session->account->gc;
+	gc = purple_account_get_connection(cmdproc->session->account);
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 	purple_debug_info("nateon", "[%s] param_count(%d)\n", __FUNCTION__, cmd->param_count);
@@ -1677,6 +1690,7 @@ nateon_notification_init(void)
 	// Notification server
 	nateon_table_add_cmd(cbs_table, "LSIN", "LSIN", lsin_cmd);
 	nateon_table_add_cmd(cbs_table, "ONST", "ONST", NULL);
+	nateon_table_add_cmd(cbs_table, "CNIK", "CNIK", cnik_cmd);
 
 	// Buddy & Group
 	nateon_table_add_cmd(cbs_table, "ADSB", "ADSB", adsb_cmd);

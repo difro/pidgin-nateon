@@ -44,7 +44,7 @@
 #include "switchboard.h"
 #include "notification.h"
 #include "sync.h"
-#include "slplink.h"
+//#include "slplink.h"
 
 //#if PHOTO_SUPPORT
 //#include "imgstore.h"
@@ -522,80 +522,80 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 //							purple_account_get_username(buddy->account), NULL, PURPLE_CBFLAGS_NONE, TRUE);
 //}
 
-static void
-t_nateon_xfer_init(PurpleXfer *xfer)
-{
+//static void
+//t_nateon_xfer_init(PurpleXfer *xfer)
+//{
+////	NateonSlpLink *slplink;
+//	const char *filename;
+//	FILE *fp;
+//
+//	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+//
+//	filename = purple_xfer_get_local_filename(xfer);
+//	purple_debug_info("nateon", "[%s] filename(%s)\n", __FUNCTION__, filename);
+//
+////	slplink = xfer->data;
+//
+//	if ((fp = g_fopen(filename, "rb")) == NULL)
+//	{
+//		purple_debug_info("nateon", "[%s] xfer_error\n", __FUNCTION__, filename);
+////		PurpleAccount *account;
+////		PurpleConnection *gc;
+////		const char *who;
+////		char *msg;
+////
+////		account = slplink->session->account;
+////		gc = purple_account_get_connection(account);
+////		who = slplink->remote_user;
+////
+////		msg = g_strdup_printf(_("Error reading %s: \n%s.\n"),
+////							  filename, strerror(errno));
+////		purple_xfer_error(purple_xfer_get_type(xfer), account, xfer->who, msg);
+////		purple_xfer_cancel_local(xfer);
+////		g_free(msg);
+////
+//		return;
+//	}
+//	fclose(fp);
+//
+////	nateon_slplink_request_ft(slplink, xfer);
+//}
+
+//static PurpleXfer*
+//nateon_new_xfer(PurpleConnection *gc, const char *who)
+//{
+//	NateonSession *session;
 //	NateonSlpLink *slplink;
-	const char *filename;
-	FILE *fp;
-
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-
-	filename = purple_xfer_get_local_filename(xfer);
-	purple_debug_info("nateon", "[%s] filename(%s)\n", __FUNCTION__, filename);
-
-//	slplink = xfer->data;
-
-	if ((fp = g_fopen(filename, "rb")) == NULL)
-	{
-		purple_debug_info("nateon", "[%s] xfer_error\n", __FUNCTION__, filename);
-//		PurpleAccount *account;
-//		PurpleConnection *gc;
-//		const char *who;
-//		char *msg;
+//	PurpleXfer *xfer;
 //
-//		account = slplink->session->account;
-//		gc = purple_account_get_connection(account);
-//		who = slplink->remote_user;
+//	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 //
-//		msg = g_strdup_printf(_("Error reading %s: \n%s.\n"),
-//							  filename, strerror(errno));
-//		purple_xfer_error(purple_xfer_get_type(xfer), account, xfer->who, msg);
-//		purple_xfer_cancel_local(xfer);
-//		g_free(msg);
+//	session = gc->proto_data;
 //
-		return;
-	}
-	fclose(fp);
+//	xfer = purple_xfer_new(gc->account, PURPLE_XFER_SEND, who);
+//
+////	slplink = nateon_session_get_slplink(session, who);
+//
+//	xfer->data = slplink;
+//
+//	purple_xfer_set_init_fnc(xfer, t_nateon_xfer_init);
+//
+//	return xfer;
+//}
 
-//	nateon_slplink_request_ft(slplink, xfer);
-}
-
-static PurpleXfer*
-nateon_new_xfer(PurpleConnection *gc, const char *who)
-{
-	NateonSession *session;
-	NateonSlpLink *slplink;
-	PurpleXfer *xfer;
-
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-
-	session = gc->proto_data;
-
-	xfer = purple_xfer_new(gc->account, PURPLE_XFER_SEND, who);
-
-//	slplink = nateon_session_get_slplink(session, who);
-
-	xfer->data = slplink;
-
-	purple_xfer_set_init_fnc(xfer, t_nateon_xfer_init);
-
-	return xfer;
-}
-
-static void
-nateon_send_file(PurpleConnection *gc, const char *who, const char *file)
-{
-	PurpleXfer *xfer = nateon_new_xfer(gc, who);
-
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-	purple_debug_info("nateon", "[%s] who(%s), file(%s)\n", __FUNCTION__, who, file);
-
-	if (file)
-		purple_xfer_request_accepted(xfer, file);
-	else
-		purple_xfer_request(xfer);
-}
+//static void
+//nateon_send_file(PurpleConnection *gc, const char *who, const char *file)
+//{
+//	PurpleXfer *xfer = nateon_new_xfer(gc, who);
+//
+//	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+//	purple_debug_info("nateon", "[%s] who(%s), file(%s)\n", __FUNCTION__, who, file);
+//
+//	if (file)
+//		purple_xfer_request_accepted(xfer, file);
+//	else
+//		purple_xfer_request(xfer);
+//}
 
 //static gboolean
 //nateon_can_receive_file(PurpleConnection *gc, const char *who)
@@ -659,11 +659,11 @@ nateon_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolea
 		purple_notify_user_info_add_pair(user_info, _("Status"), purple_presence_is_idle(presence) ? _("Idle") : purple_status_get_name(status));
 	}
 
-	if (full && user)
-	{
-		purple_notify_user_info_add_pair(user_info, _("Has you"), ((user->list_op & (1 << NATEON_LIST_RL)) ? _("Yes") : _("No")));
-
-	}
+//	if (full && user)
+//	{
+//		purple_notify_user_info_add_pair(user_info, _("Has you"), ((user->list_op & (1 << NATEON_LIST_RL)) ? _("Yes") : _("No")));
+//
+//	}
 
 	/* XXX: This is being shown in non-full tooltips because the
 	 * XXX: blocked icon overlay isn't always accurate for NATEON.
@@ -703,9 +703,6 @@ nateon_status_types(PurpleAccount *account)
 
 	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE,
 			NULL, NULL, FALSE, TRUE, FALSE);
-	types = g_list_append(types, status);
-	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE,
-			"F", NULL, FALSE, TRUE, FALSE);
 	types = g_list_append(types, status);
 
 	return types;
@@ -2109,6 +2106,11 @@ static gboolean nateon_unload(PurplePlugin *plugin)
 	return TRUE;
 }
 
+static set_info(PurpleConnection *gc, const char *info)
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+}
+
 static PurplePluginProtocolInfo prpl_info =
 {
 	0, //OPT_PROTO_MAIL_CHECK,
@@ -2126,7 +2128,7 @@ static PurplePluginProtocolInfo prpl_info =
 	nateon_login,				/* login */
 	nateon_close,				/* close */
 	nateon_send_im,				/* send_im */
-	NULL,					/* set_info */
+	set_info,					/* set_info */
 	nateon_send_typing,			/* send_typing */
 	nateon_get_info,			/* get_info */
 	nateon_set_status,			/* set_away */
@@ -2167,7 +2169,7 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,					/* roomlist_cancel */
 	NULL,					/* roomlist_expand_category */
 	NULL, //nateon_can_receive_file,	/* can_receive_file */
-	nateon_send_file,			/* send_file */
+	NULL, //nateon_send_file,			/* send_file */
 	NULL, //nateon_new_xfer,			/* new_xfer */
 	NULL,					/* offline_message */
 	NULL,					/* whiteboard_prpl_ops */

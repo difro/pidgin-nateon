@@ -152,8 +152,8 @@ nateon_session_get_slplink(NateonSession *session, const char *username)
 
 	slplink = nateon_session_find_slplink(session, username);
 
-	if (slplink == NULL)
-		slplink = nateon_slplink_new(session, username);
+//	if (slplink == NULL)
+//		slplink = nateon_slplink_new(session, username);
 
 	return slplink;
 }
