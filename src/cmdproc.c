@@ -43,8 +43,8 @@ nateon_cmdproc_destroy(NateonCmdProc *cmdproc)
 {
 	NateonTransaction *trans;
 
-//	while ((trans = g_queue_pop_head(cmdproc->txqueue)) != NULL)
-//		nateon_transaction_destroy(trans);
+	while ((trans = g_queue_pop_head(cmdproc->txqueue)) != NULL)
+		nateon_transaction_destroy(trans);
 
 	g_queue_free(cmdproc->txqueue);
 
@@ -268,7 +268,6 @@ nateon_cmdproc_process_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 			int error;
 
 			error = atoi(cmd->command);
-			purple_debug_info("nateon", "[%s] error(%d)\n", __FUNCTION__, error);
 
 			if (trans->error_cb != NULL)
 				error_cb = trans->error_cb;
@@ -278,12 +277,10 @@ nateon_cmdproc_process_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 			if (error_cb != NULL)
 			{
-				purple_debug_info("nateon", "[%s] 에러콜백있음\n", __FUNCTION__);
 				error_cb(cmdproc, trans, error);
 			}
 			else
 			{
-				purple_debug_info("nateon", "[%s] 에러콜백없음\n", __FUNCTION__);
 #if 1
 				nateon_error_handle(cmdproc->session, error);
 #else

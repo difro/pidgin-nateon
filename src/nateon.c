@@ -135,7 +135,7 @@ nateon_act_id(PurpleConnection *gc, const char *entry)
 
 	if (strlen(alias) > BUDDY_ALIAS_MAXLEN)
 	{
-		purple_notify_error(gc, NULL, _("Your new NATEON friendly name is too long."), NULL);
+		purple_notify_error(gc, NULL, _("Your new NateOn friendly name is too long."), NULL);
 		return;
 	}
 
@@ -659,11 +659,11 @@ nateon_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolea
 		purple_notify_user_info_add_pair(user_info, _("Status"), purple_presence_is_idle(presence) ? _("Idle") : purple_status_get_name(status));
 	}
 
-//	if (full && user)
-//	{
-//		purple_notify_user_info_add_pair(user_info, _("Has you"), ((user->list_op & (1 << NATEON_LIST_RL)) ? _("Yes") : _("No")));
-//
-//	}
+	if (full && user)
+	{
+		purple_notify_user_info_add_pair(user_info, _("Has you"), ((user->list_op & (1 << NATEON_LIST_RL)) ? _("Yes") : _("No")));
+
+	}
 
 	/* XXX: This is being shown in non-full tooltips because the
 	 * XXX: blocked icon overlay isn't always accurate for NATEON.
@@ -881,30 +881,26 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 	PurpleBuddy *buddy = purple_find_buddy(gc->account, who);
 	NateonMessage *msg;
 //	char *msgformat;
-//	char *msgtext;
-//
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-	purple_debug_info("nateon", "--------------------------------\n");
-	purple_debug_info("nateon", "who:%s\n", who);
-	purple_debug_info("nateon", "message:%s\n", message);
-	purple_debug_info("nateon", "--------------------------------\n");
+	char *msgtext;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
 	account = purple_connection_get_account(gc);
 
-	if (buddy)
-	{
-                PurplePresence *p = purple_buddy_get_presence(buddy);
+//	if (buddy)
+//	{
+//                PurplePresence *p = purple_buddy_get_presence(buddy);
 //                if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_MOBILE)) {
 //                        char *text = purple_markup_strip_html(message);
 //                        send_to_mobile(gc, who, text);
 //                        g_free(text);
 //                        return 1;
 //                }
-        }
+//        }
 
-	msg = purple_strreplace(message, " ", "%02");
-	msg = g_strdup_printf("MSG 굴림%%090%%09%%09%s", msg);
-	purple_debug_info("nateon", "%s\n", msg);
+	msgtext = purple_strreplace(message, " ", "%20");
+//	msg = g_strdup_printf("MSG 굴림%%090%%09%%09%s", msg);
+//	purple_debug_info("nateon", "%s\n", msg);
 
 //	nateon_import_html(message, &msgformat, &msgtext);
 //
@@ -919,12 +915,12 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 //
 //		return -E2BIG;
 //	}
-//
-//	msg = nateon_message_new_plain(msgtext);
+
+	msg = nateon_message_new_plain(msgtext);
 //	nateon_message_set_attr(msg, "X-MMS-IM-Format", msgformat);
 //
 //	g_free(msgformat);
-//	g_free(msgtext);
+	g_free(msgtext);
 
 	if (g_ascii_strcasecmp(who, purple_account_get_username(account)))
 	{
@@ -961,7 +957,7 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 //		g_free(body_str);
 //	}
 
-//	nateon_message_destroy(msg);
+	nateon_message_destroy(msg);
 
 	return 1;
 }
@@ -980,36 +976,33 @@ nateon_send_typing(PurpleConnection *gc, const char *who, int typing)
 	if (!typing)
 		return 0;
 
-//	if (!g_ascii_strcasecmp(who, purple_account_get_username(account)))
-//	{
-//		/* We'll just fake it, since we're sending to ourself. */
-//		serv_got_typing(gc, who, NATEON_TYPING_RECV_TIMEOUT, PURPLE_TYPING);
-//
-//		return NATEON_TYPING_SEND_TIMEOUT;
-//	}
+	if (!g_ascii_strcasecmp(who, purple_account_get_username(account)))
+	{
+		/* We'll just fake it, since we're sending to ourself. */
+		serv_got_typing(gc, who, NATEON_TYPING_RECV_TIMEOUT, PURPLE_TYPING);
+
+		return NATEON_TYPING_SEND_TIMEOUT;
+	}
 
 	swboard = nateon_session_find_swboard(session, who);
 
 	if (swboard == NULL || !nateon_switchboard_can_send(swboard))
 		return 0;
 
-//	swboard->flag |= NATEON_SB_FLAG_IM;
+	swboard->flag |= NATEON_SB_FLAG_IM;
 
-	msg = g_strdup_printf("TYPING 1");
-
-//	msg = nateon_message_new(NATEON_MSG_TYPING);
+	msg = nateon_message_new(NATEON_MSG_TYPING);
 //	nateon_message_set_content_type(msg, "text/x-msmsgscontrol");
 //	nateon_message_set_flag(msg, 'U');
 //	nateon_message_set_attr(msg, "TypingUser",
 //						 purple_account_get_username(account));
-//	nateon_message_set_bin_data(msg, "\r\n", 2);
+	nateon_message_set_bin_data(msg, "TYPING 1", 8);
 
 	nateon_switchboard_send_msg(swboard, msg, FALSE);
 
-//	nateon_message_destroy(msg);
+	nateon_message_destroy(msg);
 
-//	return NATEON_TYPING_SEND_TIMEOUT;
-	return 4;
+	return NATEON_TYPING_SEND_TIMEOUT;
 }
 
 static void nateon_set_status(PurpleAccount *account, PurpleStatus *status)
@@ -2129,11 +2122,6 @@ static gboolean nateon_unload(PurplePlugin *plugin)
 	return TRUE;
 }
 
-static set_info(PurpleConnection *gc, const char *info)
-{
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-}
-
 static PurplePluginProtocolInfo prpl_info =
 {
 	0, //OPT_PROTO_MAIL_CHECK,
@@ -2151,7 +2139,7 @@ static PurplePluginProtocolInfo prpl_info =
 	nateon_login,				/* login */
 	nateon_close,				/* close */
 	nateon_send_im,				/* send_im */
-	set_info,					/* set_info */
+	NULL,					/* set_info */
 	nateon_send_typing,			/* send_typing */
 	nateon_get_info,			/* get_info */
 	nateon_set_status,			/* set_away */

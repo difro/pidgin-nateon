@@ -138,17 +138,17 @@ nateon_servconn_got_error(NateonServConn *servconn, NateonServConnError error)
 	tmp = g_strdup_printf(_("Connection error from %s server:\n%s"),
 						  name, reason);
 
-//	if (servconn->type == NATEON_SERVCONN_NS)
-//	{
-//		nateon_session_set_error(servconn->session, NATEON_ERROR_SERVCONN, tmp);
-//	}
-//	else if (servconn->type == NATEON_SERVCONN_SB)
-//	{
-//		NateonSwitchBoard *swboard;
-//		swboard = servconn->cmdproc->data;
-//		if (swboard != NULL)
-//			swboard->error = NATEON_SB_ERROR_CONNECTION;
-//	}
+	if (servconn->type == NATEON_SERVCONN_NS)
+	{
+		nateon_session_set_error(servconn->session, NATEON_ERROR_SERVCONN, tmp);
+	}
+	else if (servconn->type == NATEON_SERVCONN_SB)
+	{
+		NateonSwitchBoard *swboard;
+		swboard = servconn->cmdproc->data;
+		if (swboard != NULL)
+			swboard->error = NATEON_SB_ERROR_CONNECTION;
+	}
 
 	nateon_servconn_disconnect(servconn);
 

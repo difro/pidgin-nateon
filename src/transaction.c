@@ -49,39 +49,39 @@ nateon_transaction_new(NateonCmdProc *cmdproc, const char *command, const char *
 	return trans;
 }
 
-//void
-//nateon_transaction_destroy(NateonTransaction *trans)
-//{
-//	g_return_if_fail(trans != NULL);
-//
-//	g_free(trans->command);
-//	g_free(trans->params);
-//	g_free(trans->payload);
-//
-//#if 0
-//	if (trans->pendent_cmd != NULL)
-//		nateon_message_unref(trans->pendent_msg);
-//#endif
-//
-//#if 0
-//	NateonTransaction *elem;
-//	if (trans->queue != NULL)
-//	{
-//		while ((elem = g_queue_pop_head(trans->queue)) != NULL)
-//			nateon_transaction_destroy(elem);
-//
-//		g_queue_free(trans->queue);
-//	}
-//#endif
-//
-//	if (trans->callbacks != NULL && trans->has_custom_callbacks)
-//		g_hash_table_destroy(trans->callbacks);
-//
-//	if (trans->timer)
-//		purple_timeout_remove(trans->timer);
-//
-//	g_free(trans);
-//}
+void
+nateon_transaction_destroy(NateonTransaction *trans)
+{
+	g_return_if_fail(trans != NULL);
+
+	g_free(trans->command);
+	g_free(trans->params);
+	g_free(trans->payload);
+
+#if 0
+	if (trans->pendent_cmd != NULL)
+		nateon_message_unref(trans->pendent_msg);
+#endif
+
+#if 0
+	NateonTransaction *elem;
+	if (trans->queue != NULL)
+	{
+		while ((elem = g_queue_pop_head(trans->queue)) != NULL)
+			nateon_transaction_destroy(elem);
+
+		g_queue_free(trans->queue);
+	}
+#endif
+
+	if (trans->callbacks != NULL && trans->has_custom_callbacks)
+		g_hash_table_destroy(trans->callbacks);
+
+	if (trans->timer)
+		purple_timeout_remove(trans->timer);
+
+	g_free(trans);
+}
 
 char *
 nateon_transaction_to_string(NateonTransaction *trans)
@@ -91,10 +91,7 @@ nateon_transaction_to_string(NateonTransaction *trans)
 	g_return_val_if_fail(trans != NULL, FALSE);
 
 	if (trans->params != NULL)
-//		if (strcmp(trans->command, "CTOC"))
-			str = g_strdup_printf("%s %u %s\r\n", trans->command, trans->trId, trans->params);
-//		else
-//			str = g_strdup_printf("%s %u %s", trans->command, trans->trId, trans->params);
+		str = g_strdup_printf("%s %u %s\r\n", trans->command, trans->trId, trans->params);
 	else
 		str = g_strdup_printf("%s %u\r\n", trans->command, trans->trId);
 
@@ -186,38 +183,38 @@ nateon_transaction_add_cb(NateonTransaction *trans, char *answer,
 	g_hash_table_insert(trans->callbacks, answer, cb);
 }
 
-//static gboolean
-//transaction_timeout(gpointer data)
-//{
-//	NateonTransaction *trans;
-//
-//	trans = data;
-//	g_return_val_if_fail(trans != NULL, FALSE);
-//
-//#if 0
-//	purple_debug_info("nateon", "timed out: %s %d %s\n", trans->command, trans->trId, trans->params);
-//#endif
-//
-//	if (trans->timeout_cb != NULL)
-//		trans->timeout_cb(trans->cmdproc, trans);
-//
-//	return FALSE;
-//}
-//
-//void
-//nateon_transaction_set_timeout_cb(NateonTransaction *trans, NateonTimeoutCb cb)
-//{
-//	if (trans->timer)
-//	{
-//		purple_debug_error("nateon", "This shouldn't be happening\n");
-//		purple_timeout_remove(trans->timer);
-//	}
-//	trans->timeout_cb = cb;
-//	trans->timer = purple_timeout_add(60000, transaction_timeout, trans);
-//}
+static gboolean
+transaction_timeout(gpointer data)
+{
+	NateonTransaction *trans;
 
-//void
-//nateon_transaction_set_error_cb(NateonTransaction *trans, NateonErrorCb cb)
-//{
-//	trans->error_cb = cb;
-//}
+	trans = data;
+	g_return_val_if_fail(trans != NULL, FALSE);
+
+#if 0
+	purple_debug_info("nateon", "timed out: %s %d %s\n", trans->command, trans->trId, trans->params);
+#endif
+
+	if (trans->timeout_cb != NULL)
+		trans->timeout_cb(trans->cmdproc, trans);
+
+	return FALSE;
+}
+
+void
+nateon_transaction_set_timeout_cb(NateonTransaction *trans, NateonTimeoutCb cb)
+{
+	if (trans->timer)
+	{
+		purple_debug_error("nateon", "This shouldn't be happening\n");
+		purple_timeout_remove(trans->timer);
+	}
+	trans->timeout_cb = cb;
+	trans->timer = purple_timeout_add(60000, transaction_timeout, trans);
+}
+
+void
+nateon_transaction_set_error_cb(NateonTransaction *trans, NateonErrorCb cb)
+{
+	trans->error_cb = cb;
+}

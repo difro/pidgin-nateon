@@ -41,8 +41,8 @@ nateon_history_destroy(NateonHistory *history)
 {
 	NateonTransaction *trans;
 
-//	while ((trans = g_queue_pop_head(history->queue)) != NULL)
-//		nateon_transaction_destroy(trans);
+	while ((trans = g_queue_pop_head(history->queue)) != NULL)
+		nateon_transaction_destroy(trans);
 
 	g_queue_free(history->queue);
 	g_free(history);
@@ -81,6 +81,6 @@ nateon_history_add(NateonHistory *history, NateonTransaction *trans)
 	if (queue->length > NATEON_HIST_ELEMS)
 	{
 		trans = g_queue_pop_head(queue);
-		//nateon_transaction_destroy(trans);
+		nateon_transaction_destroy(trans);
 	}
 }

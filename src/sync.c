@@ -101,27 +101,21 @@ static void glst_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 static void list_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
 	NateonSession *session = cmdproc->session;
-	char *user_id = NULL;
-	char *account = NULL;
-	char *stored  = NULL;
-	char *friend  = NULL;
-	int list_op;
 	NateonUser *user;
+	char *user_id;
+	char *account;
+	char *stored;
+	char *friend;
+	int list_op;
 
 	user_id  = cmd->params[5];
 	account  = cmd->params[4];
-	stored   = purple_url_decode(cmd->params[7]);
+	stored   = purple_strreplace(cmd->params[7], "%20", " ");
 	friend   = cmd->params[6];
 	list_op  = cmd->params[3][NATEON_LIST_FL]-'0' ? NATEON_LIST_FL_OP : 0; 
 	list_op += cmd->params[3][NATEON_LIST_AL]-'0' ? NATEON_LIST_AL_OP : 0; 
 	list_op += cmd->params[3][NATEON_LIST_BL]-'0' ? NATEON_LIST_BL_OP : 0; 
 	list_op += cmd->params[3][NATEON_LIST_RL]-'0' ? NATEON_LIST_RL_OP : 0;
-
-	purple_debug_info("nateon", "[%s] %s%s%s%s\n", __FUNCTION__, 
-			cmd->params[3][NATEON_LIST_FL]-'0'? "FL ": "",
-			cmd->params[3][NATEON_LIST_AL]-'0'? "AL ": "",
-			cmd->params[3][NATEON_LIST_BL]-'0'? "BL ": "",
-			cmd->params[3][NATEON_LIST_RL]-'0'? "RL": "");
 
 	user = nateon_userlist_find_user_with_id(session->userlist, user_id);
 	if (user == NULL)
@@ -140,7 +134,7 @@ static void list_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	g_free(user->friendly_name);
 	user->friendly_name = g_strdup(friend);
 
-	nateon_got_list_user(session, user, list_op, user->group_ids);
+	nateon_got_lst_user(session, user, list_op, user->group_ids);
 
 	session->sync->last_user = user;
 

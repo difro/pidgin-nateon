@@ -88,29 +88,16 @@ void
 nateon_user_update(NateonUser *user)
 {
 	PurpleAccount *account;
-	PurpleConnection *gc;
-	const char *status;
 
 	account = user->userlist->session->account;
 
 	if (user->status != NULL)
 	{
-//		if (!g_ascii_strcasecmp(user->status, "B"))
-//			status = "busy";
-//		else if (!g_ascii_strcasecmp(user->status, "A"))
-//			status = "away";
-//		else if (!g_ascii_strcasecmp(user->status, "P"))
-//			status = "phone";
-//		else if (!g_ascii_strcasecmp(user->status, "F"))
-//			status = "offline";
-//		else
-//			status = "available";
-//
-//		purple_prpl_got_user_status(account, user->account_name, status, NULL);
-		purple_prpl_got_user_status(account, user->account_name, user->status, NULL);
+		if(!strcmp(user->status, "F"))
+			purple_prpl_got_user_status(account, user->account_name, "offline", NULL);
+		else
+			purple_prpl_got_user_status(account, user->account_name, user->status, NULL);
 	}
-
-	purple_debug_info("nateon", "%s - status=%s\n", __FUNCTION__, user->status);
 
 	if (user->idle)
 		purple_prpl_got_user_idle(account, user->account_name, TRUE, -1);
@@ -250,8 +237,6 @@ nateon_user_add_group_id(NateonUser *user, int id)
 	PurpleGroup *g;
 	const char *account_name;
 	const char *group_name;
-
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
 	g_return_if_fail(user != NULL);
 	g_return_if_fail(id >= 0);

@@ -24,8 +24,7 @@
 #ifndef _NATEON_MSG_H_
 #define _NATEON_MSG_H_
 
-//typedef struct _NateonMessage NateonMessage;
-typedef const char NateonMessage;
+typedef struct _NateonMessage NateonMessage;
 
 #include "session.h"
 //#include "user.h"
@@ -44,28 +43,27 @@ typedef const char NateonMessage;
 //
 //} NateonMsgType;
 //*/
-//
-//typedef enum
-//{
-//	NATEON_MSG_UNKNOWN,
-//	NATEON_MSG_TEXT,
-//	NATEON_MSG_TYPING,
+
+typedef enum
+{
+	NATEON_MSG_UNKNOWN,
+	NATEON_MSG_TEXT,
+	NATEON_MSG_TYPING,
 //	NATEON_MSG_CAPS,
 //	NATEON_MSG_SLP,
 //	NATEON_MSG_NUDGE
-//
-//} NateonMsgType;
-//
-//typedef enum
-//{
-//	NATEON_MSG_ERROR_NONE, /**< No error. */
-//	NATEON_MSG_ERROR_TIMEOUT, /**< The message timedout. */
-//	NATEON_MSG_ERROR_NAK, /**< The message could not be sent. */
-//	NATEON_MSG_ERROR_SB, /**< The error comes from the switchboard. */
-//	NATEON_MSG_ERROR_UNKNOWN /**< An unknown error occurred. */
-//
-//} NateonMsgErrorType;
-//
+
+} NateonMsgType;
+
+typedef enum
+{
+	NATEON_MSG_ERROR_NONE, /**< No error. */
+	NATEON_MSG_ERROR_TIMEOUT, /**< The message timedout. */
+	NATEON_MSG_ERROR_NAK, /**< The message could not be sent. */
+	NATEON_MSG_ERROR_SB, /**< The error comes from the switchboard. */
+	NATEON_MSG_ERROR_UNKNOWN /**< An unknown error occurred. */
+} NateonMsgErrorType;
+
 //typedef struct
 //{
 //	guint32 session_id;
@@ -89,11 +87,11 @@ typedef const char NateonMessage;
 /**
  * A message.
  */
-//struct _NateonMessage
-//{
-//	size_t ref_count;           /**< The reference count.       */
-//
-//	NateonMsgType type;
+struct _NateonMessage
+{
+	size_t ref_count;           /**< The reference count.       */
+
+	NateonMsgType type;
 //
 //	gboolean nateonslp_message;
 //
@@ -102,21 +100,21 @@ typedef const char NateonMessage;
 //
 //	char *content_type;
 //	char *charset;
-//	char *body;
-//	gsize body_len;
-//
+	char *body;
+	gsize body_len;
+
 //	NateonSlpHeader nateonslp_header;
 //	NateonSlpFooter nateonslp_footer;
 //
 //	GHashTable *attr_table;
 //	GList *attr_list;
-//
-//	gboolean ack_ref;           /**< A flag that states if this message has
-//								  been ref'ed for using it in a callback. */
-//
+
+	gboolean ack_ref;           /**< A flag that states if this message has
+								  been ref'ed for using it in a callback. */
+
 //	NateonCommand *cmd;
-//	NateonTransaction *trans;
-//
+	NateonTransaction *trans;
+
 //	NateonMsgCb ack_cb; /**< The callback to call when we receive an ACK of this
 //					   message. */
 //	NateonMsgCb nak_cb; /**< The callback to call when we receive a NAK of this
@@ -124,15 +122,15 @@ typedef const char NateonMessage;
 //	void *ack_data; /**< The data used by callbacks. */
 //
 //	NateonMsgErrorType error; /**< The error of the message. */
-//};
+};
 
-///**
-// * Creates a new, empty message.
-// *
-// * @return A new message.
-// */
-//NateonMessage *nateon_message_new(NateonMsgType type);
-//
+/**
+ * Creates a new, empty message.
+ *
+ * @return A new message.
+ */
+NateonMessage *nateon_message_new(NateonMsgType type);
+
 ///**
 // * Creates a new, empty NATEONSLP message.
 // *
@@ -146,14 +144,14 @@ typedef const char NateonMessage;
 // * @return A new nudge message.
 // */
 //NateonMessage *nateon_message_new_nudge(void);
-//
-///**
-// * Creates a new plain message.
-// *
-// * @return A new plain message.
-// */
-//NateonMessage *nateon_message_new_plain(const char *message);
-//
+
+/**
+ * Creates a new plain message.
+ *
+ * @return A new plain message.
+ */
+NateonMessage *nateon_message_new_plain(const char *message);
+
 ///**
 // * Creates a NATEONSLP ack message.
 // *
@@ -182,34 +180,34 @@ typedef const char NateonMessage;
 // */
 //void nateon_message_parse_payload(NateonMessage *msg, const char *payload,
 //							   size_t payload_len);
-//
-///**
-// * Destroys a message.
-// *
-// * @param msg The message to destroy.
-// */
-//void nateon_message_destroy(NateonMessage *msg);
-//
-///**
-// * Increments the reference count on a message.
-// *
-// * @param msg The message.
-// *
-// * @return @a msg
-// */
-//NateonMessage *nateon_message_ref(NateonMessage *msg);
-//
-///**
-// * Decrements the reference count on a message.
-// *
-// * This will destroy the structure if the count hits 0.
-// *
-// * @param msg The message.
-// *
-// * @return @a msg, or @c NULL if the new count is 0.
-// */
-//NateonMessage *nateon_message_unref(NateonMessage *msg);
-//
+
+/**
+ * Destroys a message.
+ *
+ * @param msg The message to destroy.
+ */
+void nateon_message_destroy(NateonMessage *msg);
+
+/**
+ * Increments the reference count on a message.
+ *
+ * @param msg The message.
+ *
+ * @return @a msg
+ */
+NateonMessage *nateon_message_ref(NateonMessage *msg);
+
+/**
+ * Decrements the reference count on a message.
+ *
+ * This will destroy the structure if the count hits 0.
+ *
+ * @param msg The message.
+ *
+ * @return @a msg, or @c NULL if the new count is 0.
+ */
+NateonMessage *nateon_message_unref(NateonMessage *msg);
+
 ///**
 // * Generates the payload data of a message.
 // *
@@ -255,15 +253,15 @@ typedef const char NateonMessage;
 // */
 //const char *nateon_message_get_body(const NateonMessage *msg);
 //#endif
-///**
-// * Sets the binary content of the message.
-// *
-// * @param msg  The message.
-// * @param data The binary data.
-// * @param len  The length of the data.
-// */
-//void nateon_message_set_bin_data(NateonMessage *msg, const void *data, size_t len);
-//
+/**
+ * Sets the binary content of the message.
+ *
+ * @param msg  The message.
+ * @param data The binary data.
+ * @param len  The length of the data.
+ */
+void nateon_message_set_bin_data(NateonMessage *msg, const void *data, size_t len);
+
 ///**
 // * Returns the binary content of the message.
 // *

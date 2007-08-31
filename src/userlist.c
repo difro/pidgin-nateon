@@ -346,7 +346,7 @@ nateon_got_rem_user(NateonSession *session, NateonUser *user,
 }
 
 void
-nateon_got_list_user(NateonSession *session, NateonUser *user, int list_op, GSList *group_ids)
+nateon_got_lst_user(NateonSession *session, NateonUser *user, int list_op, GList *group_ids)
 {
 	PurpleConnection *gc;
 	PurpleAccount *account;
@@ -690,11 +690,9 @@ nateon_userlist_add_buddy(NateonUserList *userlist,
 	if (group_name != NULL)
 	{
 		group_id = nateon_userlist_find_group_id(userlist, group_name);
-		purple_debug_info("nateon", "[%s] group_id=%d\n", __FUNCTION__, group_id);
 
 		if (group_id < 0)
 		{
-			purple_debug_info("nateon", "[%s] 그룹추가\n", __FUNCTION__);
 			/* Whoa, we must add that group first. */
 			nateon_request_add_group(userlist, who, NULL, group_name);
 			return;
@@ -702,7 +700,6 @@ nateon_userlist_add_buddy(NateonUserList *userlist,
 	}
 
 	user = nateon_userlist_find_user_with_name(userlist, who);
-	purple_debug_info("nateon", "[%s] user->account_name=%s\n", __FUNCTION__, user->account_name);
 
 	/* First we're going to check if it's already there. */
 	if (user_is_there(user, list_id, group_id))
@@ -713,14 +710,12 @@ nateon_userlist_add_buddy(NateonUserList *userlist,
 	}
 
 	user_id = (user != NULL) ? user->id : NULL;
-	purple_debug_info("nateon", "[%s] user_id(%s)\n", __FUNCTION__, user_id);
 
 	/* Then request the add to the server. */
 	list = lists[list_id];
 
 	nateon_notification_add_buddy(userlist->session->notification, list, who,
 							   user_id, group_id);
-	purple_debug_info("nateon", "[%s] group_id=%d\n", __FUNCTION__, group_id);
 }
 
 void

@@ -208,6 +208,8 @@ nateon_session_get_swboard(NateonSession *session, const char *username,
 {
 	NateonSwitchBoard *swboard;
 
+	g_return_val_if_fail(session != NULL, NULL);
+
 	swboard = nateon_session_find_swboard(session, username);
 
 	if (swboard == NULL)

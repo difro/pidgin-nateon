@@ -604,6 +604,55 @@ adsb_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	nateon_user_update(user);
 }
 
+static void
+addb_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	NateonSession *session;
+	NateonUser *user;
+	char *user_id;
+	char *account;
+	char *list;
+	int list_id;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	session = cmdproc->session;
+
+
+	/* Sync */
+	if (cmd->trans)
+	{
+		char **params;
+
+		params = g_strsplit(cmd->trans->params, " ", 0);
+
+		list = params[0];
+		user_id = cmd->params[1];
+		account = params[2];
+	}	
+	/* Async*/
+	else
+	{
+		list = cmd->params[1];
+		user_id = cmd->params[2];
+		account = cmd->params[3];
+	}
+	purple_debug_info("nateon", "[%s] list(%s), user_id(%s), account(%s)\n", __FUNCTION__, list, user_id, account);
+
+	user = nateon_userlist_find_user_with_id(session->userlist, user_id);
+        if (user == NULL)
+        {
+                user = nateon_user_new(session->userlist, account, "", user_id);
+                user->group_ids = NULL;
+                nateon_userlist_add_user(session->userlist, user);
+        }
+
+	list_id = nateon_get_list_id(list);
+	
+	nateon_got_add_user(session, user, list_id, -1);
+	nateon_user_update(user);
+}
+
 //static void
 //add_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
 //{
@@ -791,6 +840,12 @@ addg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //	cmdproc->servconn->payload_len = atoi(cmd->params[0]);
 //	cmdproc->last_cmd->payload_cb = ipg_cmd_post;
 //}
+
+static void
+nprf_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	purple_debug_info("nateon", "[%s] what is this? @,.@\n", __FUNCTION__);
+}
 
 static void
 nnik_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
@@ -991,42 +1046,36 @@ rmvb_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
 	NateonSession *session;
 	NateonUser *user;
-	char **params;
 	const char *list;
 	const char *account;
 	int group_id;
 	NateonListId list_id;
 
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-
 	session = cmdproc->session;
-	params = g_strsplit(cmd->trans->params, " ", 0);
-	list = params[0];
-	purple_debug_info("nateon", "list = %s\n", list);
-	account = params[2];
-	group_id = atoi(params[3]);
+
+	/* Sync */
+	if (cmd->trans) {
+		char **params;
+
+		params = g_strsplit(cmd->trans->params, " ", 0);
+
+		list = params[0];
+		account = params[2];
+		group_id = atoi(params[3]);
+	}
+	/* Async */
+	else {
+		list = cmd->params[1];
+		account = cmd->params[3];
+		group_id = -1;
+	}
 	user = nateon_userlist_find_user_with_name(session->userlist, account);
 
 	g_return_if_fail(user != NULL);
 
 	list_id = nateon_get_list_id(list);
-	purple_debug_info("nateon", "list_id = %d\n", list_id);
-	purple_debug_info("nateon", "group_id = %d\n", group_id);
-
-        purple_debug_info("nateon", "%s - %s%s%s%s\n", __FUNCTION__,
-                        (user->list_op & NATEON_LIST_FL_OP) ? "FL" : "",
-                        (user->list_op & NATEON_LIST_AL_OP) ? "AL" : "",
-                        (user->list_op & NATEON_LIST_BL_OP) ? "BL" : "",
-                        (user->list_op & NATEON_LIST_RL_OP) ? "RL" : "");
 
 	nateon_got_rem_user(session, user, list_id, group_id);
-
-        purple_debug_info("nateon", "%s - %s%s%s%s\n", __FUNCTION__,
-                        (user->list_op & NATEON_LIST_FL_OP) ? "FL" : "",
-                        (user->list_op & NATEON_LIST_AL_OP) ? "AL" : "",
-                        (user->list_op & NATEON_LIST_BL_OP) ? "BL" : "",
-                        (user->list_op & NATEON_LIST_RL_OP) ? "RL" : "");
-
 	nateon_user_update(user);
 }
 
@@ -1333,17 +1382,15 @@ invt_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
 	NateonSession *session;
 	NateonSwitchBoard *swboard;
-//	const char *session_id;
+	const char *session_id;
 	char *host;
 	int port;
 
 	session = cmdproc->session;
-//	session_id = cmd->params[3];
+	session_id = cmd->params[3];
 
-//	nateon_parse_socket(cmd->params[1], &host, &port);
 	host = g_strdup(cmd->params[1]);
-	port = 5004;
-	cmd->params[3][28] = '\0';
+	port = atoi(cmd->params[2]);
 
 //	if (session->http_method)
 //		port = 80;
@@ -1355,12 +1402,10 @@ invt_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //	nateon_switchboard_set_session_id(swboard, cmd->params[0]);
 	nateon_switchboard_set_auth_key(swboard, cmd->params[3]);
 	swboard->im_user = g_strdup(cmd->params[0]);
-//	/* nateon_switchboard_add_user(swboard, cmd->params[4]); */
+	/* nateon_switchboard_add_user(swboard, cmd->params[4]); */
 
 	if (!nateon_switchboard_connect(swboard, host, port))
 		nateon_switchboard_destroy(swboard);
-
-	nateon_cmdproc_send(cmdproc, "PING", NULL);
 
 	g_free(host);
 }
@@ -1700,6 +1745,7 @@ nateon_notification_init(void)
 	nateon_table_add_cmd(cbs_table, "RMVG", "RMVG", rmvg_cmd);
 	nateon_table_add_cmd(cbs_table, "RENG", "RENG", reng_cmd);
 	nateon_table_add_cmd(cbs_table, "MVBG", "MVBG", mvbg_cmd);
+	nateon_table_add_cmd(cbs_table, "ADDB", "ADDB", addb_cmd);
 	
 //	nateon_table_add_cmd(cbs_table, "CHG", "CHG", NULL);
 //	nateon_table_add_cmd(cbs_table, "CHG", "ILN", iln_cmd);
@@ -1727,6 +1773,11 @@ nateon_notification_init(void)
 
 	// CTOC
 	nateon_table_add_cmd(cbs_table, NULL, "IMSG", imsg_cmd);
+
+	// Buddy
+	nateon_table_add_cmd(cbs_table, NULL, "ADDB", addb_cmd);
+	nateon_table_add_cmd(cbs_table, NULL, "RMVB", rmvb_cmd);
+
 //	nateon_table_add_cmd(cbs_table, NULL, "IPG", ipg_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "MSG", msg_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "NOT", not_cmd);
@@ -1740,6 +1791,7 @@ nateon_notification_init(void)
 //	nateon_table_add_cmd(cbs_table, NULL, "FLN", fln_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "NLN", nln_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "ILN", iln_cmd);
+	nateon_table_add_cmd(cbs_table, NULL, "NPRF", nprf_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "NNIK", nnik_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "KILL", kill_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "INVT", invt_cmd);

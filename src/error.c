@@ -30,8 +30,6 @@ nateon_error_get_text(unsigned int type, gboolean *debug)
 	static char msg[NATEON_BUF_LEN];
 	*debug = FALSE;
 
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-
 	switch (type) {
 //		case 0:
 //			g_snprintf(msg, sizeof(msg),
@@ -262,8 +260,6 @@ nateon_error_handle(NateonSession *session, unsigned int type)
 	char buf[NATEON_BUF_LEN];
 	gboolean debug;
 	
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-
 	g_snprintf(buf, sizeof(buf), _("NATEON Error: %s\n"),
 			   nateon_error_get_text(type, &debug));
 	if (debug)

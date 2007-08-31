@@ -48,8 +48,6 @@ nateon_change_status(NateonSession *session)
 //	NateonObject *nateonobj;
 	const char *state_text;
 
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-
 	g_return_if_fail(session != NULL);
 	g_return_if_fail(session->notification != NULL);
 
@@ -57,8 +55,6 @@ nateon_change_status(NateonSession *session)
 	cmdproc = session->notification->cmdproc;
 //	user = session->user;
 	state_text = nateon_state_get_text(nateon_state_from_account(account));
-
-	purple_debug_info("nateon", "[%s] state_text(%s)\n", __FUNCTION__, state_text);
 
 	/* If we're not logged in yet, don't send the status to the server,
 	 * it will be sent when login completes
@@ -113,7 +109,7 @@ nateon_state_from_account(PurpleAccount *account)
 	PurpleStatus *status;
 	const char *status_id;
 
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	purple_debug_info("nateon", "[%s] have some bugs.\n", __FUNCTION__);
 
 	presence = purple_account_get_presence(account);
 	status = purple_presence_get_active_status(presence);

@@ -24,47 +24,47 @@
 #include "nateon.h"
 #include "msg.h"
 
-//NateonMessage *
-//nateon_message_new(NateonMsgType type)
-//{
-//	NateonMessage *msg;
-//
-//	msg = g_new0(NateonMessage, 1);
-//	msg->type = type;
-//
-//#ifdef NATEON_DEBUG_MSG
-//	purple_debug_info("nateon", "message new (%p)(%d)\n", msg, type);
-//#endif
-//
-//	msg->attr_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-//
-//	nateon_message_ref(msg);
-//
-//	return msg;
-//}
+NateonMessage *
+nateon_message_new(NateonMsgType type)
+{
+	NateonMessage *msg;
 
-//void
-//nateon_message_destroy(NateonMessage *msg)
-//{
-//	g_return_if_fail(msg != NULL);
-//
-//	if (msg->ref_count > 0)
-//	{
-//		nateon_message_unref(msg);
-//
-//		return;
-//	}
-//
-//#ifdef NATEON_DEBUG_MSG
-//	purple_debug_info("nateon", "message destroy (%p)\n", msg);
-//#endif
-//
+	msg = g_new0(NateonMessage, 1);
+	msg->type = type;
+
+#ifdef NATEON_DEBUG_MSG
+	purple_debug_info("nateon", "message new (%p)(%d)\n", msg, type);
+#endif
+
+//	msg->attr_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+
+	nateon_message_ref(msg);
+
+	return msg;
+}
+
+void
+nateon_message_destroy(NateonMessage *msg)
+{
+	g_return_if_fail(msg != NULL);
+
+	if (msg->ref_count > 0)
+	{
+		nateon_message_unref(msg);
+
+		return;
+	}
+
+#ifdef NATEON_DEBUG_MSG
+	purple_debug_info("nateon", "message destroy (%p)\n", msg);
+#endif
+
 //	if (msg->remote_user != NULL)
 //		g_free(msg->remote_user);
-//
-//	if (msg->body != NULL)
-//		g_free(msg->body);
-//
+
+	if (msg->body != NULL)
+		g_free(msg->body);
+
 //	if (msg->content_type != NULL)
 //		g_free(msg->content_type);
 //
@@ -73,53 +73,54 @@
 //
 //	g_hash_table_destroy(msg->attr_table);
 //	g_list_free(msg->attr_list);
-//
-//	g_free(msg);
-//}
-//
-//NateonMessage *
-//nateon_message_ref(NateonMessage *msg)
-//{
-//	g_return_val_if_fail(msg != NULL, NULL);
-//
-//	msg->ref_count++;
-//
-//#ifdef NATEON_DEBUG_MSG
-//	purple_debug_info("nateon", "message ref (%p)[%d]\n", msg, msg->ref_count);
-//#endif
-//
-//	return msg;
-//}
-//
-//NateonMessage *
-//nateon_message_unref(NateonMessage *msg)
-//{
-//	g_return_val_if_fail(msg != NULL, NULL);
-//	g_return_val_if_fail(msg->ref_count > 0, NULL);
-//
-//	msg->ref_count--;
-//
-//#ifdef NATEON_DEBUG_MSG
-//	purple_debug_info("nateon", "message unref (%p)[%d]\n", msg, msg->ref_count);
-//#endif
-//
-//	if (msg->ref_count == 0)
-//	{
-//		nateon_message_destroy(msg);
-//
-//		return NULL;
-//	}
-//
-//	return msg;
-//}
-//
-//NateonMessage *
-//nateon_message_new_plain(const char *message)
-//{
-//	NateonMessage *msg;
+
+	g_free(msg);
+}
+
+NateonMessage *
+nateon_message_ref(NateonMessage *msg)
+{
+	g_return_val_if_fail(msg != NULL, NULL);
+
+	msg->ref_count++;
+
+#ifdef NATEON_DEBUG_MSG
+	purple_debug_info("nateon", "message ref (%p)[%d]\n", msg, msg->ref_count);
+#endif
+
+	return msg;
+}
+
+NateonMessage *
+nateon_message_unref(NateonMessage *msg)
+{
+	g_return_val_if_fail(msg != NULL, NULL);
+	g_return_val_if_fail(msg->ref_count > 0, NULL);
+
+	msg->ref_count--;
+
+#ifdef NATEON_DEBUG_MSG
+	purple_debug_info("nateon", "message unref (%p)[%d]\n", msg, msg->ref_count);
+#endif
+
+	if (msg->ref_count == 0)
+	{
+		nateon_message_destroy(msg);
+
+		return NULL;
+	}
+
+	return msg;
+}
+
+NateonMessage *
+nateon_message_new_plain(const char *message)
+{
+	NateonMessage *msg;
 //	char *message_cr;
-//
-//	msg = nateon_message_new(NATEON_MSG_TEXT);
+	char *message_encode;
+
+	msg = nateon_message_new(NATEON_MSG_TEXT);
 //	nateon_message_set_attr(msg, "User-Agent", "Purple/" VERSION);
 //	nateon_message_set_content_type(msg, "text/plain");
 //	nateon_message_set_charset(msg, "UTF-8");
@@ -130,10 +131,14 @@
 //	message_cr = purple_str_add_cr(message);
 //	nateon_message_set_bin_data(msg, message_cr, strlen(message_cr));
 //	g_free(message_cr);
-//
-//	return msg;
-//}
-//
+
+	message_encode = g_strdup_printf("MSG 굴림%%090%%09%%09%s", message);
+	nateon_message_set_bin_data(msg, message_encode, strlen(message_encode));
+	g_free(message_encode);
+
+	return msg;
+}
+
 //NateonMessage *
 //nateon_message_new_nateonslp(void)
 //{
@@ -509,32 +514,32 @@
 //
 //	return msg->flag;
 //}
-//
-//void
-//nateon_message_set_bin_data(NateonMessage *msg, const void *data, size_t len)
-//{
-//	g_return_if_fail(msg != NULL);
-//
+
+void
+nateon_message_set_bin_data(NateonMessage *msg, const void *data, size_t len)
+{
+	g_return_if_fail(msg != NULL);
+
 //	/* There is no need to waste memory on data we cannot send anyway */
 //	if (len > 1664)
 //		len = 1664;
-//
-//	if (msg->body != NULL)
-//		g_free(msg->body);
-//
-//	if (data != NULL && len > 0)
-//	{
-//		msg->body = g_malloc0(len + 1);
-//		memcpy(msg->body, data, len);
-//		msg->body_len = len;
-//	}
-//	else
-//	{
-//		msg->body = NULL;
-//		msg->body_len = 0;
-//	}
-//}
-//
+
+	if (msg->body != NULL)
+		g_free(msg->body);
+
+	if (data != NULL && len > 0)
+	{
+		msg->body = g_malloc0(len + 1);
+		memcpy(msg->body, data, len);
+		msg->body_len = len;
+	}
+	else
+	{
+		msg->body = NULL;
+		msg->body_len = 0;
+	}
+}
+
 //const void *
 //nateon_message_get_bin_data(const NateonMessage *msg, size_t *len)
 //{

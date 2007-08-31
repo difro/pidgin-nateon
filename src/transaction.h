@@ -30,7 +30,7 @@ typedef struct _NateonTransaction NateonTransaction;
 #include "cmdproc.h"
 
 typedef void (*NateonTransCb)(NateonCmdProc *cmdproc, NateonCommand *cmd);
-//typedef void (*NateonTimeoutCb)(NateonCmdProc *cmdproc, NateonTransaction *trans);
+typedef void (*NateonTimeoutCb)(NateonCmdProc *cmdproc, NateonTransaction *trans);
 typedef void (*NateonErrorCb)(NateonCmdProc *cmdproc, NateonTransaction *trans, int error);
 
 /**
@@ -50,8 +50,8 @@ struct _NateonTransaction
 	GHashTable *callbacks;
 	gboolean has_custom_callbacks;
 	NateonErrorCb error_cb;
-//	NateonTimeoutCb timeout_cb;
-//
+	NateonTimeoutCb timeout_cb;
+
 	char *payload;
 	size_t payload_len;
 //
@@ -61,7 +61,7 @@ struct _NateonTransaction
 };
 
 NateonTransaction *nateon_transaction_new(NateonCmdProc *cmdproc, const char *command, const char *format, ...);
-//void nateon_transaction_destroy(NateonTransaction *trans);
+void nateon_transaction_destroy(NateonTransaction *trans);
 
 char *nateon_transaction_to_string(NateonTransaction *trans);
 //void nateon_transaction_queue_cmd(NateonTransaction *trans, NateonCommand *cmd);
@@ -69,7 +69,7 @@ char *nateon_transaction_to_string(NateonTransaction *trans);
 void nateon_transaction_set_payload(NateonTransaction *trans, const char *payload, int payload_len);
 void nateon_transaction_set_data(NateonTransaction *trans, void *data);
 void nateon_transaction_add_cb(NateonTransaction *trans, char *answer, NateonTransCb cb);
-//void nateon_transaction_set_error_cb(NateonTransaction *trans, NateonErrorCb cb);
-//void nateon_transaction_set_timeout_cb(NateonTransaction *trans, NateonTimeoutCb cb);
+void nateon_transaction_set_error_cb(NateonTransaction *trans, NateonErrorCb cb);
+void nateon_transaction_set_timeout_cb(NateonTransaction *trans, NateonTimeoutCb cb);
 
 #endif /* _NATEON_TRANSACTION_H */

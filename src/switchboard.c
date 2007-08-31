@@ -32,8 +32,8 @@
 
 static NateonTable *cbs_table;
 
-//static void msg_error_helper(NateonCmdProc *cmdproc, NateonMessage *msg,
-//							 NateonMsgErrorType error);
+static void msg_error_helper(NateonCmdProc *cmdproc, NateonMessage *msg,
+							 NateonMsgErrorType error);
 
 /**************************************************************************
  * Main
@@ -213,9 +213,9 @@ nateon_switchboard_add_user(NateonSwitchBoard *swboard, const char *user)
 	NateonCmdProc *cmdproc;
 	PurpleAccount *account;
 
-	g_return_if_fail(swboard != NULL);
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+	g_return_if_fail(swboard != NULL);
 
 	cmdproc = swboard->cmdproc;
 	account = cmdproc->session->account;
@@ -224,17 +224,17 @@ nateon_switchboard_add_user(NateonSwitchBoard *swboard, const char *user)
 	swboard->current_users++;
 	swboard->empty = FALSE;
 
-//#ifdef NATEON_DEBUG_CHAT
-//	purple_debug_info("nateon", "user=[%s], total=%d\n", user,
-//					swboard->current_users);
-//#endif
+#ifdef NATEON_DEBUG_CHAT
+	purple_debug_info("nateon", "user=[%s], total=%d\n", user,
+					swboard->current_users);
+#endif
 
-//	if (!(swboard->flag & NATEON_SB_FLAG_IM) && (swboard->conv != NULL))
-//	{
-//		/* This is a helper switchboard. */
-//		purple_debug_error("nateon", "switchboard_add_user: conv != NULL\n");
-//		return;
-//	}
+	if (!(swboard->flag & NATEON_SB_FLAG_IM) && (swboard->conv != NULL))
+	{
+		/* This is a helper switchboard. */
+		purple_debug_error("nateon", "switchboard_add_user: conv != NULL\n");
+		return;
+	}
 
 	if ((swboard->conv != NULL) &&
 		(purple_conversation_get_type(swboard->conv) == PURPLE_CONV_TYPE_CHAT))
@@ -249,20 +249,20 @@ nateon_switchboard_add_user(NateonSwitchBoard *swboard, const char *user)
 		{
 			GList *l;
 
-//#ifdef NATEON_DEBUG_CHAT
-//			purple_debug_info("nateon", "[chat] Switching to chat.\n");
-//#endif
+#ifdef NATEON_DEBUG_CHAT
+			purple_debug_info("nateon", "[chat] Switching to chat.\n");
+#endif
 
-//#if 0
-//			/* this is bad - it causes nateon_switchboard_close to be called on the
-//			 * switchboard we're in the middle of using :( */
-//			if (swboard->conv != NULL)
-//				purple_conversation_destroy(swboard->conv);
-//#endif
+#if 0
+			/* this is bad - it causes nateon_switchboard_close to be called on the
+			 * switchboard we're in the middle of using :( */
+			if (swboard->conv != NULL)
+				purple_conversation_destroy(swboard->conv);
+#endif
 
 			cmdproc->session->conv_seq++;
 			swboard->chat_id = cmdproc->session->conv_seq;
-//			swboard->flag |= NATEON_SB_FLAG_IM;
+			swboard->flag |= NATEON_SB_FLAG_IM;
 			swboard->conv = serv_got_joined_chat(account->gc, swboard->chat_id, "NATEON Chat");
 
 			for (l = swboard->users; l != NULL; l = l->next)
@@ -271,16 +271,16 @@ nateon_switchboard_add_user(NateonSwitchBoard *swboard, const char *user)
 
 				tmp_user = l->data;
 
-//#ifdef NATEON_DEBUG_CHAT
-//				purple_debug_info("nateon", "[chat] Adding [%s].\n", tmp_user);
-//#endif
+#ifdef NATEON_DEBUG_CHAT
+				purple_debug_info("nateon", "[chat] Adding [%s].\n", tmp_user);
+#endif
 
 				purple_conv_chat_add_user(PURPLE_CONV_CHAT(swboard->conv), tmp_user, NULL, PURPLE_CBFLAGS_NONE, TRUE);
 			}
 
-//#ifdef NATEON_DEBUG_CHAT
-//			purple_debug_info("nateon", "[chat] We add ourselves.\n");
-//#endif
+#ifdef NATEON_DEBUG_CHAT
+			purple_debug_info("nateon", "[chat] We add ourselves.\n");
+#endif
 
 			purple_conv_chat_add_user(PURPLE_CONV_CHAT(swboard->conv),
 									purple_account_get_username(account),
@@ -332,52 +332,54 @@ nateon_switchboard_add_user(NateonSwitchBoard *swboard, const char *user)
 //		purple_conversation_write(conv, NULL, msg, flags, time(NULL));
 //	}
 //}
-//
-//static void
-//swboard_error_helper(NateonSwitchBoard *swboard, int reason, const char *account_name)
-//{
-//	g_return_if_fail(swboard != NULL);
-//
-//	purple_debug_warning("msg", "Error: Unable to call the user %s for reason %i\n",
-//					   account_name ? account_name : "(null)", reason);
-//
-//	/* TODO: if current_users > 0, this is probably a chat and an invite failed,
-//	 * we should report that in the chat or something */
-//	if (swboard->current_users == 0)
-//	{
-//		swboard->error = reason;
-//		nateon_switchboard_close(swboard);
-//	}
-//}
-//
-//static void
-//cal_error_helper(NateonTransaction *trans, int reason)
-//{
-//	NateonSwitchBoard *swboard;
-//	const char *account_name;
-//	char **params;
-//
-//	params = g_strsplit(trans->params, " ", 0);
-//
-//	account_name = params[0];
-//
-//	swboard = trans->data;
-//
-//	purple_debug_warning("nateon", "cal_error_helper: command %s failed for reason %i\n",trans->command,reason);
-//
-//	swboard_error_helper(swboard, reason, account_name);
-//
-//	g_strfreev(params);
-//}
-//
-//static void
-//msg_error_helper(NateonCmdProc *cmdproc, NateonMessage *msg, NateonMsgErrorType error)
-//{
-//	NateonSwitchBoard *swboard;
-//
-//	g_return_if_fail(cmdproc != NULL);
-//	g_return_if_fail(msg     != NULL);
-//
+
+static void
+swboard_error_helper(NateonSwitchBoard *swboard, int reason, const char *account_name)
+{
+	g_return_if_fail(swboard != NULL);
+
+	purple_debug_warning("msg", "Error: Unable to call the user %s for reason %i\n",
+					   account_name ? account_name : "(null)", reason);
+
+	/* TODO: if current_users > 0, this is probably a chat and an invite failed,
+	 * we should report that in the chat or something */
+	if (swboard->current_users == 0)
+	{
+		swboard->error = reason;
+		nateon_switchboard_close(swboard);
+	}
+}
+
+static void
+invt_error_helper(NateonTransaction *trans, int reason)
+{
+	NateonSwitchBoard *swboard;
+	const char *account_name;
+	char **params;
+
+	params = g_strsplit(trans->params, " ", 0);
+
+	account_name = params[0];
+
+	swboard = trans->data;
+
+	purple_debug_warning("nateon", "invt_error_helper: command %s failed for reason %i\n",trans->command,reason);
+
+	swboard_error_helper(swboard, reason, account_name);
+
+	g_strfreev(params);
+}
+
+static void
+msg_error_helper(NateonCmdProc *cmdproc, NateonMessage *msg, NateonMsgErrorType error)
+{
+	NateonSwitchBoard *swboard;
+
+	g_return_if_fail(cmdproc != NULL);
+	g_return_if_fail(msg     != NULL);
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
 //	if ((error != NATEON_MSG_ERROR_SB) && (msg->nak_cb != NULL))
 //		msg->nak_cb(msg, msg->ack_data);
 //
@@ -466,23 +468,23 @@ nateon_switchboard_add_user(NateonSwitchBoard *swboard, const char *user)
 //		swboard->ack_list = g_list_remove(swboard->ack_list, msg);
 //		nateon_message_unref(msg);
 //	}
-//}
-//
-///**************************************************************************
-// * Message Stuff
-// **************************************************************************/
-//
-///** Called when a message times out. */
-//static void
-//msg_timeout(NateonCmdProc *cmdproc, NateonTransaction *trans)
-//{
-//	NateonMessage *msg;
-//
-//	msg = trans->data;
-//
-//	msg_error_helper(cmdproc, msg, NATEON_MSG_ERROR_TIMEOUT);
-//}
-//
+}
+
+/**************************************************************************
+ * Message Stuff
+ **************************************************************************/
+
+/** Called when a message times out. */
+static void
+msg_timeout(NateonCmdProc *cmdproc, NateonTransaction *trans)
+{
+	NateonMessage *msg;
+
+	msg = trans->data;
+
+	msg_error_helper(cmdproc, msg, NATEON_MSG_ERROR_TIMEOUT);
+}
+
 ///** Called when we receive an error of a message. */
 //static void
 //msg_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
@@ -525,10 +527,10 @@ release_msg(NateonSwitchBoard *swboard, NateonMessage *msg)
 	//char *payload;
 	//gsize payload_len;
 
+	purple_debug_info("nateon", "%s\n", msg);
+
 	g_return_if_fail(swboard != NULL);
 	g_return_if_fail(msg     != NULL);
-
-	purple_debug_info("nateon", "%s\n", msg);
 
 	cmdproc = swboard->cmdproc;
 
@@ -538,18 +540,18 @@ release_msg(NateonSwitchBoard *swboard, NateonMessage *msg)
 //	nateon_message_show_readable(msg, "SB SEND", FALSE);
 //#endif
 
-	trans = nateon_transaction_new(cmdproc, "MESG", "%s", msg);
+	trans = nateon_transaction_new(cmdproc, "MESG", "%s", msg->body);
 
 	/* Data for callbacks */
 	nateon_transaction_set_data(trans, msg);
 
-//	if (msg->type == NATEON_MSG_TEXT)
-//	{
-//		msg->ack_ref = TRUE;
-//		nateon_message_ref(msg);
-//		swboard->ack_list = g_list_append(swboard->ack_list, msg);
-//		nateon_transaction_set_timeout_cb(trans, msg_timeout);
-//	}
+	if (msg->type == NATEON_MSG_TEXT)
+	{
+		msg->ack_ref = TRUE;
+		nateon_message_ref(msg);
+		swboard->ack_list = g_list_append(swboard->ack_list, msg);
+		nateon_transaction_set_timeout_cb(trans, msg_timeout);
+	}
 //	else if (msg->type == NATEON_MSG_SLP)
 //	{
 //		msg->ack_ref = TRUE;
@@ -564,11 +566,11 @@ release_msg(NateonSwitchBoard *swboard, NateonMessage *msg)
 //		}
 //#endif
 //	}
-//
+
 //	trans->payload = payload;
 //	trans->payload_len = payload_len;
 
-//	msg->trans = trans;
+	msg->trans = trans;
 
 	nateon_cmdproc_send_trans(cmdproc, trans);
 }
@@ -583,7 +585,7 @@ queue_msg(NateonSwitchBoard *swboard, NateonMessage *msg)
 
 	g_queue_push_tail(swboard->msg_queue, msg);
 
-	//nateon_message_ref(msg);
+	nateon_message_ref(msg);
 }
 
 static void
@@ -599,7 +601,7 @@ process_queue(NateonSwitchBoard *swboard)
 	{
 		purple_debug_info("nateon", "Sending message\n");
 		release_msg(swboard, msg);
-		//nateon_message_unref(msg);
+		nateon_message_unref(msg);
 	}
 }
 
@@ -620,31 +622,28 @@ nateon_switchboard_send_msg(NateonSwitchBoard *swboard, NateonMessage *msg, gboo
 	g_return_if_fail(swboard != NULL);
 	g_return_if_fail(msg     != NULL);
 
-	purple_debug_info("nateon", "%s - %s\n", __FUNCTION__, msg);
 	if (nateon_switchboard_can_send(swboard))
-	{
-		purple_debug_info("nateon", "release_msg()\n");
 		release_msg(swboard, msg);
-	}
 	else if (queue)
-	{
-		purple_debug_info("nateon", "queue_msg()\n");
 		queue_msg(swboard, msg);
-	}
 }
 
 ///**************************************************************************
 // * Switchboard Commands
 // **************************************************************************/
 
-//static void
-//ans_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
-//{
-//	NateonSwitchBoard *swboard;
-//
-//	swboard = cmdproc->data;
-//	swboard->ready = TRUE;
-//}
+static void
+entr_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	NateonSwitchBoard *swboard;
+	NateonNotification *notification;
+
+	swboard = cmdproc->data;
+	swboard->ready = TRUE;
+	notification = swboard->session->notification;
+
+	nateon_cmdproc_process_queue(notification->cmdproc);
+}
 
 static void
 quit_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
@@ -693,33 +692,6 @@ quit_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //	swboard->total_users = atoi(cmd->params[2]);
 //
 //	nateon_switchboard_add_user(swboard, cmd->params[3]);
-//}
-//
-//static void
-//joi_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
-//{
-//	NateonSession *session;
-//	PurpleAccount *account;
-//	PurpleConnection *gc;
-//	NateonSwitchBoard *swboard;
-//	const char *account_name;
-//
-//	account_name = cmd->params[0];
-//
-//	session = cmdproc->session;
-//	account = session->account;
-//	gc = account->gc;
-//	swboard = cmdproc->data;
-//
-//	nateon_switchboard_add_user(swboard, account_name);
-//
-//	process_queue(swboard);
-//
-//	if (!session->http_method)
-//		send_clientcaps(swboard);
-//
-//	if (swboard->closed)
-//		nateon_switchboard_close(swboard);
 //}
 
 static void
@@ -965,28 +937,28 @@ mesg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //	nateon_switchboard_disconnect(swboard);
 //}
 
-static void
-user_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
-{
-	NateonSwitchBoard *swboard;
-
-	swboard = cmdproc->data;
-
-#if 0
-	GList *l;
-
-	for (l = swboard->users; l != NULL; l = l->next)
-	{
-		const char *user;
-		user = l->data;
-
-		nateon_cmdproc_send(cmdproc, "CAL", "%s", user);
-	}
-#endif
-
-	swboard->ready = TRUE;
-	nateon_cmdproc_process_queue(cmdproc);
-}
+//static void
+//user_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+//{
+//	NateonSwitchBoard *swboard;
+//
+//	swboard = cmdproc->data;
+//
+//#if 0
+//	GList *l;
+//
+//	for (l = swboard->users; l != NULL; l = l->next)
+//	{
+//		const char *user;
+//		user = l->data;
+//
+//		nateon_cmdproc_send(cmdproc, "CAL", "%s", user);
+//	}
+//#endif
+//
+//	swboard->ready = TRUE;
+//	nateon_cmdproc_process_queue(cmdproc);
+//}
 
 ///**************************************************************************
 // * Message Handlers
@@ -1145,12 +1117,16 @@ user_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 /**************************************************************************
  * Connect stuff
  **************************************************************************/
+static void entr_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error);
+
 static void
 connect_cb(NateonServConn *servconn)
 {
 	NateonSwitchBoard *swboard;
+	NateonTransaction *trans;
 	NateonCmdProc *cmdproc;
 	PurpleAccount *account;
+	NateonUser *user;
 
 	purple_debug_info("nateon", "switchboard - %s\n", __FUNCTION__);
 
@@ -1161,29 +1137,57 @@ connect_cb(NateonServConn *servconn)
 	swboard = cmdproc->data;
 	g_return_if_fail(swboard != NULL);
 
+	user = cmdproc->session->user;
+
 	if (nateon_switchboard_is_invited(swboard))
 	{
-		NateonUser *user = cmdproc->session->user;
-
 		purple_debug_info("nateon", "== invited ==\n");
 		swboard->empty = FALSE;
 
-		nateon_cmdproc_send(cmdproc, "ENTR", "%s %s %s %s UTF8 P",
-						 purple_account_get_username(account),
-						 user->store_name,
-						 user->friendly_name,
-						 swboard->auth_key);
+		trans = nateon_transaction_new(cmdproc, "ENTR", "%s %s %s %s UTF8 P",
+				purple_account_get_username(account),
+				purple_strreplace(user->store_name, " ", "%20"),
+				user->friendly_name,
+				swboard->auth_key);
 	}
 	else
 	{
-		NateonUser *user = cmdproc->session->user;
-
-		nateon_cmdproc_send(cmdproc, "ENTR", "%s %s %s %s UTF8 P",
-						 purple_account_get_username(account),
-						 user->store_name,
-						 user->friendly_name,
-						 swboard->auth_key);
+		trans = nateon_transaction_new(cmdproc, "ENTR", "%s %s %s %s UTF8 P",
+				purple_account_get_username(account),
+				purple_strreplace(user->store_name, " ", "%20"),
+				user->friendly_name,
+				swboard->auth_key);
 	}
+
+	nateon_transaction_set_error_cb(trans, entr_error);
+	nateon_transaction_set_data(trans, swboard);
+	nateon_cmdproc_send_trans(cmdproc, trans);
+}
+
+static void
+entr_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
+{
+	NateonSwitchBoard *swboard;
+	char **params;
+	char *account;
+//	int reason = MSN_SB_ERROR_UNKNOWN;
+
+	purple_debug_info("nateon", "[%s] error(%d)\n", __FUNCTION__, error);
+
+//	if (error == 911)
+//	{
+//		reason = MSN_SB_ERROR_AUTHFAILED;
+//	}
+
+	purple_debug_warning("nateon", "nateon_error: command %s gave error %i\n", trans->command, error);
+
+	params = g_strsplit(trans->params, " ", 0);
+	account = params[0];
+	swboard = trans->data;
+
+	swboard_error_helper(swboard, NATEON_SB_ERROR_UNKNOWN, account);
+
+	g_strfreev(params);
 }
 
 static void
@@ -1221,11 +1225,11 @@ void nateon_switchboard_disconnect(NateonSwitchBoard *swboard)
 }
 
 /**************************************************************************
- * Call stuff
+ * Invite stuff
  **************************************************************************/
-//static void
-//got_cal(NateonCmdProc *cmdproc, NateonCommand *cmd)
-//{
+static void
+got_invt(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
 //#if 0
 //	NateonSwitchBoard *swboard;
 //	const char *user;
@@ -1236,69 +1240,65 @@ void nateon_switchboard_disconnect(NateonSwitchBoard *swboard)
 //
 //	nateon_switchboard_add_user(swboard, user);
 //#endif
-//}
-//
-//static void
-//cal_timeout(NateonCmdProc *cmdproc, NateonTransaction *trans)
-//{
-//	purple_debug_warning("nateon", "cal_timeout: command %s timed out\n", trans->command);
-//
-//	cal_error_helper(trans, NATEON_SB_ERROR_UNKNOWN);
-//}
-//
-//static void
-//cal_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
-//{
-//	int reason = NATEON_SB_ERROR_UNKNOWN;
-//
-//	if (error == 215)
-//	{
-//		purple_debug_info("nateon", "Invited user already in switchboard\n");
-//		return;
-//	}
-//	else if (error == 217)
-//	{
-//		reason = NATEON_SB_ERROR_USER_OFFLINE;
-//	}
-//
-//	purple_debug_warning("nateon", "cal_error: command %s gave error %i\n", trans->command, error);
-//
-//	cal_error_helper(trans, reason);
-//}
+}
+
+static void
+invt_timeout(NateonCmdProc *cmdproc, NateonTransaction *trans)
+{
+	purple_debug_warning("nateon", "invt_timeout: command %s timed out\n", trans->command);
+
+	invt_error_helper(trans, NATEON_SB_ERROR_UNKNOWN);
+}
+
+static void
+invt_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+}
 
 void
 nateon_switchboard_request_add_user(NateonSwitchBoard *swboard, const char *user)
 {
-	NateonTransaction *trans;
 	NateonCmdProc *cmdproc;
-	NateonSession *session;
+	NateonTransaction *trans;
 	NateonServConn *servconn;
 	PurpleAccount *account;
 	const char *username;
+	char *payload;
+	size_t payload_len;
 
 	g_return_if_fail(swboard != NULL);
 
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-
-	cmdproc = swboard->cmdproc;
-	session = cmdproc->session;
+	cmdproc = swboard->session->notification->cmdproc;
+	account = cmdproc->session->account;
 	servconn = swboard->servconn;
-	account = session->account;
 
 	username = purple_account_get_username(account);
 
-	trans = nateon_transaction_new(cmdproc, "ENTR", "%s %s %s %s UTF8 P", username, "1" "1", swboard->auth_key);
+	payload = g_strdup_printf("INVT %s %s 5004 %s", username, servconn->host, swboard->auth_key);
+	payload_len = strlen(payload);
+
+	trans = nateon_transaction_new(cmdproc, "CTOC", "%s A %d", user, payload_len);
 	/* this doesn't do anything, but users seem to think that
 	 * 'Unhandled command' is some kind of error, so we don't report it */
-//	nateon_transaction_add_cb(trans, "PACK", got_cal);
+	nateon_transaction_add_cb(trans, "PACK", got_invt);
 
-	nateon_transaction_set_data(trans, swboard);
-//	nateon_transaction_set_timeout_cb(trans, cal_timeout);
+	nateon_transaction_set_payload(trans, payload, payload_len);
+//	nateon_transaction_set_data(trans, swboard);
+	nateon_transaction_set_timeout_cb(trans, invt_timeout);
 
-//	if (swboard->ready)
+	g_free(payload);
+
+	if (swboard->ready)
+	{
+		purple_debug_info("nateon", "[%s] send_trans\n", __FUNCTION__);
 		nateon_cmdproc_send_trans(cmdproc, trans);
-//	else
-//		nateon_cmdproc_queue_trans(cmdproc, trans);
+	}
+	else
+	{
+		purple_debug_info("nateon", "[%s] queue_trans\n", __FUNCTION__);
+		nateon_cmdproc_queue_trans(cmdproc, trans);
+	}
 }
 
 /**************************************************************************
@@ -1311,9 +1311,10 @@ got_swboard(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	NateonSwitchBoard *swboard;
 	char *host;
 	int port;
-	swboard = cmd->trans->data;
 
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	swboard = cmd->trans->data;
 
 	if (g_list_find(cmdproc->session->switches, swboard) == NULL)
 		/* The conversation window was closed. */
@@ -1322,43 +1323,68 @@ got_swboard(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	nateon_switchboard_set_auth_key(swboard, cmd->params[3]);
 
 	host = g_strdup(cmd->params[1]);
-	port = 5004; // cmd->params[2]
-//	nateon_parse_socket(cmd->params[2], &host, &port);
+	port = atoi(cmd->params[2]);
 
 	if (!nateon_switchboard_connect(swboard, host, port))
-		nateon_switchboard_destroy(swboard);
-
 	{
-		NateonCmdProc *cmdproc;
-		NateonSession *session = swboard->session;
-		NateonServConn *servconn;
-		PurpleAccount *account = session->account;
-		const char *username;
-		NateonUser *user;
-
-		int len;
-
-		cmdproc = swboard->session->notification->cmdproc;
-		servconn = cmdproc->servconn;
-		
-		user = nateon_userlist_find_user_with_name(session->userlist, swboard->im_user);
-		username = purple_account_get_username(account);
-
-		len = 8 + strlen(username) + strlen(host) + strlen(cmd->params[2]) + strlen(swboard->auth_key);
-
-		nateon_cmdproc_send(cmdproc, "CTOC", "%s %s %d\r\nINVT %s %s %d %s", swboard->im_user, user->status, len, username, host, port, swboard->auth_key);
-
+		purple_debug_info("nateon", "[%s] connection failed\n", __FUNCTION__);
+		nateon_switchboard_destroy(swboard);
 	}
+	else
+	{
+		purple_debug_info("nateon", "[%s] connection success\n", __FUNCTION__);
+		nateon_switchboard_request_add_user(swboard, swboard->im_user);
+	}
+//	{
+//		NateonCmdProc *cmdproc;
+//		NateonSession *session = swboard->session;
+//		NateonServConn *servconn;
+//		PurpleAccount *account = session->account;
+//		const char *username;
+//		NateonUser *user;
+//
+//		NateonTransaction *trans;
+//		char *payload;
+//		size_t payload_len;
+//
+//		cmdproc = swboard->session->notification->cmdproc;
+//		servconn = cmdproc->servconn;
+//		
+//		user = nateon_userlist_find_user_with_name(session->userlist, swboard->im_user);
+//		username = purple_account_get_username(account);
+//
+//		payload = g_strdup_printf("INVT %s %s %d %s", username, host, port, swboard->auth_key);
+//		payload_len = strlen(payload);
+//
+//		purple_debug_info("nateon", "[%s] payload(%s)\n", __FUNCTION__, payload);
+//
+//		purple_debug_info("nateon", "[%s] CTOC에서 A가 들어가야하나? ㅡ.ㅡa\n", __FUNCTION__);
+//
+////		trans = nateon_transaction_new(cmdproc, "CTOC", "%s %s %d", swboard->im_user, user->status, payload_len);
+//		trans = nateon_transaction_new(cmdproc, "CTOC", "%s A %d", swboard->im_user, payload_len);
+////		nateon_transaction_add_cb(trans, "PACK", got_invt);
+//
+//		nateon_transaction_set_payload(trans, payload, payload_len);
+////		nateon_transaction_set_data(trans, swboard);
+////		nateon_transaction_set_timeout_cb(trans, cal_timeout);
+//
+//		g_free(payload);
+//
+//		nateon_cmdproc_send_trans(cmdproc, trans);
+//	}
 
 	g_free(host);
 }
 
-//static void
-//xfr_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
-//{
+static void
+ress_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
+{
 //	NateonSwitchBoard *swboard;
 //	int reason = NATEON_SB_ERROR_UNKNOWN;
-//
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	purple_debug_info("nateon", "[%s] error(%s)\n", __FUNCTION__, error);
+
 //	if (error == 913)
 //		reason = NATEON_SB_ERROR_OFFLINE;
 //	else if (error == 800)
@@ -1371,7 +1397,7 @@ got_swboard(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //					(trans->command ? trans->command : "(null)"), reason);
 //
 //	swboard_error_helper(swboard, reason, swboard->im_user);
-//}
+}
 
 void
 nateon_switchboard_request(NateonSwitchBoard *swboard)
@@ -1387,7 +1413,7 @@ nateon_switchboard_request(NateonSwitchBoard *swboard)
 	nateon_transaction_add_cb(trans, "RESS", got_swboard);
 
 	nateon_transaction_set_data(trans, swboard);
-//	nateon_transaction_set_error_cb(trans, xfr_error);
+	nateon_transaction_set_error_cb(trans, ress_error);
 
 	nateon_cmdproc_send_trans(cmdproc, trans);
 }
@@ -1449,7 +1475,7 @@ nateon_switchboard_init(void)
 {
 	cbs_table = nateon_table_new();
 
-	nateon_table_add_cmd(cbs_table, "ENTR", "ENTR", NULL);
+	nateon_table_add_cmd(cbs_table, "ENTR", "ENTR", entr_cmd);
 //	nateon_table_add_cmd(cbs_table, "ANS", "ANS", ans_cmd);
 //	nateon_table_add_cmd(cbs_table, "ANS", "IRO", iro_cmd);
 //
@@ -1457,7 +1483,7 @@ nateon_switchboard_init(void)
 //	nateon_table_add_cmd(cbs_table, "MSG", "NAK", nak_cmd);
 //
 //	nateon_table_add_cmd(cbs_table, "USR", "USR", usr_cmd);
-	nateon_table_add_cmd(cbs_table, NULL, "USER", user_cmd);
+//	nateon_table_add_cmd(cbs_table, NULL, "USER", user_cmd);
 //
 //	nateon_table_add_cmd(cbs_table, NULL, "MSG", msg_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "MESG", mesg_cmd);
@@ -1471,9 +1497,9 @@ nateon_switchboard_init(void)
 //	/* They might skip the history */
 //	nateon_table_add_cmd(cbs_table, NULL, "ACK", NULL);
 //#endif
-//
-//	nateon_table_add_error(cbs_table, "MSG", msg_error);
-//	nateon_table_add_error(cbs_table, "CAL", cal_error);
+
+//	nateon_table_add_error(cbs_table, "MESG", mesg_error);
+	nateon_table_add_error(cbs_table, "INVT", invt_error);
 //
 //	/* Register the message type callbacks. */
 //	nateon_table_add_msg_type(cbs_table, "text/plain",

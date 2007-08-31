@@ -42,10 +42,10 @@ typedef struct _NateonSwitchBoard NateonSwitchBoard;
 typedef enum
 {
 	NATEON_SB_ERROR_NONE, /**< No error. */
-//	NATEON_SB_ERROR_CAL, /**< The user could not join (answer the call). */
+	NATEON_SB_ERROR_INVT, /**< The user could not join */
 //	NATEON_SB_ERROR_OFFLINE, /**< The account is offline. */
 //	NATEON_SB_ERROR_USER_OFFLINE, /**< The user to call is offline. */
-//	NATEON_SB_ERROR_CONNECTION, /**< There was a connection error. */
+	NATEON_SB_ERROR_CONNECTION, /**< There was a connection error. */
 //	NATEON_SB_ERROR_TOO_FAST, /**< We are sending too fast */
 	NATEON_SB_ERROR_UNKNOWN /**< An unknown error occurred. */
 } NateonSBErrorType;
@@ -71,9 +71,6 @@ struct _NateonSwitchBoard
 	NateonServConn *servconn;
 	NateonCmdProc *cmdproc;
 	char *im_user;
-
-	char *host;
-	int port;
 
 	NateonSBFlag flag;
 	char *auth_key;
@@ -101,7 +98,7 @@ struct _NateonSwitchBoard
 	int chat_id;
 
 	GQueue *msg_queue; /**< Queue of messages to send. */
-//	GList *ack_list; /**< List of messages waiting for an ack. */
+	GList *ack_list; /**< List of messages waiting for an ack. */
 
 	NateonSBErrorType error; /**< The error that occurred in this switchboard (if applicable). */
 //	NateonSlpLink *slplink; /**< The slplink that is using this switchboard. */
