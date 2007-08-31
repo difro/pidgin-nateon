@@ -1,3 +1,12 @@
+pidgin-nateon (2.1.1-svn98) unstable; urgency=low
+
+  * Support "add/remove buddy"
+  * Support "add/remove group"
+  * Support "send slip of paper"
+  * Fixed conversation bugs
+
+ -- Hansun Lee <hansun.lee@gmail.com>  Fri, 31 Aug 2007 19:09:54 +0900
+
 pidgin-nateon (2.0.0-svn64) unstable; urgency=low
 
   * Detach nateon-prpl from pidgin 
@@ -8,29 +17,18 @@ pidgin-nateon (2.0.0-svn54) unstable; urgency=low
 
   * Nateon show buddy name by tooltips 
 
- -- Hansun Lee <hansun.lee@gmail.com>  Tue,  7 Aug 2007 16:22:33 +0900
-
 pidgin-nateon (2.0.0-svn53) unstable; urgency=low
 
   * Nateon can change own status
-
- -- Hansun Lee <hansun.lee@gmail.com>  Tue,  7 Aug 2007 16:22:29 +0900
 
 pidgin-nateon (2.0.0-svn51) unstable; urgency=low
 
   * Add nateon support 
 
- -- Hansun Lee <hansun.lee@gmail.com>  Tue,  7 Aug 2007 16:21:55 +0900
-
 gaim-nateon (2.0.0+beta6-2) unstable; urgency=low
 
   * Fixed login bug 
 
- -- Hansun Lee <hansun.lee@gmail.com>  Wed, 25 Apr 2007 14:09:25 +0900
-
 gaim-nateon (2.0.0+beta6-1) unstable; urgency=low
 
   * Initial release.
-
- -- Hansun Lee <hansun.lee@gmail.com>  Fri, 20 Apr 2007 15:28:40 +0900
-

@@ -65,13 +65,13 @@ allow_libtool_libs_with_static_runtimes=no
 fast_install=yes
 
 # The host system.
-host_alias=
-host=i686-pc-linux-gnu
+host_alias=i486-linux-gnu
+host=i486-pc-linux-gnu
 host_os=linux-gnu
 
 # The build system.
-build_alias=
-build=i686-pc-linux-gnu
+build_alias=i486-linux-gnu
+build=i486-pc-linux-gnu
 build_os=linux-gnu
 
 # An echo program that does not interpret backslashes.
@@ -82,13 +82,13 @@ AR="ar"
 AR_FLAGS="cru"
 
 # A C compiler.
-LTCC="gcc"
+LTCC="i486-linux-gnu-gcc"
 
 # LTCC compiler flags.
-LTCFLAGS="-g -O2"
+LTCFLAGS="-Wall -g -O2"
 
 # A language-specific compiler.
-CC="gcc"
+CC="i486-linux-gnu-gcc"
 
 # Is the compiler the GNU C compiler?
 with_gcc=yes
@@ -7244,13 +7244,13 @@ allow_libtool_libs_with_static_runtimes=no
 fast_install=yes
 
 # The host system.
-host_alias=
-host=i686-pc-linux-gnu
+host_alias=i486-linux-gnu
+host=i486-pc-linux-gnu
 host_os=linux-gnu
 
 # The build system.
-build_alias=
-build=i686-pc-linux-gnu
+build_alias=i486-linux-gnu
+build=i486-pc-linux-gnu
 build_os=linux-gnu
 
 # An echo program that does not interpret backslashes.
@@ -7261,13 +7261,13 @@ AR="ar"
 AR_FLAGS="cru"
 
 # A C compiler.
-LTCC="gcc"
+LTCC="i486-linux-gnu-gcc"
 
 # LTCC compiler flags.
-LTCFLAGS="-g -O2"
+LTCFLAGS="-Wall -g -O2"
 
 # A language-specific compiler.
-CC="g++"
+CC="i486-linux-gnu-g++"
 
 # Is the compiler the GNU C compiler?
 with_gcc=yes

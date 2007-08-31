@@ -1,5 +1,11 @@
 Pidgin-NateOn: NateOn protocol plugin for pidgin
 
+version 2.1.1-svn98
+	* Support "add/remove buddy"
+	* Support "add/remove group"
+	* Support "send slip of paper"
+	* Fixed conversation bugs
+
 version 2.0.0-svn64
 	* Detach nateon-prpl from pidgin
 
@@ -10,7 +16,7 @@ version 2.0.0+nateon-svn53:
 	* Nateon can change own status
 
 version 2.0.0+nateon-svn51:
-	* Add nateon supporth
+	* Add nateon support
 
 version 2.0.0beta6-2:
 	* Fixed login bug
