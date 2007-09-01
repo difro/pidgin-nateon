@@ -1,10 +1,10 @@
-# Process this file with autoconf to produce a configure script.
-AC_PREREQ(2.50)
+dnl Process this file with autoconf to produce a configure script.
+AC_PREREQ([2.50])
 
-m4_define([purple_lt_current], [0])
+m4_define([purple_lt_current], [1])
 m4_define([purple_major_version], [2])
-m4_define([purple_minor_version], [0])
-m4_define([purple_micro_version], [0])
+m4_define([purple_minor_version], [1])
+m4_define([purple_micro_version], [1])
 m4_define([purple_version_suffix], [])
 m4_define([purple_version],
           [purple_major_version.purple_minor_version.purple_micro_version])
@@ -28,11 +28,7 @@ AC_SUBST(PURPLE_VERSION)
 PURPLE_LT_VERSION_INFO="purple_lt_current:purple_micro_version:purple_minor_version"
 AC_SUBST(PURPLE_LT_VERSION_INFO)
 
-AC_DEFINE(PIDGIN_NAME, "Pidgin", [The user-visible application name])
-
-AC_PATH_PROG(sedpath, sed)
-
-# Checks for programs.
+dnl Checks for programs.
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_DISABLE_STATIC
@@ -67,22 +63,33 @@ AC_CHECK_FUNCS(getopt_long,,
 AC_CHECK_LIB(resolv, __res_query)
 AC_CHECK_LIB(nsl, gethostent)
 
+dnl #######################################################################
+dnl # Check for GLib 2.0 (required)
+dnl #######################################################################
+PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.0.0 gobject-2.0 gmodule-2.0 gthread-2.0], , [
+        AC_MSG_RESULT(no)
+        AC_MSG_ERROR([
+
+You must have the GLib 2.0 development headers installed to build.
+])])
+AC_SUBST(GLIB_CFLAGS)
+AC_SUBST(GLIB_LIBS)
+
 AM_CONDITIONAL(STATIC_NATEON, test "x$static_nateon" = "xyes")
 
-AC_ARG_ENABLE(plugins, [  --disable-plugins       compile without plugin support],,enable_plugins=yes)
-#AC_ARG_ENABLE(fortify, [  --disable-fortify       compile without FORTIFY_SOURCE support],,enable_fortify=yes)
+AC_ARG_ENABLE(plugins, [AC_HELP_STRING([--disable-plugins], [compile without plugin support])], , enable_plugins=yes)
 
-if test "x$enable_debug" = "xyes" ; then
-        AC_DEFINE(DEBUG, 1, [Define if debugging is enabled.])
-fi
-
-if test "x$enable_fatal_asserts" = "xyes" ; then
-        AC_DEFINE(PURPLE_FATAL_ASSERTS, 1, [Define to make assertions fatal (useful for debugging).])
-fi
-
-if test "x$enable_deprecated" = "xno"; then
-        DEBUG_CFLAGS="$DEBUG_CFLAGS -DG_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED"
-fi
+##if test "x$enable_debug" = "xyes" ; then
+##        AC_DEFINE(DEBUG, 1, [Define if debugging is enabled.])
+##fi
+##
+##if test "x$enable_fatal_asserts" = "xyes" ; then
+##        AC_DEFINE(PURPLE_FATAL_ASSERTS, 1, [Define to make assertions fatal (useful for debugging).])
+##fi
+##
+##if test "x$enable_deprecated" = "xno"; then
+##        DEBUG_CFLAGS="$DEBUG_CFLAGS -DG_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED"
+##fi
 
 if test "x$enable_plugins" = "xyes" ; then
 	AC_DEFINE(PURPLE_PLUGINS, 1, [Define if plugins are enabled.])
@@ -91,6 +98,7 @@ else
 	AM_CONDITIONAL(PLUGINS, false)
 fi
 
+##AC_ARG_ENABLE(fortify, [AC_HELP_STRING([--disable-fortify], [compile without FORTIFY_SOURCE support])], , enable_fortify=yes)
 				
 if test "x$GCC" = "xyes"; then
 	dnl We enable -Wall later.
@@ -158,7 +166,7 @@ if test "x$GCC" = "xyes"; then
 			}
 		], [
 			AC_MSG_RESULT(yes)
-			DEBUG_CFLAGS="$DEBUG_CFLAGS -D_FORTIFY_SOURCE=2"
+			DEBUG_CFLAGS="$DEBUG_CFLAGS -Wp, -D_FORTIFY_SOURCE=2"
 		], [
 			AC_MSG_RESULT(no)
 		])
@@ -170,18 +178,7 @@ fi
 AC_SUBST(CFLAGS)
 AC_SUBST(DEBUG_CFLAGS)
 
-AM_PATH_GLIB_2_0(2.0.0,,AC_MSG_ERROR([
-*** GLib 2.0 is required to build Gaim; please make sure you have the GLib
-*** development headers installed. The latest version of GLib is
-*** always available at http://www.gtk.org/.]))
-AM_PATH_GTK_2_0(2.0.0,,AC_MSG_ERROR([
-*** GTK+ 2.0 is required to build Gaim; please make sure you have the GTK+
-*** development headers installed. The latest version of GTK+ is
-*** always available at http://www.gtk.org/.]))
-
 AC_PATH_PROG(pidginpath, pidgin)
-AC_SUBST(GTK_CFLAGS)
-AC_SUBST(GLIB_CFLAGS)
 
 AC_OUTPUT([Makefile
 		pixmaps/Makefile

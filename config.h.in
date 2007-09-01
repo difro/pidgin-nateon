@@ -1,8 +1,5 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define if debugging is enabled. */
-#undef DEBUG
-
 /* always defined to indicate that i18n is enabled */
 #undef ENABLE_NLS
 
@@ -113,12 +110,6 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
-
-/* The user-visible application name */
-#undef PIDGIN_NAME
-
-/* Define to make assertions fatal (useful for debugging). */
-#undef PURPLE_FATAL_ASSERTS
 
 /* Define if plugins are enabled. */
 #undef PURPLE_PLUGINS

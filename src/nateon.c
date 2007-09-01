@@ -21,21 +21,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-//#define PHOTO_SUPPORT 1
+#define PHOTO_SUPPORT 1
 
 #include <glib.h>
 
 #include "nateon.h"
 #include "accountopt.h"
-//#include "msg.h"
+#include "msg.h"
 //#include "page.h"
 #include "sop.h"
 #include "pluginpref.h"
 #include "prefs.h"
 #include "session.h"
-//#include "state.h"
+#include "state.h"
 //#include "utils.h"
 #include "cmds.h"
+#include "core.h"
 #include "prpl.h"
 #include "util.h"
 #include "nateon-utils.h"
@@ -46,9 +47,9 @@
 #include "sync.h"
 //#include "slplink.h"
 
-//#if PHOTO_SUPPORT
-//#include "imgstore.h"
-//#endif
+#if PHOTO_SUPPORT
+#include "imgstore.h"
+#endif
 
 typedef struct
 {
@@ -844,7 +845,7 @@ nateon_login(PurpleAccount *account)
 	session = nateon_session_new(account);
 
 	gc->proto_data = session;
-//	gc->flags |= PURPLE_CONNECTION_HTML | PURPLE_CONNECTION_FORMATTING_WBFO | PURPLE_CONNECTION_NO_BGCOLOR | PURPLE_CONNECTION_NO_FONTSIZE | PURPLE_CONNECTION_NO_URLDESC;
+	gc->flags |= PURPLE_CONNECTION_HTML | PURPLE_CONNECTION_FORMATTING_WBFO | PURPLE_CONNECTION_NO_BGCOLOR | PURPLE_CONNECTION_NO_FONTSIZE | PURPLE_CONNECTION_NO_URLDESC;
 
 	nateon_session_set_login_step(session, NATEON_LOGIN_STEP_START);
 
@@ -899,7 +900,6 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 //        }
 
 	msgtext = purple_strreplace(message, " ", "%20");
-//	msg = g_strdup_printf("MSG 굴림%%090%%09%%09%s", msg);
 //	purple_debug_info("nateon", "%s\n", msg);
 
 //	nateon_import_html(message, &msgformat, &msgtext);
@@ -2157,8 +2157,8 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,					/* join_chat */
 	NULL,					/* reject chat invite */
 	NULL,					/* get_chat_name */
-	nateon_chat_invite,			/* chat_invite */
-	nateon_chat_leave,			/* chat_leave */
+	NULL, //nateon_chat_invite,			/* chat_invite */
+	NULL, //nateon_chat_leave,			/* chat_leave */
 	NULL,					/* chat_whisper */
 	nateon_chat_send,			/* chat_send */
 	NULL, //nateon_keepalive,			/* keepalive */
@@ -2203,7 +2203,7 @@ static PurplePluginInfo info =
 	NULL,					/**< ui_requirement */
 	0,					/**< flags          */
 	NULL,					/**< dependencies   */
-	PURPLE_PRIORITY_DEFAULT,			/**< priority       */
+	PURPLE_PRIORITY_DEFAULT,		/**< priority       */
 
 	"prpl-nateon",				/**< id             */
 	"NateOn",				/**< name           */

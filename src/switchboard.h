@@ -27,9 +27,9 @@
 
 typedef struct _NateonSwitchBoard NateonSwitchBoard;
 
-//#include "conversation.h"
+#include "conversation.h"
 
-//#include "msg.h"
+#include "msg.h"
 #include "user.h"
 
 #include "servconn.h"

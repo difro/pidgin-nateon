@@ -23,9 +23,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "nateon.h"
-//#include "prefs.h"
+#include "prefs.h"
 #include "switchboard.h"
-//#include "notification.h"
+#include "notification.h"
 //#include "utils.h"
 
 #include "error.h"
@@ -71,9 +71,9 @@ nateon_switchboard_destroy(NateonSwitchBoard *swboard)
 	NateonMessage *msg;
 	GList *l;
 
-//#ifdef NATEON_DEBUG_SB
+#ifdef NATEON_DEBUG_SB
 	purple_debug_info("nateon", "switchboard_destroy: swboard(%p)\n", swboard);
-//#endif
+#endif
 
 	g_return_if_fail(swboard != NULL);
 
@@ -89,13 +89,13 @@ nateon_switchboard_destroy(NateonSwitchBoard *swboard)
 	/* Destroy the message queue */
 	while ((msg = g_queue_pop_head(swboard->msg_queue)) != NULL)
 	{
-//		if (swboard->error != NATEON_SB_ERROR_NONE)
-//		{
-//			/* The messages could not be sent due to a switchboard error */
-//			msg_error_helper(swboard->cmdproc, msg,
-//							 NATEON_MSG_ERROR_SB);
-//		}
-//		nateon_message_unref(msg);
+		if (swboard->error != NATEON_SB_ERROR_NONE)
+		{
+			/* The messages could not be sent due to a switchboard error */
+			msg_error_helper(swboard->cmdproc, msg,
+							 NATEON_MSG_ERROR_SB);
+		}
+		nateon_message_unref(msg);
 	}
 
 	g_queue_free(swboard->msg_queue);
@@ -120,11 +120,11 @@ nateon_switchboard_destroy(NateonSwitchBoard *swboard)
 	session = swboard->session;
 	session->switches = g_list_remove(session->switches, swboard);
 
-//#if 0
-//	/* This should never happen or we are in trouble. */
-//	if (swboard->servconn != NULL)
-//		nateon_servconn_destroy(swboard->servconn);
-//#endif
+#if 0
+	/* This should never happen or we are in trouble. */
+	if (swboard->servconn != NULL)
+		nateon_servconn_destroy(swboard->servconn);
+#endif
 
 	swboard->cmdproc->data = NULL;
 
