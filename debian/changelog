@@ -1,3 +1,9 @@
+pidgin-nateon (2.1.1-svn102) unstable; urgency=low
+
+  * Support "conversation formatting"
+
+ -- Hansun Lee <hansun.lee@gmail.com>  Tue,  4 Sep 2007 03:14:26 +0900
+
 pidgin-nateon (2.1.1-svn98) unstable; urgency=low
 
   * Support "add/remove buddy"

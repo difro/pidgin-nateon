@@ -1,5 +1,8 @@
 Pidgin-NateOn: NateOn protocol plugin for pidgin
 
+version 2.1.1-svn102
+	* Support "conversation formatting"
+
 version 2.1.1-svn98
 	* Support "add/remove buddy"
 	* Support "add/remove group"
