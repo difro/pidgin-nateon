@@ -118,7 +118,7 @@ nateon_message_new_plain(const char *message)
 {
 	NateonMessage *msg;
 //	char *message_cr;
-	char *message_encode;
+	char *message_enc;
 
 	msg = nateon_message_new(NATEON_MSG_TEXT);
 //	nateon_message_set_attr(msg, "User-Agent", "Purple/" VERSION);
@@ -132,9 +132,9 @@ nateon_message_new_plain(const char *message)
 //	nateon_message_set_bin_data(msg, message_cr, strlen(message_cr));
 //	g_free(message_cr);
 
-	message_encode = g_strdup_printf("MSG 굴림%%090%%09%%09%s", message);
-	nateon_message_set_bin_data(msg, message_encode, strlen(message_encode));
-	g_free(message_encode);
+	message_enc = g_strdup_printf("MSG %s", message);
+	nateon_message_set_bin_data(msg, message_enc, strlen(message_enc));
+	g_free(message_enc);
 
 	return msg;
 }
@@ -520,7 +520,7 @@ nateon_message_set_bin_data(NateonMessage *msg, const void *data, size_t len)
 {
 	g_return_if_fail(msg != NULL);
 
-//	/* There is no need to waste memory on data we cannot send anyway */
+	/* There is no need to waste memory on data we cannot send anyway */
 //	if (len > 1664)
 //		len = 1664;
 

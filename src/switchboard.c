@@ -26,7 +26,7 @@
 #include "prefs.h"
 #include "switchboard.h"
 #include "notification.h"
-//#include "utils.h"
+#include "nateon-utils.h"
 
 #include "error.h"
 
@@ -757,7 +757,7 @@ msg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	NateonSwitchBoard *swboard;
 //	const char *body;
 	char *body_str;
-//	char *body_enc;
+	char *body_enc;
 	char *body_final;
 //	size_t body_len;
 	const char *account_name;
@@ -776,13 +776,15 @@ msg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	account_name = cmd->params[1];
 	body_str = cmd->params[3];
 
-	{
-		char **params;
-
-		params = g_strsplit(body_str, "%09", 0);
-
-		body_final = g_strdup(purple_url_decode(params[3]));
-	}
+//	{
+//		char **params;
+//
+//		params = g_strsplit(body_str, "%09", 0);
+//
+//		body_final = g_strdup(purple_url_decode(params[3]));
+//	}
+	body_enc = g_markup_escape_text(body_str, -1);
+	body_final = nateon_parse_format(body_enc);
 
 	purple_debug_info("nateon", "%s - %s %s\n", __FUNCTION__, account_name, body_final);
 
@@ -802,23 +804,23 @@ msg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 #endif
 
 //	if ((value = nateon_message_get_attr(msg, "X-MMS-IM-Format")) != NULL)
-//	{
+	{
 //		char *pre, *post;
-//
+
 //		nateon_parse_format(value, &pre, &post);
-//
+
 //		body_final = g_strdup_printf("%s%s%s", pre ? pre : "",
 //									 body_enc ? body_enc : "", post ? post : "");
 //
 //		g_free(pre);
 //		g_free(post);
 //		g_free(body_enc);
-//	}
+	}
 //	else
 //	{
 //		body_final = body_enc;
 //	}
-//
+
 	swboard->flag |= NATEON_SB_FLAG_IM;
 
 	if (swboard->current_users > 1 ||

@@ -899,13 +899,10 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 //                }
 //        }
 
-	msgtext = purple_strreplace(message, " ", "%20");
-//	purple_debug_info("nateon", "%s\n", msg);
-
-//	nateon_import_html(message, &msgformat, &msgtext);
-//
-//	purple_debug_info("nateon", "format:%s\n", msgformat);
-//	purple_debug_info("nateon", "text  :%s\n", msgtext);
+	msgtext = nateon_import_html(message);
+	purple_debug_info("nateon", "message:%s\n", message);
+//	purple_debug_info("nateon", "format :%s\n", msgformat);
+	purple_debug_info("nateon", "text   :%s\n", msgtext);
 
 
 //	if (strlen(msgtext) + strlen(msgformat) + strlen(VERSION) > 1564)
@@ -918,7 +915,7 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 
 	msg = nateon_message_new_plain(msgtext);
 //	nateon_message_set_attr(msg, "X-MMS-IM-Format", msgformat);
-//
+
 //	g_free(msgformat);
 	g_free(msgtext);
 

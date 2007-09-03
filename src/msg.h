@@ -92,7 +92,7 @@ struct _NateonMessage
 	size_t ref_count;           /**< The reference count.       */
 
 	NateonMsgType type;
-//
+
 //	gboolean nateonslp_message;
 //
 //	char *remote_user;

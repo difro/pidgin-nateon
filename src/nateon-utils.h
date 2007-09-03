@@ -24,29 +24,30 @@
 #ifndef _NATEON_UTILS_H_
 #define _NATEON_UTILS_H_
 
-const char *encode_spaces(const char *str);
-///**
-// * Parses the NATEON message formatting into a format compatible with Purple.
-// *
-// * @param mime     The mime header with the formatting.
-// * @param pre_ret  The returned prefix string.
-// * @param post_ret The returned postfix string.
-// *
-// * @return The new message.
-// */
+/**
+ * Parses the NATEON message formatting into a format compatible with Purple.
+ *
+ * @param mime     The mime header with the formatting.
+ * @param pre_ret  The returned prefix string.
+ * @param post_ret The returned postfix string.
+ *
+ * @return The new message.
+ */
 //void nateon_parse_format(const char *mime, char **pre_ret, char **post_ret);
-//
-///**
-// * Parses the Purple message formatting (html) into the NATEON format.
-// *
-// * @param html			The html message to format.
-// * @param attributes	The returned attributes string.
-// * @param message		The returned message string.
-// *
-// * @return The new message.
-// */
+char *nateon_parse_format(const char *payload);
+
+/**
+ * Parses the Purple message formatting (html) into the NATEON format.
+ *
+ * @param html			The html message to format.
+ * @param attributes	The returned attributes string.
+ * @param message		The returned message string.
+ *
+ * @return The new message.
+ */
 //void nateon_import_html(const char *html, char **attributes, char **message);
-//
+char *nateon_import_html(const char *html);
+
 //void nateon_parse_socket(const char *str, char **ret_host, int *ret_port);
 
 #endif /* _NATEON_UTILS_H_ */

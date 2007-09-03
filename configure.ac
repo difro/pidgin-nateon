@@ -149,28 +149,6 @@ if test "x$GCC" = "xyes"; then
 			CFLAGS="$orig_CFLAGS"
 		])
 	done
-	
-	if test "x$enable_fortify" = "xyes"; then
-		AC_MSG_CHECKING(for FORTIFY_SOURCE support)
-		AC_TRY_COMPILE([#include <features.h>], [
-			int main() {
-			#if !(__GNUC_PREREQ (4, 1) \
-				|| (defined __GNUC_RH_RELEASE__ && __GNUC_PREREQ (4, 0)) \
-				|| (defined __GNUC_RH_RELEASE__ && __GNUC_PREREQ (3, 4) \
-					&& __GNUC_MINOR__ == 4 \
-					&& (__GNUC_PATCHLEVEL__ > 2 \
-						|| (__GNUC_PATCHLEVEL__ == 2 && __GNUC_RH_RELEASE__ >= 8))))
-			#error No FORTIFY_SOURCE support
-			#endif
-				return 0;
-			}
-		], [
-			AC_MSG_RESULT(yes)
-			DEBUG_CFLAGS="$DEBUG_CFLAGS -Wp, -D_FORTIFY_SOURCE=2"
-		], [
-			AC_MSG_RESULT(no)
-		])
-	fi
 
 	DEBUG_CFLAGS="-Wall $DEBUG_CFLAGS"
 	CFLAGS="-g $CFLAGS"
