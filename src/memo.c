@@ -1,5 +1,5 @@
 /**
- * @file sop.c Paging functions
+ * @file memo.c Paging functions
  *
  * purple
  *
@@ -22,40 +22,40 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "nateon.h"
-#include "sop.h"
+#include "memo.h"
 
 NateonSop *
-nateon_sop_new(const char *from, const char *to)
+nateon_memo_new(const char *from, const char *to)
 {
-	NateonSop *sop;
+	NateonSop *memo;
 
-	sop = g_new0(NateonSop, 1);
+	memo = g_new0(NateonSop, 1);
 
-	sop->from = g_strdup(from);
-	sop->to = g_strdup(to);
+	memo->from = g_strdup(from);
+	memo->to = g_strdup(to);
 
-	return sop;
+	return memo;
 }
 
 void
-nateon_sop_destroy(NateonSop *sop)
+nateon_memo_destroy(NateonSop *memo)
 {
-	g_return_if_fail(sop != NULL);
+	g_return_if_fail(memo != NULL);
 
-	if (sop->body != NULL)
-		g_free(sop->body);
+	if (memo->body != NULL)
+		g_free(memo->body);
 
-	if (sop->from != NULL)
-		g_free(sop->from);
+	if (memo->from != NULL)
+		g_free(memo->from);
 
-	if (sop->to != NULL)
-		g_free(sop->to);
+	if (memo->to != NULL)
+		g_free(memo->to);
 
-	g_free(sop);
+	g_free(memo);
 }
 
 char *
-nateon_sop_gen_payload(const NateonSop *sop, size_t *ret_size)
+nateon_memo_gen_payload(const NateonSop *memo, size_t *ret_size)
 {
 	const char *body;
 	char *date;
@@ -65,9 +65,9 @@ nateon_sop_gen_payload(const NateonSop *sop, size_t *ret_size)
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
-	g_return_val_if_fail(sop != NULL, NULL);
+	g_return_val_if_fail(memo != NULL, NULL);
 
-	body = nateon_sop_get_body(sop);
+	body = nateon_memo_get_body(memo);
 
 	time(&now_t);
 	now = localtime(&now_t);
@@ -85,7 +85,7 @@ nateon_sop_gen_payload(const NateonSop *sop, size_t *ret_size)
 			"length:%d\r\n"
 			"\r\n"
 			"%s\r\n",
-			sop->to, sop->from, sop->to, date, strlen(body), body);
+			memo->to, memo->from, memo->to, date, strlen(body), body);
 	
 	purple_debug_info("nateon", "[%s]\n%s\n", __FUNCTION__, str);
 
@@ -96,21 +96,21 @@ nateon_sop_gen_payload(const NateonSop *sop, size_t *ret_size)
 }
 
 void
-nateon_sop_set_body(NateonSop *sop, const char *body)
+nateon_memo_set_body(NateonSop *memo, const char *body)
 {
-	g_return_if_fail(sop != NULL);
+	g_return_if_fail(memo != NULL);
 	g_return_if_fail(body != NULL);
 
-	if (sop->body != NULL)
-		g_free(sop->body);
+	if (memo->body != NULL)
+		g_free(memo->body);
 
-	sop->body = g_strdup(body);
+	memo->body = g_strdup(body);
 }
 
 const char *
-nateon_sop_get_body(const NateonSop *sop)
+nateon_memo_get_body(const NateonSop *memo)
 {
-	g_return_val_if_fail(sop != NULL, NULL);
+	g_return_val_if_fail(memo != NULL, NULL);
 
-	return sop->body;
+	return memo->body;
 }

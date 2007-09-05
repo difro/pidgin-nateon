@@ -1,5 +1,5 @@
 /**
- * @file sop.h Paging functions
+ * @file memo.h Paging functions
  *
  * purple
  *
@@ -21,15 +21,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _NATEON_SOP_H_
-#define _NATEON_SOP_H_
+#ifndef _NATEON_MEMO_H_
+#define _NATEON_MEMO_H_
 
 typedef struct _NateonSop NateonSop;
 
 #include "session.h"
 
 /**
- * A sop.
+ * A memo.
  */
 struct _NateonSop
 {
@@ -40,42 +40,42 @@ struct _NateonSop
 };
 
 /**
- * Creates a new, empty sop.
+ * Creates a new, empty memo.
  *
- * @return A new sop.
+ * @return A new memo.
  */
-NateonSop *nateon_sop_new(const char *from, const char *to);
+NateonSop *nateon_memo_new(const char *from, const char *to);
 
 /**
- * Destroys a sop.
+ * Destroys a memo.
  */
-void nateon_sop_destroy(NateonSop *sop);
+void nateon_memo_destroy(NateonSop *memo);
 
 /**
- * Generates the payload data of a sop.
+ * Generates the payload data of a memo.
  *
- * @param sop     The sop.
+ * @param memo     The memo.
  * @param ret_size The returned size of the payload.
  *
- * @return The payload data of a sop.
+ * @return The payload data of a memo.
  */
-char *nateon_sop_gen_payload(const NateonSop *sop, size_t *ret_size);
+char *nateon_memo_gen_payload(const NateonSop *memo, size_t *ret_size);
 
 /**
- * Sets the body of a sop.
+ * Sets the body of a memo.
  *
- * @param sop  The sop.
- * @param body The body of the sop.
+ * @param memo  The memo.
+ * @param body The body of the memo.
  */
-void nateon_sop_set_body(NateonSop *sop, const char *body);
+void nateon_memo_set_body(NateonSop *memo, const char *body);
 
 /**
- * Returns the body of the sop.
+ * Returns the body of the memo.
  *
- * @param sop The sop.
+ * @param memo The memo.
  *
- * @return The body of the sop.
+ * @return The body of the memo.
  */
-const char *nateon_sop_get_body(const NateonSop *sop);
+const char *nateon_memo_get_body(const NateonSop *memo);
 
-#endif /* _NATEON_SOP_H_ */
+#endif /* _NATEON_MEMO_H_ */

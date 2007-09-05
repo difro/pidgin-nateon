@@ -29,7 +29,7 @@
 #include "accountopt.h"
 #include "msg.h"
 //#include "page.h"
-#include "sop.h"
+#include "memo.h"
 #include "pluginpref.h"
 #include "prefs.h"
 #include "session.h"
@@ -234,13 +234,13 @@ nateon_act_id(PurpleConnection *gc, const char *entry)
 //}
 
 static void
-send_sop(PurpleConnection *gc, const char *who, const char *entry)
+send_memo(PurpleConnection *gc, const char *who, const char *entry)
 {
 	PurpleAccount *account;
 	NateonTransaction *trans;
 	NateonSession *session;
 	NateonCmdProc *cmdproc;
-	NateonSop *sop;
+	NateonSop *memo;
 	char *payload;
 	size_t payload_len;
 
@@ -248,29 +248,29 @@ send_sop(PurpleConnection *gc, const char *who, const char *entry)
 	session = gc->proto_data;
 	cmdproc = session->notification->cmdproc;
 
-	sop = nateon_sop_new(purple_account_get_username(account), who);
-	nateon_sop_set_body(sop, entry);
+	memo = nateon_memo_new(purple_account_get_username(account), who);
+	nateon_memo_set_body(memo, entry);
 
-	payload = nateon_sop_gen_payload(sop, &payload_len);
+	payload = nateon_memo_gen_payload(memo, &payload_len);
 
 	trans = nateon_transaction_new(cmdproc, "CMSG", "N %d", payload_len);
 
 	nateon_transaction_set_payload(trans, payload, payload_len);
 
-	nateon_sop_destroy(sop);
+	nateon_memo_destroy(memo);
 
 	nateon_cmdproc_send_trans(cmdproc, trans);
 }
 
 static void
-send_sop_cb(NateonSendData *data, const char *entry)
+send_memo_cb(NateonSendData *data, const char *entry)
 {
-	send_sop(data->gc, data->account, entry);
+	send_memo(data->gc, data->account, entry);
 	g_free(data);
 }
 
 static void
-close_sop_cb(NateonSendData *data, const char *entry)
+close_memo_cb(NateonSendData *data, const char *entry)
 {
 	g_free(data);
 }
@@ -408,7 +408,7 @@ nateon_show_set_friendly_name(PurplePluginAction *action)
 //}
 
 static void
-show_send_sop_cb(PurpleBlistNode *node, gpointer ignored)
+show_send_memo_cb(PurpleBlistNode *node, gpointer ignored)
 {
 	PurpleBuddy *buddy;
 	PurpleConnection *gc;
@@ -428,8 +428,8 @@ show_send_sop_cb(PurpleBlistNode *node, gpointer ignored)
 
 	purple_request_input(gc, NULL, buddy->name, NULL,
 					   NULL, TRUE, FALSE, NULL,
-					   _("_Send"), G_CALLBACK(send_sop_cb),
-					   _("Close"), G_CALLBACK(close_sop_cb),
+					   _("_Send"), G_CALLBACK(send_memo_cb),
+					   _("Close"), G_CALLBACK(close_memo_cb),
 					   purple_connection_get_account(gc), NULL, NULL,
 					   data);
 }
@@ -782,7 +782,7 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 //			m = g_list_append(m, act);
 //		}
 //		
-		act = purple_menu_action_new(_("Send SOP"), PURPLE_CALLBACK(show_send_sop_cb), NULL, NULL);
+		act = purple_menu_action_new(_("Send memo"), PURPLE_CALLBACK(show_send_memo_cb), NULL, NULL);
 		m = g_list_append(m, act);
 
 		act = purple_menu_action_new(_("Send SMS"), NULL, NULL, NULL);

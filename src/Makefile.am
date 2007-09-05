@@ -30,8 +30,8 @@ NATEONSOURCES = \
 	session.h \
 	slplink.c \
 	slplink.h \
-	sop.c \
-	sop.h \
+	memo.c \
+	memo.h \
 	switchboard.c \
 	switchboard.h \
 	state.c \

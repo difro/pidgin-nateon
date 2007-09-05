@@ -51,10 +51,10 @@ am__libnateon_a_SOURCES_DIST = cmdproc.c cmdproc.h command.c command.h \
 	dialog.c dialog.h error.c error.h group.c group.h history.c \
 	history.h msg.c msg.h nateon.c nateon.h nateon-utils.c \
 	nateon-utils.h notification.c notification.h servconn.c \
-	servconn.h session.c session.h slplink.c slplink.h sop.c sop.h \
-	switchboard.c switchboard.h state.c state.h sync.c sync.h \
-	table.c table.h transaction.c transaction.h user.c user.h \
-	userlist.c userlist.h
+	servconn.h session.c session.h slplink.c slplink.h memo.c \
+	memo.h switchboard.c switchboard.h state.c state.h sync.c \
+	sync.h table.c table.h transaction.c transaction.h user.c \
+	user.h userlist.c userlist.h
 am__objects_1 = libnateon_a-cmdproc.$(OBJEXT) \
 	libnateon_a-command.$(OBJEXT) libnateon_a-dialog.$(OBJEXT) \
 	libnateon_a-error.$(OBJEXT) libnateon_a-group.$(OBJEXT) \
@@ -63,7 +63,7 @@ am__objects_1 = libnateon_a-cmdproc.$(OBJEXT) \
 	libnateon_a-nateon-utils.$(OBJEXT) \
 	libnateon_a-notification.$(OBJEXT) \
 	libnateon_a-servconn.$(OBJEXT) libnateon_a-session.$(OBJEXT) \
-	libnateon_a-slplink.$(OBJEXT) libnateon_a-sop.$(OBJEXT) \
+	libnateon_a-slplink.$(OBJEXT) libnateon_a-memo.$(OBJEXT) \
 	libnateon_a-switchboard.$(OBJEXT) libnateon_a-state.$(OBJEXT) \
 	libnateon_a-sync.$(OBJEXT) libnateon_a-table.$(OBJEXT) \
 	libnateon_a-transaction.$(OBJEXT) libnateon_a-user.$(OBJEXT) \
@@ -87,12 +87,12 @@ am__libnateon_la_SOURCES_DIST = cmdproc.c cmdproc.h command.c \
 	history.c history.h msg.c msg.h nateon.c nateon.h \
 	nateon-utils.c nateon-utils.h notification.c notification.h \
 	servconn.c servconn.h session.c session.h slplink.c slplink.h \
-	sop.c sop.h switchboard.c switchboard.h state.c state.h sync.c \
-	sync.h table.c table.h transaction.c transaction.h user.c \
-	user.h userlist.c userlist.h
+	memo.c memo.h switchboard.c switchboard.h state.c state.h \
+	sync.c sync.h table.c table.h transaction.c transaction.h \
+	user.c user.h userlist.c userlist.h
 am__objects_2 = cmdproc.lo command.lo dialog.lo error.lo group.lo \
 	history.lo msg.lo nateon.lo nateon-utils.lo notification.lo \
-	servconn.lo session.lo slplink.lo sop.lo switchboard.lo \
+	servconn.lo session.lo slplink.lo memo.lo switchboard.lo \
 	state.lo sync.lo table.lo transaction.lo user.lo userlist.lo
 @STATIC_NATEON_FALSE@am_libnateon_la_OBJECTS = $(am__objects_2)
 libnateon_la_OBJECTS = $(am_libnateon_la_OBJECTS)
@@ -284,8 +284,8 @@ NATEONSOURCES = \
 	session.h \
 	slplink.c \
 	slplink.h \
-	sop.c \
-	sop.h \
+	memo.c \
+	memo.h \
 	switchboard.c \
 	switchboard.h \
 	state.c \
@@ -405,6 +405,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-error.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-group.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-history.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-memo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-msg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-nateon-utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-nateon.Po@am__quote@
@@ -412,7 +413,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-servconn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-session.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-slplink.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-sop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-state.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-switchboard.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-sync.Po@am__quote@
@@ -420,6 +420,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-transaction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libnateon_a-userlist.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/msg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nateon-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nateon.Plo@am__quote@
@@ -427,7 +428,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/servconn.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/session.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/slplink.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/state.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/switchboard.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sync.Plo@am__quote@
@@ -639,19 +639,19 @@ libnateon_a-slplink.obj: slplink.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-slplink.obj `if test -f 'slplink.c'; then $(CYGPATH_W) 'slplink.c'; else $(CYGPATH_W) '$(srcdir)/slplink.c'; fi`
 
-libnateon_a-sop.o: sop.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-sop.o -MD -MP -MF $(DEPDIR)/libnateon_a-sop.Tpo -c -o libnateon_a-sop.o `test -f 'sop.c' || echo '$(srcdir)/'`sop.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libnateon_a-sop.Tpo $(DEPDIR)/libnateon_a-sop.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sop.c' object='libnateon_a-sop.o' libtool=no @AMDEPBACKSLASH@
+libnateon_a-memo.o: memo.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-memo.o -MD -MP -MF $(DEPDIR)/libnateon_a-memo.Tpo -c -o libnateon_a-memo.o `test -f 'memo.c' || echo '$(srcdir)/'`memo.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libnateon_a-memo.Tpo $(DEPDIR)/libnateon_a-memo.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='memo.c' object='libnateon_a-memo.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-sop.o `test -f 'sop.c' || echo '$(srcdir)/'`sop.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-memo.o `test -f 'memo.c' || echo '$(srcdir)/'`memo.c
 
-libnateon_a-sop.obj: sop.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-sop.obj -MD -MP -MF $(DEPDIR)/libnateon_a-sop.Tpo -c -o libnateon_a-sop.obj `if test -f 'sop.c'; then $(CYGPATH_W) 'sop.c'; else $(CYGPATH_W) '$(srcdir)/sop.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libnateon_a-sop.Tpo $(DEPDIR)/libnateon_a-sop.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sop.c' object='libnateon_a-sop.obj' libtool=no @AMDEPBACKSLASH@
+libnateon_a-memo.obj: memo.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-memo.obj -MD -MP -MF $(DEPDIR)/libnateon_a-memo.Tpo -c -o libnateon_a-memo.obj `if test -f 'memo.c'; then $(CYGPATH_W) 'memo.c'; else $(CYGPATH_W) '$(srcdir)/memo.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libnateon_a-memo.Tpo $(DEPDIR)/libnateon_a-memo.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='memo.c' object='libnateon_a-memo.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-sop.obj `if test -f 'sop.c'; then $(CYGPATH_W) 'sop.c'; else $(CYGPATH_W) '$(srcdir)/sop.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -c -o libnateon_a-memo.obj `if test -f 'memo.c'; then $(CYGPATH_W) 'memo.c'; else $(CYGPATH_W) '$(srcdir)/memo.c'; fi`
 
 libnateon_a-switchboard.o: switchboard.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libnateon_a_CFLAGS) $(CFLAGS) -MT libnateon_a-switchboard.o -MD -MP -MF $(DEPDIR)/libnateon_a-switchboard.Tpo -c -o libnateon_a-switchboard.o `test -f 'switchboard.c' || echo '$(srcdir)/'`switchboard.c
