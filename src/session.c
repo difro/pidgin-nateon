@@ -70,6 +70,9 @@ nateon_session_destroy(NateonSession *session)
 
 	nateon_userlist_destroy(session->userlist);
 
+	if (session->ticket != NULL)
+		g_free(session->ticket);
+
 //	if (session->passport_info.kv != NULL)
 //		g_free(session->passport_info.kv);
 //

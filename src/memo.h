@@ -24,14 +24,14 @@
 #ifndef _NATEON_MEMO_H_
 #define _NATEON_MEMO_H_
 
-typedef struct _NateonSop NateonSop;
+typedef struct _NateonMemo NateonMemo;
 
 #include "session.h"
 
 /**
  * A memo.
  */
-struct _NateonSop
+struct _NateonMemo
 {
 	char *from;
 	char *to;
@@ -44,12 +44,12 @@ struct _NateonSop
  *
  * @return A new memo.
  */
-NateonSop *nateon_memo_new(const char *from, const char *to);
+NateonMemo *nateon_memo_new(const char *from, const char *to);
 
 /**
  * Destroys a memo.
  */
-void nateon_memo_destroy(NateonSop *memo);
+void nateon_memo_destroy(NateonMemo *memo);
 
 /**
  * Generates the payload data of a memo.
@@ -59,7 +59,7 @@ void nateon_memo_destroy(NateonSop *memo);
  *
  * @return The payload data of a memo.
  */
-char *nateon_memo_gen_payload(const NateonSop *memo, size_t *ret_size);
+char *nateon_memo_gen_payload(const NateonMemo *memo, size_t *ret_size);
 
 /**
  * Sets the body of a memo.
@@ -67,7 +67,7 @@ char *nateon_memo_gen_payload(const NateonSop *memo, size_t *ret_size);
  * @param memo  The memo.
  * @param body The body of the memo.
  */
-void nateon_memo_set_body(NateonSop *memo, const char *body);
+void nateon_memo_set_body(NateonMemo *memo, const char *body);
 
 /**
  * Returns the body of the memo.
@@ -76,6 +76,6 @@ void nateon_memo_set_body(NateonSop *memo, const char *body);
  *
  * @return The body of the memo.
  */
-const char *nateon_memo_get_body(const NateonSop *memo);
+const char *nateon_memo_get_body(const NateonMemo *memo);
 
 #endif /* _NATEON_MEMO_H_ */

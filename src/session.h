@@ -104,6 +104,7 @@ struct _NateonSession
 
 	int conv_seq; /**< The current conversation sequence number. */
 
+	char *ticket;
 //	struct
 //	{
 //		char *kv;

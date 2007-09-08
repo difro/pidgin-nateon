@@ -390,6 +390,11 @@ static void lsin_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	g_free(user->friendly_name);
 	user->friendly_name = g_strdup(friend);
 
+	if (session->ticket != NULL)
+		g_free(session->ticket);
+	session->ticket = g_strdup(cmd->params[6]);
+	purple_debug_info("nateon", "[%s] t=%s\n", __FUNCTION__, session->ticket);
+
 	purple_connection_set_display_name(gc, stored);
 
 	//nateon_cmdproc_send(cmdproc, "CONF", "0 0");
@@ -1051,23 +1056,33 @@ rmvb_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	int group_id;
 	NateonListId list_id;
 
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
 	session = cmdproc->session;
 
 	/* Sync */
 	if (cmd->trans) {
 		char **params;
 
+		purple_debug_info("nateon", "[%s] Sync\n", __FUNCTION__);
+
 		params = g_strsplit(cmd->trans->params, " ", 0);
 
 		list = params[0];
 		account = params[2];
 		group_id = atoi(params[3]);
+
+		purple_debug_info("nateon", "[%s] account(%s), list(%s), group_id(%d)\n", __FUNCTION__, account, list, group_id);
 	}
 	/* Async */
 	else {
+		purple_debug_info("nateon", "[%s] Async\n", __FUNCTION__);
+
 		list = cmd->params[1];
 		account = cmd->params[3];
 		group_id = -1;
+
+		purple_debug_info("nateon", "[%s] account(%s), list(%s), group_id(%d)\n", __FUNCTION__, account, list, group_id);
 	}
 	user = nateon_userlist_find_user_with_name(session->userlist, account);
 

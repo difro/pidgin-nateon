@@ -24,12 +24,12 @@
 #include "nateon.h"
 #include "memo.h"
 
-NateonSop *
+NateonMemo *
 nateon_memo_new(const char *from, const char *to)
 {
-	NateonSop *memo;
+	NateonMemo *memo;
 
-	memo = g_new0(NateonSop, 1);
+	memo = g_new0(NateonMemo, 1);
 
 	memo->from = g_strdup(from);
 	memo->to = g_strdup(to);
@@ -38,7 +38,7 @@ nateon_memo_new(const char *from, const char *to)
 }
 
 void
-nateon_memo_destroy(NateonSop *memo)
+nateon_memo_destroy(NateonMemo *memo)
 {
 	g_return_if_fail(memo != NULL);
 
@@ -55,7 +55,7 @@ nateon_memo_destroy(NateonSop *memo)
 }
 
 char *
-nateon_memo_gen_payload(const NateonSop *memo, size_t *ret_size)
+nateon_memo_gen_payload(const NateonMemo *memo, size_t *ret_size)
 {
 	const char *body;
 	char *date;
@@ -96,7 +96,7 @@ nateon_memo_gen_payload(const NateonSop *memo, size_t *ret_size)
 }
 
 void
-nateon_memo_set_body(NateonSop *memo, const char *body)
+nateon_memo_set_body(NateonMemo *memo, const char *body)
 {
 	g_return_if_fail(memo != NULL);
 	g_return_if_fail(body != NULL);
@@ -108,7 +108,7 @@ nateon_memo_set_body(NateonSop *memo, const char *body)
 }
 
 const char *
-nateon_memo_get_body(const NateonSop *memo)
+nateon_memo_get_body(const NateonMemo *memo)
 {
 	g_return_val_if_fail(memo != NULL, NULL);
 

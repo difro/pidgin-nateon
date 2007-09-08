@@ -240,7 +240,7 @@ send_memo(PurpleConnection *gc, const char *who, const char *entry)
 	NateonTransaction *trans;
 	NateonSession *session;
 	NateonCmdProc *cmdproc;
-	NateonSop *memo;
+	NateonMemo *memo;
 	char *payload;
 	size_t payload_len;
 
@@ -280,6 +280,13 @@ send_sms_cb(char *data, const char *entry)
 {
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 }
+
+static void
+close_sms_cb(NateonSendData *data, const char *entry)
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+}
+
 
 /* -- */
 
@@ -434,13 +441,55 @@ show_send_memo_cb(PurpleBlistNode *node, gpointer ignored)
 					   data);
 }
 
+static void nateon_got_sms_cookie(PurpleUtilFetchUrlData *url_data, gpointer data, const gchar *url_text, size_t len, const gchar *error_message)
+{
+	char *p, *q;
+	GString *cookie = g_string_new(NULL);
+	int freecnt = -1;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	/* get cookie */
+	p = url_text;
+	while ((p = strstr(p,  "Set-Cookie: ")) != NULL)
+	{
+		p += 12;
+
+		if ((q = strchr(p, ';')) != NULL)
+		{
+			char *crack = g_strndup(p, q - p + 1);
+			cookie = g_string_append(cookie, crack);
+			g_free(crack);
+		}
+	}
+	purple_debug_info("nateon", "cookie: %s\n", cookie->str);
+
+	/* get free_count */
+	if ((p = strstr(url_text, "name=freeCnt value=\"")) != NULL)
+	{
+		p += 20;
+
+		if ((q = strchr(p, '"')) != NULL)
+		{
+			char *cnt = g_strndup(p, q - p);
+			freecnt = atoi(cnt);
+			g_free(cnt);
+		}
+	}
+	purple_debug_info("nateon", "freecnt: %d\n", freecnt);
+
+	purple_debug_info("nateon", "[%s] %s\n", __FUNCTION__, url_text);
+	g_string_free(cookie, FALSE);
+}
+
 static void
 show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 {
 	PurpleBuddy *buddy;
 	PurpleConnection *gc;
-//	NateonSession *session;
+	NateonSession *session;
 //	NateonMobileData *data;
+	const char *username;
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
@@ -448,50 +497,99 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 
 	buddy = (PurpleBuddy *) node;
 	gc = purple_account_get_connection(buddy->account);
-//
-//	session = gc->proto_data;
-//
+	username = purple_account_get_username(buddy->account);
+//	account = purple_connection_get_account(gc);
+
+	session = gc->proto_data;
+
 //	data = g_new0(NateonMobileData, 1);
 //	data->gc = gc;
 //	data->passport = buddy->name;
 
-//	purple_request_input(gc, NULL, _("Send a mobile message."), NULL,
-//					   NULL, TRUE, FALSE, NULL,
-//					   _("Page"), G_CALLBACK(send_to_mobile_cb),
-//					   _("Close"), G_CALLBACK(close_mobile_page_cb),
-//					   data);
-////
-//	purple_request_input(gc, _("title"), _("primary"), _("secondary"),
-//					   _("default_value"), FALSE, TRUE, _("hint"),
-//					   _("ok"), G_CALLBACK(send_sms_cb),
-//					   _("cancle"), NULL,
-//					   purple_connection_get_account(gc), NULL, NULL,
-//					   gc);
+	{
+		PurpleRequestFields *fields;
+		PurpleRequestFieldGroup *g;
+		PurpleRequestField *f;
+		char *url;
 
-//	{
-//		PurpleRequestFields *fields;
-//		PurpleRequestFieldGroup *g;
-//		PurpleRequestField *f;
-//
-//		fields = purple_request_fields_new();
-//
-////		g = purple_request_field_group_new(NULL);
-////		f = purple_request_field_account_new("account", "account", NULL);
-////		purple_request_field_group_add_field(g, f);
-////		purple_request_fields_add_group(fields, g);
-//
-//		g = purple_request_field_group_new(NULL);
-//		f = purple_request_field_string_new("text", buddy->name, NULL, TRUE);
-//		purple_request_field_group_add_field(g, f);
-////		purple_request_fields_add_group(fields, g);
-//
-////		g = purple_request_field_group_new(NULL);
-//		f = purple_request_field_bool_new("check", "수신확인", FALSE);
-//		purple_request_field_group_add_field(g, f);
-//		purple_request_fields_add_group(fields, g);
-//
-//		purple_request_fields(gc, "쪽지쓰기", NULL, NULL, fields, _("_Send"), G_CALLBACK(send_sms_cb), _("Close"), NULL, purple_connection_get_account(gc), "who", NULL, gc);
-//	}
+		fields = purple_request_fields_new();
+
+		g = purple_request_field_group_new(NULL);
+		f = purple_request_field_string_new("text", buddy->name, "Loading...", TRUE);
+		purple_request_field_group_add_field(g, f);
+		purple_request_fields_add_group(fields, g);
+
+		g = purple_request_field_group_new(NULL);
+		f = purple_request_field_string_new("receivenum", "Send", NULL, FALSE);
+		purple_request_field_set_visible(f, FALSE);
+		purple_request_field_group_add_field(g, f);
+		purple_request_fields_add_group(fields, g);
+
+		g = purple_request_field_group_new(NULL);
+		f = purple_request_field_string_new("receivenum", "Receive", NULL, FALSE);
+		purple_request_field_set_visible(f, FALSE);
+		purple_request_field_group_add_field(g, f);
+		purple_request_fields_add_group(fields, g);
+
+		g = purple_request_field_group_new(NULL);
+		f = purple_request_field_int_new("freecnt", "FreeCount", 0);
+		purple_request_field_set_visible(f, FALSE);
+		purple_request_field_group_add_field(g, f);
+		purple_request_fields_add_group(fields, g);
+
+		if (0) {
+		url = g_strdup_printf("http://sms.nate.com/nateon30/nateonsms.jsp?TICKET=%s&ID=%s&mobile=", session->ticket, username);
+		purple_util_fetch_url_request(url, 
+				TRUE,
+				"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+				TRUE,
+				NULL,
+				TRUE,
+				nateon_got_sms_cookie,
+				fields);
+		}
+		else
+		{
+		char *content;
+		char *request;
+
+		content = g_strdup_printf("t=%s&code=G009&param=%%3fTICKET%%3d%s%%26ID%%3d%s%%26mobile%%3d", session->ticket, session->ticket, username);
+//		purple_debug_info("nateon", "[%s] %s\n", __FUNCTION__, content);
+
+		request = g_strdup_printf("POST /index.php HTTP/1.1\r\n"
+				"Accept: */*\r\n"
+				"Content-Type: application/x-www-form-urlencoded\r\n"
+				"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)\r\n"
+				"Host: br.nate.com\r\n"
+				"Content-Length:%d\r\n"
+				"Connection: Keep-Alive\r\n"
+				"\r\n%s", strlen(content), content);
+//		purple_debug_info("nateon", "[%s] %s\n", __FUNCTION__, request);
+
+		purple_util_fetch_url_request("br.nate.com", 
+				TRUE,
+				"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+				TRUE,
+				request,
+				TRUE,
+				nateon_got_sms_cookie,
+				fields);
+		}
+
+		purple_request_fields(gc,
+			       "SMS message",
+			       NULL,
+			       NULL,
+			       fields, 
+			       _("Close"), 
+			       G_CALLBACK(close_sms_cb), 
+			       _("_Send"), 
+			       G_CALLBACK(send_sms_cb), 
+			       purple_connection_get_account(gc), 
+			       "who", 
+			       NULL, 
+			       gc);
+	}
 }
 //
 //static void
@@ -785,7 +883,7 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 		act = purple_menu_action_new(_("Send memo"), PURPLE_CALLBACK(show_send_memo_cb), NULL, NULL);
 		m = g_list_append(m, act);
 
-		act = purple_menu_action_new(_("Send SMS"), NULL, NULL, NULL);
+		act = purple_menu_action_new(_("Send SMS message"), PURPLE_CALLBACK(show_send_sms_cb), NULL, NULL);
 		m = g_list_append(m, act);
 	}
 
