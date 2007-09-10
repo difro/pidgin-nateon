@@ -1790,8 +1790,8 @@ nateon_notification_init(void)
 	nateon_table_add_cmd(cbs_table, NULL, "IMSG", imsg_cmd);
 
 	// Buddy
-	nateon_table_add_cmd(cbs_table, NULL, "ADDB", addb_cmd);
-	nateon_table_add_cmd(cbs_table, NULL, "RMVB", rmvb_cmd);
+//	nateon_table_add_cmd(cbs_table, NULL, "ADDB", addb_cmd);
+//	nateon_table_add_cmd(cbs_table, NULL, "RMVB", rmvb_cmd);
 
 //	nateon_table_add_cmd(cbs_table, NULL, "IPG", ipg_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "MSG", msg_cmd);

@@ -758,16 +758,16 @@ nateon_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolea
 		purple_notify_user_info_add_pair(user_info, _("Status"), purple_presence_is_idle(presence) ? _("Idle") : purple_status_get_name(status));
 	}
 
-	if (full && user)
-	{
-		purple_notify_user_info_add_pair(user_info, _("Has you"), ((user->list_op & (1 << NATEON_LIST_RL)) ? _("Yes") : _("No")));
-
-	}
-
-	/* XXX: This is being shown in non-full tooltips because the
-	 * XXX: blocked icon overlay isn't always accurate for NATEON.
-	 * XXX: This can die as soon as purple_privacy_check() knows that
-	 * XXX: this prpl always honors both the allow and deny lists. */
+//	if (full && user)
+//	{
+//		purple_notify_user_info_add_pair(user_info, _("Has you"), ((user->list_op & (1 << NATEON_LIST_RL)) ? _("Yes") : _("No")));
+//
+//	}
+//
+//	/* XXX: This is being shown in non-full tooltips because the
+//	 * XXX: blocked icon overlay isn't always accurate for NATEON.
+//	 * XXX: This can die as soon as purple_privacy_check() knows that
+//	 * XXX: this prpl always honors both the allow and deny lists. */
 //	if (user)
 //	{
 //		purple_notify_user_info_add_pair(user_info, _("Blocked"), ((user->list_op & (1 << NATEON_LIST_BL)) ? _("Yes") : _("No")));
