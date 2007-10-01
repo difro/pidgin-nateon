@@ -1,3 +1,9 @@
+pidgin-nateon (2.2.0-svn107) unstable; urgency=low
+
+  * Fixed QUIT bug
+
+ -- Hansun Lee <hansun.lee@gmail.com>  Mon,  1 Oct 2007 20:59:53 +0900
+
 pidgin-nateon (2.1.1-svn102) unstable; urgency=low
 
   * Support "conversation formatting"

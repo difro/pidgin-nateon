@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  * @see @ref account-signals
  */
@@ -36,6 +36,8 @@ typedef struct _PurpleAccount      PurpleAccount;
 
 typedef gboolean (*PurpleFilterAccountFunc)(PurpleAccount *account);
 typedef void (*PurpleAccountRequestAuthorizationCb)(void *);
+typedef void (*PurpleAccountRegistrationCb)(PurpleAccount *account, gboolean succeeded, void *user_data);
+typedef void (*PurpleAccountUnregistrationCb)(PurpleAccount *account, gboolean succeeded, void *user_data);
 
 #include "connection.h"
 #include "log.h"
@@ -51,20 +53,50 @@ typedef enum
 	PURPLE_ACCOUNT_REQUEST_AUTHORIZATION = 0 /* Account authorization request */
 } PurpleAccountRequestType;
 
+
+/**  Account UI operations, used to notify the user of status changes and when
+ *   buddies add this account to their buddy lists.
+ */
 struct _PurpleAccountUiOps
 {
-	/* A buddy we already have added us to their buddy list. */
-	void (*notify_added)(PurpleAccount *account, const char *remote_user,
-	                    const char *id, const char *alias,
+	/** A buddy who is already on this account's buddy list added this account
+	 *  to their buddy list.
+	 */
+	void (*notify_added)(PurpleAccount *account,
+	                     const char *remote_user,
+	                     const char *id,
+	                     const char *alias,
 	                     const char *message);
-	void (*status_changed)(PurpleAccount *account, PurpleStatus *status);
-	/* Someone we don't have on our list added us. Will prompt to add them. */
-	void (*request_add)(PurpleAccount *account, const char *remote_user,
-	                    const char *id, const char *alias,
+
+	/** This account's status changed. */
+	void (*status_changed)(PurpleAccount *account,
+	                       PurpleStatus *status);
+
+	/** Someone we don't have on our list added us; prompt to add them. */
+	void (*request_add)(PurpleAccount *account,
+	                    const char *remote_user,
+	                    const char *id,
+	                    const char *alias,
 	                    const char *message);
-	void *(*request_authorize)(PurpleAccount *account, const char *remote_user, const char *id,
-				 const char *alias, const char *message, gboolean on_list, 
-				 GCallback authorize_cb, GCallback deny_cb, void *user_data);
+
+	/** Prompt for authorization when someone adds this account to their buddy
+	 * list.  To authorize them to see this account's presence, call \a
+	 * authorize_cb (\a user_data); otherwise call \a deny_cb (\a user_data);
+	 * @return a UI-specific handle, as passed to #close_account_request.
+	 */
+	void *(*request_authorize)(PurpleAccount *account,
+	                           const char *remote_user,
+	                           const char *id,
+	                           const char *alias,
+	                           const char *message,
+	                           gboolean on_list,
+	                           PurpleAccountRequestAuthorizationCb authorize_cb,
+	                           PurpleAccountRequestAuthorizationCb deny_cb,
+	                           void *user_data);
+
+	/** Close a pending request for authorization.  \a ui_handle is a handle
+	 *  as returned by #request_authorize.
+	 */
 	void (*close_account_request)(void *ui_handle);
 
 	void (*_purple_reserved1)(void);
@@ -106,6 +138,8 @@ struct _PurpleAccount
 	PurpleLog *system_log;        /**< The system log                         */
 
 	void *ui_data;              /**< The UI can put data here.              */
+	PurpleAccountRegistrationCb registration_cb;
+	void *registration_cb_user_data;
 };
 
 #ifdef __cplusplus
@@ -142,11 +176,29 @@ void purple_account_destroy(PurpleAccount *account);
 void purple_account_connect(PurpleAccount *account);
 
 /**
+ * Sets the callback for successful registration.
+ *
+ * @param account	The account for which this callback should be used
+ * @param cb	The callback
+ * @param user_data	The user data passed to the callback
+ */
+void purple_account_set_register_callback(PurpleAccount *account, PurpleAccountRegistrationCb cb, void *user_data);
+
+/**
  * Registers an account.
  *
  * @param account The account to register.
  */
 void purple_account_register(PurpleAccount *account);
+
+/**
+ * Unregisters an account (deleting it from the server).
+ *
+ * @param account The account to unregister.
+ * @param cb Optional callback to be called when unregistration is complete
+ * @param user_data user data to pass to the callback
+ */
+void purple_account_unregister(PurpleAccount *account, PurpleAccountUnregistrationCb cb, void *user_data);
 
 /**
  * Disconnects from an account.
@@ -193,7 +245,7 @@ void purple_account_request_add(PurpleAccount *account, const char *remote_user,
 
 /**
  * Notifies the user that a remote user has wants to add the local user
- * to his or her buddy list and requires authorization to d oso.
+ * to his or her buddy list and requires authorization to do so.
  *
  * This will present a dialog informing the user of this and ask if the 
  * user authorizes or denies the remote user from adding him.
@@ -212,7 +264,7 @@ void purple_account_request_add(PurpleAccount *account, const char *remote_user,
  */
 void *purple_account_request_authorization(PurpleAccount *account, const char *remote_user,
 					const char *id, const char *alias, const char *message, gboolean on_list,
-					GCallback auth_cb, GCallback deny_cb, void *user_data);
+					PurpleAccountRequestAuthorizationCb auth_cb, PurpleAccountRequestAuthorizationCb deny_cb, void *user_data);
 
 /**
  * Close account requests registered for the given PurpleAccount

@@ -16,6 +16,8 @@ NATEONSOURCES = \
 	group.h \
 	history.c \
 	history.h \
+	memo.c \
+	memo.h \
 	msg.c \
 	msg.h \
 	nateon.c \
@@ -30,8 +32,6 @@ NATEONSOURCES = \
 	session.h \
 	slplink.c \
 	slplink.h \
-	memo.c \
-	memo.h \
 	switchboard.c \
 	switchboard.h \
 	state.c \

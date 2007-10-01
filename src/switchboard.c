@@ -648,34 +648,34 @@ entr_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 static void
 quit_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
-//	NateonSwitchBoard *swboard;
-//	const char *user;
-//
-//	swboard = cmdproc->data;
-//	user = cmd->params[1];
-//
-////	if (!(swboard->flag & NATEON_SB_FLAG_IM) && (swboard->conv != NULL))
-////		purple_debug_error("nateon_switchboard", "bye_cmd: helper bug\n");
-//
-//	if (swboard->conv == NULL)
-//	{
-//		/* This is a helper switchboard */
-//		nateon_switchboard_destroy(swboard);
-//	}
-//	else if ((swboard->current_users > 1) ||
-//			 (purple_conversation_get_type(swboard->conv) == PURPLE_CONV_TYPE_CHAT))
-//	{
-//		/* This is a switchboard used for a chat */
-//		purple_conv_chat_remove_user(PURPLE_CONV_CHAT(swboard->conv), user, NULL);
-//		swboard->current_users--;
-//		if (swboard->current_users == 0)
-//			nateon_switchboard_destroy(swboard);
-//	}
-//	else
-//	{
-//		/* This is a switchboard used for a im session */
-//		nateon_switchboard_destroy(swboard);
-//	}
+	NateonSwitchBoard *swboard;
+	const char *user;
+
+	swboard = cmdproc->data;
+	user = cmd->params[1];
+
+	if (!(swboard->flag & NATEON_SB_FLAG_IM) && (swboard->conv != NULL))
+		purple_debug_error("nateon_switchboard", "bye_cmd: helper bug\n");
+
+	if (swboard->conv == NULL)
+	{
+		/* This is a helper switchboard */
+		nateon_switchboard_destroy(swboard);
+	}
+	else if ((swboard->current_users > 1) ||
+			 (purple_conversation_get_type(swboard->conv) == PURPLE_CONV_TYPE_CHAT))
+	{
+		/* This is a switchboard used for a chat */
+		purple_conv_chat_remove_user(PURPLE_CONV_CHAT(swboard->conv), user, NULL);
+		swboard->current_users--;
+		if (swboard->current_users == 0)
+			nateon_switchboard_destroy(swboard);
+	}
+	else
+	{
+		/* This is a switchboard used for a im session */
+		nateon_switchboard_destroy(swboard);
+	}
 }
 
 //static void

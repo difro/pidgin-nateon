@@ -4,7 +4,7 @@
 # Description: Makefile for win32 (mingw) version of libnateon
 #
 
-PIDGIN_TREE_TOP := ../../..
+PIDGIN_TREE_TOP := ..
 include $(PIDGIN_TREE_TOP)/libpurple/win32/global.mak
 
 TARGET = libnateon
@@ -38,41 +38,25 @@ LIB_PATHS +=		-L$(GTK_TOP)/lib \
 ##  SOURCES, OBJECTS
 ##
 C_SRC =			cmdproc.c \
-			cmdproc.h \
 			command.c \
-			command.h \
 			dialog.c \
-			dialog.h \
 			error.c \
-			error.h \
 			group.c \
-			group.h \
 			history.c \
-			history.h \
+			memo.c \
 			msg.c \
-			msg.h \
 			nateon.c \
-			nateon.h \
+			nateon-utils.c \
 			notification.c \
-			notification.h \
 			servconn.c \
-			servconn.h \
 			session.c \
-			session.h \
 			switchboard.c \
-			switchboard.h \
 			state.c \
-			state.h \
 			sync.c \
-			sync.h \
 			table.c \
-			table.h \
 			transaction.c \
-			transaction.h \
 			user.c \
-			user.h \
 			userlist.c \
-			userlist.h
 
 OBJECTS = $(C_SRC:%.c=%.o)
 

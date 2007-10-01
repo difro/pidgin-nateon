@@ -1,5 +1,8 @@
 Pidgin-NateOn: NateOn protocol plugin for pidgin
 
+version 2.2.0-svn107
+	* Fixed QUIT bug
+
 version 2.1.1-svn102
 	* Support "conversation formatting"
 

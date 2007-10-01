@@ -1,10 +1,10 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.50])
 
-m4_define([purple_lt_current], [1])
+m4_define([purple_lt_current], [2])
 m4_define([purple_major_version], [2])
-m4_define([purple_minor_version], [1])
-m4_define([purple_micro_version], [1])
+m4_define([purple_minor_version], [2])
+m4_define([purple_micro_version], [0])
 m4_define([purple_version_suffix], [])
 m4_define([purple_version],
           [purple_major_version.purple_minor_version.purple_micro_version])
@@ -28,6 +28,8 @@ AC_SUBST(PURPLE_VERSION)
 PURPLE_LT_VERSION_INFO="purple_lt_current:purple_micro_version:purple_minor_version"
 AC_SUBST(PURPLE_LT_VERSION_INFO)
 
+AC_PATH_PROG(sedpath, sed)
+
 dnl Checks for programs.
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -47,6 +49,9 @@ AC_CHECK_HEADERS(arpa/nameser_compat.h fcntl.h sys/time.h unistd.h locale.h sign
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_STRUCT_TM
+AC_CHECK_SIZEOF(time_t, ,[
+#include <stdio.h>
+#include <time.h>])
 
 AC_C_BIGENDIAN
 
@@ -100,6 +105,9 @@ fi
 
 ##AC_ARG_ENABLE(fortify, [AC_HELP_STRING([--disable-fortify], [compile without FORTIFY_SOURCE support])], , enable_fortify=yes)
 				
+##AC_DEFINE_UNQUOTED(STATIC_PROTO_INIT, $extern_init static void static_proto_init() { $load_proto },
+##	[Loads static protocol plugin module initialization functions.])
+
 if test "x$GCC" = "xyes"; then
 	dnl We enable -Wall later.
 	dnl If it's set after the warning CFLAGS in the compiler invocation, it counteracts the -Wno... flags.
