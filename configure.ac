@@ -105,8 +105,9 @@ fi
 
 ##AC_ARG_ENABLE(fortify, [AC_HELP_STRING([--disable-fortify], [compile without FORTIFY_SOURCE support])], , enable_fortify=yes)
 				
-##AC_DEFINE_UNQUOTED(STATIC_PROTO_INIT, $extern_init static void static_proto_init() { $load_proto },
-##	[Loads static protocol plugin module initialization functions.])
+extern_init=
+AC_DEFINE_UNQUOTED(STATIC_PROTO_INIT, $extern_init static void static_proto_init() { $load_proto },
+	[Loads static protocol plugin module initialization functions.])
 
 if test "x$GCC" = "xyes"; then
 	dnl We enable -Wall later.

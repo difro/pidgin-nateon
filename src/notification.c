@@ -1382,7 +1382,6 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 		}
 	}
 
-
 	purple_debug_info("nateon", "[%s] contnets(%s)\n", __FUNCTION__, contents);
 
 	purple_notify_formatted(gc, "쪽지", buddy_name, date, contents, NULL, gc);
@@ -1728,6 +1727,17 @@ void nateon_notification_move_buddy(NateonNotification *notification, const char
 	cmd = g_strdup_printf("0 %s %s %d %d", user_id, who, old_group_id, new_group_id);
 
 	nateon_cmdproc_send(cmdproc, "MVBG", "0 %d\r\n%s", strlen(cmd)+2, cmd);
+}
+
+void nateon_notification_copy_buddy(NateonNotification *notification, const char *who, const char *user_id, int old_group_id, int new_group_id)
+{
+	NateonCmdProc *cmdproc;
+	char *cmd;
+
+	cmdproc = notification->servconn->cmdproc;
+	cmd = g_strdup_printf("0 %s %s %d %d", user_id, who, old_group_id, new_group_id);
+
+	nateon_cmdproc_send(cmdproc, "CPBG", "0 %d\r\n%s", strlen(cmd)+2, cmd);
 }
 
 /**************************************************************************

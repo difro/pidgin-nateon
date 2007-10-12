@@ -46,10 +46,21 @@ nateon_parse_format(const char *payload)
 	purple_debug_info("nateon", "[%s], %s\n", __FUNCTION__, payload);
 
 	split = g_strsplit(payload, "%09", 0);
-	fontface = split[0];
-	fontcolor = g_strdup_printf("%06X", atoi(split[1]));
-	fonteffect = split[2];
-	body = split[3];
+
+	if (strstr(payload, "%09") == NULL)
+	{
+		fontface = g_strdup("굴림");
+		fontcolor = g_strdup("0");
+		fonteffect = g_strdup("");
+		body = split[0];
+	}
+	else
+	{
+		fontface = split[0];
+		fontcolor = g_strdup_printf("%06X", atoi(split[1]));
+		fonteffect = split[2];
+		body = split[3];
+	}
 
 	body = purple_strreplace(body, "%20", " ");
 	tmp = body;

@@ -887,8 +887,7 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 		act = purple_menu_action_new(_("Send memo"), PURPLE_CALLBACK(show_send_memo_cb), NULL, NULL);
 		m = g_list_append(m, act);
 
-//		act = purple_menu_action_new(_("Send SMS message"), PURPLE_CALLBACK(show_send_sms_cb), NULL, NULL);
-		act = purple_menu_action_new(_("Send SMS message"), NULL, NULL, NULL);
+		act = purple_menu_action_new(_("Send SMS message"), PURPLE_CALLBACK(show_send_sms_cb), NULL, NULL);
 		m = g_list_append(m, act);
 
 		/* Copy/Move buddy */

@@ -1,3 +1,3 @@
-SUBDIRS=default none
+SUBDIRS=
 
 EXTRA_DIST = Makefile.mingw

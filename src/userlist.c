@@ -38,8 +38,9 @@ typedef struct
  * Callbacks
  **************************************************************************/
 static void
-nateon_accept_add_cb(NateonPermitAdd *pa)
+nateon_accept_add_cb(gpointer data)
 {
+	NateonPermitAdd *pa = data;
         NateonSession *session = pa->gc->proto_data;
         NateonUserList *userlist = session->userlist;
 
@@ -51,8 +52,9 @@ nateon_accept_add_cb(NateonPermitAdd *pa)
 }
 
 static void
-nateon_cancel_add_cb(NateonPermitAdd *pa)
+nateon_cancel_add_cb(gpointer data)
 {
+	NateonPermitAdd *pa = data;
         NateonSession *session = pa->gc->proto_data;
         NateonUserList *userlist = session->userlist;
 
@@ -73,9 +75,10 @@ got_new_entry(PurpleConnection *gc, const char *account_name, const char *friend
         pa->friendly = g_strdup(friendly);
         pa->gc = gc;
 
-        purple_account_request_authorization(purple_connection_get_account(gc), account_name, NULL, friendly, NULL,
-                                           purple_find_buddy(purple_connection_get_account(gc), account_name) != NULL,
-                                           G_CALLBACK(nateon_accept_add_cb), G_CALLBACK(nateon_cancel_add_cb), pa);
+        purple_account_request_authorization(purple_connection_get_account(gc), 
+			account_name, NULL, friendly, NULL,
+			purple_find_buddy(purple_connection_get_account(gc), account_name) != NULL,
+			nateon_accept_add_cb, nateon_cancel_add_cb, pa);
 
 }
 

@@ -120,6 +120,9 @@
 /* The size of `time_t', as computed by sizeof. */
 #undef SIZEOF_TIME_T
 
+/* Loads static protocol plugin module initialization functions. */
+#undef STATIC_PROTO_INIT
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
