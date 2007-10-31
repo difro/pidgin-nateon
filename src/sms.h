@@ -1,5 +1,5 @@
 /**
- * @file memo.h Memo functions
+ * @file sms.h Paging functions
  *
  * purple
  *
@@ -21,17 +21,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _NATEON_MEMO_H_
-#define _NATEON_MEMO_H_
+#ifndef _NATEON_SMS_H_
+#define _NATEON_SMS_H_
 
-typedef struct _NateonMemo NateonMemo;
+typedef struct _NateonSms NateonSms;
 
 #include "session.h"
 
 /**
- * A memo.
+ * A sms.
  */
-struct _NateonMemo
+struct _NateonSms
 {
 	char *from;
 	char *to;
@@ -40,42 +40,42 @@ struct _NateonMemo
 };
 
 /**
- * Creates a new, empty memo.
+ * Creates a new, empty sms.
  *
- * @return A new memo.
+ * @return A new sms.
  */
-NateonMemo *nateon_memo_new(const char *from, const char *to);
+NateonSms *nateon_sms_new(const char *from, const char *to);
 
 /**
- * Destroys a memo.
+ * Destroys a sms.
  */
-void nateon_memo_destroy(NateonMemo *memo);
+void nateon_sms_destroy(NateonSms *sms);
 
 /**
- * Generates the payload data of a memo.
+ * Generates the payload data of a sms.
  *
- * @param memo     The memo.
+ * @param sms     The sms.
  * @param ret_size The returned size of the payload.
  *
- * @return The payload data of a memo.
+ * @return The payload data of a sms.
  */
-char *nateon_memo_gen_payload(const NateonMemo *memo, size_t *ret_size);
+char *nateon_sms_gen_payload(const NateonSms *sms, size_t *ret_size);
 
 /**
- * Sets the body of a memo.
+ * Sets the body of a sms.
  *
- * @param memo  The memo.
- * @param body The body of the memo.
+ * @param sms  The sms.
+ * @param body The body of the sms.
  */
-void nateon_memo_set_body(NateonMemo *memo, const char *body);
+void nateon_sms_set_body(NateonSms *sms, const char *body);
 
 /**
- * Returns the body of the memo.
+ * Returns the body of the sms.
  *
- * @param memo The memo.
+ * @param sms The sms.
  *
- * @return The body of the memo.
+ * @return The body of the sms.
  */
-const char *nateon_memo_get_body(const NateonMemo *memo);
+const char *nateon_sms_get_body(const NateonSms *sms);
 
-#endif /* _NATEON_MEMO_H_ */
+#endif /* _NATEON_SMS_H_ */

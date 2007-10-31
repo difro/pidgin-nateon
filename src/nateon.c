@@ -275,18 +275,23 @@ close_memo_cb(NateonSendData *data, const char *entry)
 	g_free(data);
 }
 
-static void
-send_sms_cb(char *data, const char *entry)
+static void show_send_sms(PurpleUtilFetchUrlData *url_data, gpointer data, const gchar *url_text, size_t len, const gchar *error_message)
 {
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-}
+	PurpleConnection *gc = (PurpleConnection *)data;
+	char *p, *q;
 
-static void
-close_sms_cb(NateonSendData *data, const char *entry)
-{
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-}
 
+	if ((p = strstr(url_text, "http://sms.nate.com/")) != NULL)
+	{
+		if ((q = strchr(p, '\'')) != NULL)
+		{
+			char *uri = g_strndup(p, q - p);
+			purple_notify_uri(gc, uri);
+			g_free(uri);
+		}
+	}
+}
 
 /* -- */
 
@@ -305,6 +310,44 @@ nateon_show_set_friendly_name(PurplePluginAction *action)
 					   _("Cancel"), NULL,
 					  purple_connection_get_account(gc), NULL, NULL,
 					  gc);
+}
+
+static void nateon_show_send_sms(PurplePluginAction *action)
+{
+        PurpleConnection *gc;
+	PurpleAccount *account;
+        NateonSession *session;
+        const char *username;
+        char *content;
+        char *request;
+
+        purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	gc = (PurpleConnection *) action->context;
+	account = purple_connection_get_account(gc);
+	session = gc->proto_data;
+
+        username = purple_account_get_username(account);
+
+        content = g_strdup_printf("t=%s&code=G009&param=%%3fTICKET%%3d%s%%26ID%%3d%s%%26mobile%%3d", session->ticket, session->ticket, username);
+
+        request = g_strdup_printf("POST /index.php HTTP/1.1\r\n"
+                        "Accept: */*\r\n"
+                        "Content-Type: application/x-www-form-urlencoded\r\n"
+                        "User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)\r\n"
+                        "Host: br.nate.com\r\n"
+                        "Content-Length:%d\r\n"
+                        "Connection: Keep-Alive\r\n"
+                        "\r\n%s", strlen(content), content);
+
+        purple_util_fetch_url_request("br.nate.com",
+                        TRUE,
+                        "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+                        TRUE,
+                        request,
+                        TRUE,
+                        show_send_sms,
+                        gc);
 }
 
 //static void
@@ -441,46 +484,6 @@ show_send_memo_cb(PurpleBlistNode *node, gpointer ignored)
 					   data);
 }
 
-static void nateon_got_sms_cookie(PurpleUtilFetchUrlData *url_data, gpointer data, const gchar *url_text, size_t len, const gchar *error_message)
-{
-	char *p, *q;
-	GString *cookie = g_string_new(NULL);
-	int freecnt = -1;
-
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-
-	/* get cookie */
-	p = url_text;
-	while ((p = strstr(p,  "Set-Cookie: ")) != NULL)
-	{
-		p += 12;
-
-		if ((q = strchr(p, ';')) != NULL)
-		{
-			char *crack = g_strndup(p, q - p + 1);
-			cookie = g_string_append(cookie, crack);
-			g_free(crack);
-		}
-	}
-	purple_debug_info("nateon", "cookie: %s\n", cookie->str);
-
-	/* get free_count */
-	if ((p = strstr(url_text, "name=freeCnt value=\"")) != NULL)
-	{
-		p += 20;
-
-		if ((q = strchr(p, '"')) != NULL)
-		{
-			char *cnt = g_strndup(p, q - p);
-			freecnt = atoi(cnt);
-			g_free(cnt);
-		}
-	}
-	purple_debug_info("nateon", "freecnt: %d\n", freecnt);
-
-	purple_debug_info("nateon", "[%s] %s\n", __FUNCTION__, url_text);
-	g_string_free(cookie, FALSE);
-}
 
 static void
 show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
@@ -488,8 +491,9 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 	PurpleBuddy *buddy;
 	PurpleConnection *gc;
 	NateonSession *session;
-//	NateonMobileData *data;
 	const char *username;
+	char *content;
+	char *request;
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
@@ -497,101 +501,30 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 
 	buddy = (PurpleBuddy *) node;
 	gc = purple_account_get_connection(buddy->account);
-	username = purple_account_get_username(buddy->account);
-//	account = purple_connection_get_account(gc);
-
 	session = gc->proto_data;
+	username = purple_account_get_username(buddy->account);
 
-//	data = g_new0(NateonMobileData, 1);
-//	data->gc = gc;
-//	data->passport = buddy->name;
+	content = g_strdup_printf("t=%s&code=G009&param=%%3fTICKET%%3d%s%%26ID%%3d%s%%26mobile%%3d", session->ticket, session->ticket, username);
 
-	{
-		PurpleRequestFields *fields;
-		PurpleRequestFieldGroup *g;
-		PurpleRequestField *f;
-		char *url;
+	request = g_strdup_printf("POST /index.php HTTP/1.1\r\n"
+			"Accept: */*\r\n"
+			"Content-Type: application/x-www-form-urlencoded\r\n"
+			"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)\r\n"
+			"Host: br.nate.com\r\n"
+			"Content-Length:%d\r\n"
+			"Connection: Keep-Alive\r\n"
+			"\r\n%s", strlen(content), content);
 
-		fields = purple_request_fields_new();
-
-		g = purple_request_field_group_new(NULL);
-		f = purple_request_field_string_new("text", buddy->name, "Loading...", TRUE);
-		purple_request_field_group_add_field(g, f);
-		purple_request_fields_add_group(fields, g);
-
-		g = purple_request_field_group_new(NULL);
-		f = purple_request_field_string_new("receivenum", "Send", NULL, FALSE);
-		purple_request_field_set_visible(f, FALSE);
-		purple_request_field_group_add_field(g, f);
-		purple_request_fields_add_group(fields, g);
-
-		g = purple_request_field_group_new(NULL);
-		f = purple_request_field_string_new("receivenum", "Receive", NULL, FALSE);
-		purple_request_field_set_visible(f, FALSE);
-		purple_request_field_group_add_field(g, f);
-		purple_request_fields_add_group(fields, g);
-
-		g = purple_request_field_group_new(NULL);
-		f = purple_request_field_int_new("freecnt", "FreeCount", 0);
-		purple_request_field_set_visible(f, FALSE);
-		purple_request_field_group_add_field(g, f);
-		purple_request_fields_add_group(fields, g);
-
-		if (0) {
-		url = g_strdup_printf("http://sms.nate.com/nateon30/nateonsms.jsp?TICKET=%s&ID=%s&mobile=", session->ticket, username);
-		purple_util_fetch_url_request(url, 
-				TRUE,
-				"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
-				TRUE,
-				NULL,
-				TRUE,
-				nateon_got_sms_cookie,
-				fields);
-		}
-		else
-		{
-		char *content;
-		char *request;
-
-		content = g_strdup_printf("t=%s&code=G009&param=%%3fTICKET%%3d%s%%26ID%%3d%s%%26mobile%%3d", session->ticket, session->ticket, username);
-//		purple_debug_info("nateon", "[%s] %s\n", __FUNCTION__, content);
-
-		request = g_strdup_printf("POST /index.php HTTP/1.1\r\n"
-				"Accept: */*\r\n"
-				"Content-Type: application/x-www-form-urlencoded\r\n"
-				"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)\r\n"
-				"Host: br.nate.com\r\n"
-				"Content-Length:%d\r\n"
-				"Connection: Keep-Alive\r\n"
-				"\r\n%s", strlen(content), content);
-//		purple_debug_info("nateon", "[%s] %s\n", __FUNCTION__, request);
-
-		purple_util_fetch_url_request("br.nate.com", 
-				TRUE,
-				"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
-				TRUE,
-				request,
-				TRUE,
-				nateon_got_sms_cookie,
-				fields);
-		}
-
-		purple_request_fields(gc,
-			       "SMS message",
-			       NULL,
-			       NULL,
-			       fields, 
-			       _("Close"), 
-			       G_CALLBACK(close_sms_cb), 
-			       _("_Send"), 
-			       G_CALLBACK(send_sms_cb), 
-			       purple_connection_get_account(gc), 
-			       "who", 
-			       NULL, 
-			       gc);
-	}
+	purple_util_fetch_url_request("br.nate.com", 
+			TRUE,
+			"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+			TRUE,
+			request,
+			TRUE,
+			show_send_sms,
+			gc);
 }
-//
+
 //static void
 //initiate_chat_cb(PurpleBlistNode *node, gpointer data)
 //{
@@ -810,16 +743,19 @@ nateon_status_types(PurpleAccount *account)
 static GList *
 nateon_actions(PurplePlugin *plugin, gpointer context)
 {
-	PurpleConnection *gc = (PurpleConnection *)context;
-	PurpleAccount *account;
-	const char *user;
+//	PurpleConnection *gc = (PurpleConnection *)context;
+//	PurpleAccount *account;
+//	const char *user;
 
 	GList *m = NULL;
 	PurplePluginAction *act;
 
 	act = purple_plugin_action_new(_("Set Friendly Name..."), nateon_show_set_friendly_name);
 	m = g_list_append(m, act);
-//	m = g_list_append(m, NULL);
+	m = g_list_append(m, NULL);
+
+	act = purple_plugin_action_new(_("Send SMS message..."), nateon_show_send_sms);
+	m = g_list_append(m, act);
 
 //	act = purple_plugin_action_new(_("Set Home Phone Number..."),
 //								 nateon_show_set_home_phone);
@@ -1003,7 +939,7 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 			PurpleMessageFlags flags)
 {
 	PurpleAccount *account;
-	PurpleBuddy *buddy = purple_find_buddy(gc->account, who);
+//	PurpleBuddy *buddy = purple_find_buddy(gc->account, who);
 	NateonMessage *msg;
 //	char *msgformat;
 	char *msgtext;
@@ -1716,13 +1652,13 @@ nateon_remove_group(PurpleConnection *gc, PurpleGroup *group)
 //	return g_strdup(purple_date_format_short(localtime(&t)));
 //}
 //#endif
-//
-//#define NATEON_GOT_INFO_GET_FIELD(a, b) \
-//	found = purple_markup_extract_info_field(stripped, stripped_len, s, \
-//			"\n" a "\t", 0, "\n", 0, "Undisclosed", b, 0, NULL, NULL); \
-//	if (found) \
-//		sect_info = TRUE;
-//
+/*
+#define NATEON_GOT_INFO_GET_FIELD(a, b) \
+	found = purple_markup_extract_info_field(stripped, stripped_len, s, \
+			"\n" a "\t", 0, "\n", 0, "Undisclosed", b, 0, NULL, NULL); \
+	if (found) \
+		sect_info = TRUE;
+*/
 //static void
 //nateon_got_info(void *data, const char *url_text, size_t len)
 //{

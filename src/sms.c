@@ -1,5 +1,5 @@
 /**
- * @file memo.c Memo functions
+ * @file memo.c Paging functions
  *
  * purple
  *
