@@ -1,3 +1,9 @@
+pidgin-nateon (2.2.1-svn112) unstable; urgency=low
+
+  * Add "Hidden" state 
+
+ -- Hansun Lee <hansun.lee@gmail.com>  Thu, 27 Dec 2007 20:47:42 +0900
+
 pidgin-nateon (2.2.1-svn110) unstable; urgency=low
   
   * Support "send sms message"
