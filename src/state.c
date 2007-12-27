@@ -96,7 +96,7 @@ const char *
 nateon_state_get_text(NateonAwayType state)
 {
 	static char *status_text[] =
-	{ "O", "A", "B", "P", "M", "F" };
+	{ "O", "A", "B", "P", "M", "F", "X" };
 
 	return status_text[state];
 }
@@ -125,6 +125,8 @@ nateon_state_from_account(PurpleAccount *account)
 		nateonstatus = NATEON_PHONE;
 	else if (!strcmp(status_id, "M"))
 		nateonstatus = NATEON_MEETING;
+	else if (!strcmp(status_id, "X"))
+		nateonstatus = NATEON_HIDDEN;
 	else
 		nateonstatus = NATEON_ONLINE;
 

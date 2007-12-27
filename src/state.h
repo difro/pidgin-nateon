@@ -36,7 +36,8 @@ typedef enum
 	NATEON_PHONE   = 3,
 	NATEON_MEETING = 4,
 	NATEON_OFFLINE = 5,
-	NATEON_IDLE    = 6,
+	NATEON_HIDDEN  = 6,
+	NATEON_IDLE    = 7
 
 } NateonAwayType;
 

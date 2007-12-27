@@ -733,6 +733,10 @@ nateon_status_types(PurpleAccount *account)
 			"M", _("In meeting"), FALSE, TRUE, FALSE);
 	types = g_list_append(types, status);
 
+	status = purple_status_type_new_full(PURPLE_STATUS_INVISIBLE,
+			"X", NULL, FALSE, TRUE, FALSE);
+	types = g_list_append(types, status);
+
 	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE,
 			NULL, NULL, FALSE, TRUE, FALSE);
 	types = g_list_append(types, status);
