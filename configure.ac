@@ -71,7 +71,7 @@ AC_CHECK_LIB(nsl, gethostent)
 dnl #######################################################################
 dnl # Check for GLib 2.0 (required)
 dnl #######################################################################
-PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.0.0 gobject-2.0 gmodule-2.0 gthread-2.0], , [
+PKG_CHECK_MODULES(GLIB, [purple >= 2.0.0 glib-2.0 >= 2.0.0 gobject-2.0 gmodule-2.0 gthread-2.0], , [
         AC_MSG_RESULT(no)
         AC_MSG_ERROR([
 
