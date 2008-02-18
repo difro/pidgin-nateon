@@ -1,1 +1,1 @@
-SUBDIRS = src pixmaps
+SUBDIRS = src pixmaps libpurple

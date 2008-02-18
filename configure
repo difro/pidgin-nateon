@@ -23186,7 +23186,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile pixmaps/Makefile pixmaps/protocols/Makefile pixmaps/protocols/16/Makefile pixmaps/protocols/16/scalable/Makefile pixmaps/protocols/22/Makefile pixmaps/protocols/22/scalable/Makefile pixmaps/protocols/48/Makefile pixmaps/protocols/48/scalable/Makefile src/Makefile"
+ac_config_files="$ac_config_files Makefile pixmaps/Makefile pixmaps/protocols/Makefile pixmaps/protocols/16/Makefile pixmaps/protocols/16/scalable/Makefile pixmaps/protocols/22/Makefile pixmaps/protocols/22/scalable/Makefile pixmaps/protocols/48/Makefile pixmaps/protocols/48/scalable/Makefile src/Makefile libpurple/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -23807,6 +23807,7 @@ do
     "pixmaps/protocols/48/Makefile") CONFIG_FILES="$CONFIG_FILES pixmaps/protocols/48/Makefile" ;;
     "pixmaps/protocols/48/scalable/Makefile") CONFIG_FILES="$CONFIG_FILES pixmaps/protocols/48/scalable/Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+    "libpurple/Makefile") CONFIG_FILES="$CONFIG_FILES libpurple/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}

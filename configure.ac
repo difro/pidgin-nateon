@@ -177,4 +177,5 @@ AC_OUTPUT([Makefile
 		pixmaps/protocols/48/Makefile
 		pixmaps/protocols/48/scalable/Makefile
 		src/Makefile
+		libpurple/Makefile
 		])
