@@ -110,7 +110,7 @@ static void list_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 	user_id  = cmd->params[5];
 	account  = cmd->params[4];
-	stored   = purple_strreplace(cmd->params[7], "%20", " ");
+	stored   = purple_strreplace(cmd->params[7], "%20", " "); 
 	friend   = cmd->params[6];
 	list_op  = cmd->params[3][NATEON_LIST_FL]-'0' ? NATEON_LIST_FL_OP : 0; 
 	list_op += cmd->params[3][NATEON_LIST_AL]-'0' ? NATEON_LIST_AL_OP : 0; 
@@ -129,7 +129,14 @@ static void list_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	user->account_name = g_strdup(account);
 
 	g_free(user->store_name);
-	user->store_name = g_strdup(stored);
+	if (!g_strncasecmp(stored, "%00", 3))
+	{
+		user->store_name = g_strdup(friend);
+	}
+	else
+	{
+		user->store_name = g_strdup(stored);
+	}
 
 	g_free(user->friendly_name);
 	user->friendly_name = g_strdup(friend);
