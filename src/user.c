@@ -147,7 +147,7 @@ void nateon_user_set_store_name(NateonUser *user, const char *name)
 }
 
 void
-nateon_user_set_buddy_icon(NateonUser *user, const char *filename)
+nateon_user_set_buddy_icon(NateonUser *user, PurpleStoredImage *img)
 {
 //	struct stat st;
 //	FILE *fp;

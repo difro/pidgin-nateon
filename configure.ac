@@ -2,15 +2,15 @@ dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.50])
 
 m4_define([purple_lt_current], [2])
-m4_define([purple_major_version], [2])
-m4_define([purple_minor_version], [2])
+m4_define([purple_major_version], [3])
+m4_define([purple_minor_version], [1])
 m4_define([purple_micro_version], [0])
 m4_define([purple_version_suffix], [])
 m4_define([purple_version],
           [purple_major_version.purple_minor_version.purple_micro_version])
 m4_define([purple_display_version], purple_version[]m4_ifdef([purple_version_suffix],[purple_version_suffix]))
 
-AC_INIT(pidgin, [purple_display_version], [hansun.lee@gmail.com])
+AC_INIT(pidgin-nateon, [purple_display_version], [hansun.lee@gmail.com])
 
 AC_CANONICAL_SYSTEM
 AM_CONFIG_HEADER(config.h)

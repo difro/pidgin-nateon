@@ -1023,8 +1023,8 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 	return 1;
 }
 
-static int
-nateon_send_typing(PurpleConnection *gc, const char *who, int typing)
+static unsigned int
+nateon_send_typing(PurpleConnection *gc, const char *who, PurpleTypingState state)
 {
 	PurpleAccount *account;
 	NateonSession *session;
@@ -1034,7 +1034,7 @@ nateon_send_typing(PurpleConnection *gc, const char *who, int typing)
 	account = purple_connection_get_account(gc);
 	session = gc->proto_data;
 
-	if (!typing)
+	if (state == PURPLE_NOT_TYPING)
 		return 0;
 
 	if (!g_ascii_strcasecmp(who, purple_account_get_username(account)))
@@ -1430,7 +1430,7 @@ nateon_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessag
 //	serv_got_chat_in(gc, id, purple_account_get_username(account), 0,
 //					 message, time(NULL));
 //
-//	return 0;
+	return 0;
 }
 
 //static void

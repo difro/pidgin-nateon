@@ -140,7 +140,7 @@ void nateon_user_set_store_name(NateonUser *user, const char *name);
  * @param user     The user.
  * @param filename The path to the buddy icon.
  */
-void nateon_user_set_buddy_icon(NateonUser *user, const char *filename);
+void nateon_user_set_buddy_icon(NateonUser *user, PurpleStoredImage *img);
 
 ///**
 // * Sets the group ID list for a user.
