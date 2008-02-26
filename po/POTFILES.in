@@ -1,0 +1,10 @@
+src/dialog.c
+src/error.c
+src/nateon.c
+src/notification.c
+src/servconn.c
+src/session.c
+src/state.c
+src/switchboard.c
+src/userlist.c
+

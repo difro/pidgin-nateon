@@ -1,5 +1,8 @@
 #!/bin/sh
 
+echo "intltoolize..."
+intltoolize -c --force || exit 1
+
 echo "aclocal..."
 aclocal || exit 1
 

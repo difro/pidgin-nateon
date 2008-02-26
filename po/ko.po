@@ -1,0 +1,249 @@
+# Pidgin plugin for NateOn instant messaging service
+# Copyright (C) 2008, Hansun Lee <hansun.lee@gmail.com> 
+#
+# This file is distributed under the same license as the pidgin-nateon package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pidgin-nateon\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-02-26 16:48+0900\n"
+"PO-Revision-Date: 2008-02-26 16:48+0900\n"
+"Last-Translator: Hansun Lee <hansun.lee@gmail.com>\n"
+"Language-Team: Hansun Lee <hansun.lee@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Poedit-Language: Korean\n"
+"X-Poedit-Country: KOREA, REPUBLIC OF\n"
+
+#: ../src/dialog.c:112
+#, c-format
+msgid "Buddy list synchronization issue in %s (%s)"
+msgstr ""
+
+#: ../src/dialog.c:118
+#, c-format
+msgid ""
+"%s on the local list is inside the group \"%s\" but not on the server list. "
+"Do you want this buddy to be added?"
+msgstr ""
+
+#: ../src/dialog.c:126
+#, c-format
+msgid ""
+"%s is on the local list but not on the server list. Do you want this buddy "
+"to be added?"
+msgstr ""
+
+#: ../src/dialog.c:135
+msgid "Yes"
+msgstr ""
+
+#: ../src/dialog.c:136
+msgid "No"
+msgstr ""
+
+#: ../src/error.c:249
+#, c-format
+msgid "Unknown Error Code %d"
+msgstr ""
+
+#: ../src/error.c:263
+#, c-format
+msgid "NATEON Error: %s\n"
+msgstr ""
+
+#: ../src/nateon.c:139
+msgid "Your new NateOn friendly name is too long."
+msgstr ""
+
+#: ../src/nateon.c:305
+msgid "Set your friendly name."
+msgstr ""
+
+#: ../src/nateon.c:306
+msgid "This is the name that other NATEON buddies will see you as."
+msgstr ""
+
+#: ../src/nateon.c:309
+msgid "OK"
+msgstr ""
+
+#: ../src/nateon.c:310
+msgid "Cancel"
+msgstr ""
+
+#: ../src/nateon.c:481
+msgid "_Send"
+msgstr ""
+
+#: ../src/nateon.c:482
+msgid "Close"
+msgstr ""
+
+#: ../src/nateon.c:686
+msgid "Name"
+msgstr ""
+
+#: ../src/nateon.c:691
+msgid "Status"
+msgstr ""
+
+#: ../src/nateon.c:691
+msgid "Idle"
+msgstr ""
+
+#: ../src/nateon.c:725
+msgid "Busy"
+msgstr ""
+
+#: ../src/nateon.c:729
+msgid "On The Phone"
+msgstr ""
+
+#: ../src/nateon.c:733
+msgid "In meeting"
+msgstr ""
+
+#: ../src/nateon.c:757
+msgid "Set Friendly Name..."
+msgstr ""
+
+#: ../src/nateon.c:761
+msgid "Send SMS message..."
+msgstr ""
+
+#: ../src/nateon.c:827
+msgid "Send memo"
+msgstr "쪽지 보내기"
+
+#: ../src/nateon.c:830
+msgid "Send SMS message"
+msgstr "문자 보내기"
+
+#: ../src/nateon.c:848
+msgid "Copy buddy"
+msgstr "친구 복사"
+
+#: ../src/nateon.c:851
+msgid "Move buddy"
+msgstr "친구 이동"
+
+#: ../src/nateon.c:859
+msgid "Initiate _Chat"
+msgstr ""
+
+#: ../src/nateon.c:924
+msgid "Failed to connect to server."
+msgstr ""
+
+#: ../src/nateon.c:2300
+msgid "Server"
+msgstr ""
+
+#: ../src/nateon.c:2305
+msgid "Port"
+msgstr ""
+
+#: ../src/notification.c:207
+#, c-format
+msgid "%s is not a valid group."
+msgstr ""
+
+#: ../src/notification.c:212 ../src/session.c:340
+msgid "Unknown error."
+msgstr ""
+
+#: ../src/notification.c:215
+#, c-format
+msgid "%s on %s (%s)"
+msgstr ""
+
+#: ../src/notification.c:1050
+msgid "Unable to rename group"
+msgstr ""
+
+#: ../src/servconn.c:127
+msgid "Unable to connect"
+msgstr ""
+
+#: ../src/servconn.c:129
+msgid "Writing error"
+msgstr ""
+
+#: ../src/servconn.c:131
+msgid "Reading error"
+msgstr ""
+
+#: ../src/servconn.c:133 ../src/session.c:332
+msgid "Unknown error"
+msgstr ""
+
+#: ../src/servconn.c:138
+#, c-format
+msgid ""
+"Connection error from %s server:\n"
+"%s"
+msgstr ""
+
+#: ../src/session.c:318
+msgid "You have signed on from another location."
+msgstr ""
+
+#: ../src/session.c:330
+#, c-format
+msgid "Unable to authenticate: %s"
+msgstr ""
+
+#: ../src/session.c:355
+msgid "Connecting"
+msgstr ""
+
+#: ../src/session.c:356 ../src/session.c:358
+msgid "Handshaking"
+msgstr ""
+
+#: ../src/session.c:357
+msgid "Transferring"
+msgstr ""
+
+#: ../src/session.c:359
+msgid "Starting authentication"
+msgstr ""
+
+#: ../src/session.c:360
+msgid "Getting cookie"
+msgstr ""
+
+#: ../src/session.c:361
+msgid "Authenticating"
+msgstr ""
+
+#: ../src/session.c:362
+msgid "Sending cookie"
+msgstr ""
+
+#: ../src/session.c:363
+msgid "Retrieving buddy list"
+msgstr ""
+
+#: ../src/userlist.c:257
+#, c-format
+msgid "%s has added you to his or her buddy list."
+msgstr ""
+
+#: ../src/userlist.c:321
+#, c-format
+msgid "%s has removed you from his or her buddy list."
+msgstr ""
+
+#: ../src/userlist.c:684
+#, c-format
+msgid "Unable to add \"%s\"."
+msgstr ""
+
+#: ../src/userlist.c:686
+msgid "The screen name specified is invalid."
+msgstr ""

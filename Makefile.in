@@ -13,6 +13,7 @@
 # PARTICULAR PURPOSE.
 
 @SET_MAKE@
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
@@ -33,11 +34,11 @@ build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
 subdir = .
-DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
-	compile config.guess config.sub depcomp install-sh ltmain.sh \
-	missing
+DIST_COMMON = README $(am__configure_deps) $(noinst_HEADERS) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/config.h.in $(top_srcdir)/configure AUTHORS COPYING \
+	ChangeLog INSTALL NEWS compile config.guess config.sub depcomp \
+	install-sh ltmain.sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -56,6 +57,7 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-pdf-recursive install-ps-recursive install-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
+HEADERS = $(noinst_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
@@ -73,6 +75,7 @@ GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
 ACLOCAL = @ACLOCAL@
+ALL_LINGUAS = @ALL_LINGUAS@
 AMTAR = @AMTAR@
 AR = @AR@
 AUTOCONF = @AUTOCONF@
@@ -117,6 +120,32 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 INSTOBJEXT = @INSTOBJEXT@
 INTLLIBS = @INTLLIBS@
+INTLTOOL_CAVES_RULE = @INTLTOOL_CAVES_RULE@
+INTLTOOL_DESKTOP_RULE = @INTLTOOL_DESKTOP_RULE@
+INTLTOOL_DIRECTORY_RULE = @INTLTOOL_DIRECTORY_RULE@
+INTLTOOL_EXTRACT = @INTLTOOL_EXTRACT@
+INTLTOOL_ICONV = @INTLTOOL_ICONV@
+INTLTOOL_KBD_RULE = @INTLTOOL_KBD_RULE@
+INTLTOOL_KEYS_RULE = @INTLTOOL_KEYS_RULE@
+INTLTOOL_MERGE = @INTLTOOL_MERGE@
+INTLTOOL_MSGFMT = @INTLTOOL_MSGFMT@
+INTLTOOL_MSGMERGE = @INTLTOOL_MSGMERGE@
+INTLTOOL_OAF_RULE = @INTLTOOL_OAF_RULE@
+INTLTOOL_PERL = @INTLTOOL_PERL@
+INTLTOOL_PONG_RULE = @INTLTOOL_PONG_RULE@
+INTLTOOL_PROP_RULE = @INTLTOOL_PROP_RULE@
+INTLTOOL_SCHEMAS_RULE = @INTLTOOL_SCHEMAS_RULE@
+INTLTOOL_SERVER_RULE = @INTLTOOL_SERVER_RULE@
+INTLTOOL_SERVICE_RULE = @INTLTOOL_SERVICE_RULE@
+INTLTOOL_SHEET_RULE = @INTLTOOL_SHEET_RULE@
+INTLTOOL_SOUNDLIST_RULE = @INTLTOOL_SOUNDLIST_RULE@
+INTLTOOL_THEME_RULE = @INTLTOOL_THEME_RULE@
+INTLTOOL_UI_RULE = @INTLTOOL_UI_RULE@
+INTLTOOL_UPDATE = @INTLTOOL_UPDATE@
+INTLTOOL_XAM_RULE = @INTLTOOL_XAM_RULE@
+INTLTOOL_XGETTEXT = @INTLTOOL_XGETTEXT@
+INTLTOOL_XML_NOMERGE_RULE = @INTLTOOL_XML_NOMERGE_RULE@
+INTLTOOL_XML_RULE = @INTLTOOL_XML_RULE@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
@@ -212,7 +241,17 @@ target_os = @target_os@
 target_vendor = @target_vendor@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = src pixmaps libpurple
+EXTRA_DIST = \
+		Makefile.mingw \
+		config.h.mingw \
+		intltool-extract.in \
+		intltool-merge.in \
+		intltool-update.in \
+		po/Makefile.mingw
+
+noinst_HEADERS = config.h
+SUBDIRS = src libpurple pixmaps po
+DISTCLEANFILES = intltool-extract intltool-merge intltool-update
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -552,7 +591,7 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile config.h
+all-am: Makefile $(HEADERS) config.h
 installdirs: installdirs-recursive
 installdirs-am:
 install: install-recursive
@@ -575,6 +614,7 @@ clean-generic:
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"

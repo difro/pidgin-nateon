@@ -37,12 +37,14 @@ AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 LIBTOOL="$LIBTOOL --silent"
 AC_PROG_INSTALL
+AC_PROG_INTLTOOL
 PKG_PROG_PKG_CONFIG
+
+GETTEXT_PACKAGE=pidgin-nateon
+AC_SUBST(GETTEXT_PACKAGE)
 
 ALL_LINGUAS="ko"
 AM_GLIB_GNU_GETTEXT
-GETTEXT_PACKAGE=$PACKAGE
-AC_SUBST(GETTEXT_PACKAGE)
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -171,6 +173,8 @@ AC_SUBST(DEBUG_CFLAGS)
 AC_PATH_PROG(pidginpath, pidgin)
 
 AC_OUTPUT([Makefile
+		src/Makefile
+		libpurple/Makefile
 		pixmaps/Makefile
 		pixmaps/protocols/Makefile
 		pixmaps/protocols/16/Makefile
@@ -179,6 +183,5 @@ AC_OUTPUT([Makefile
 		pixmaps/protocols/22/scalable/Makefile
 		pixmaps/protocols/48/Makefile
 		pixmaps/protocols/48/scalable/Makefile
-		src/Makefile
-		libpurple/Makefile
+		po/Makefile.in
 		])
