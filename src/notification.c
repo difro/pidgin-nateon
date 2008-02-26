@@ -385,7 +385,14 @@ static void lsin_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	user->id = g_strdup(user_id);
 
 	g_free(user->store_name);
-	user->store_name = g_strdup(stored);
+	if (!g_strncasecmp(stored, "%00", 3))
+	{
+		user->store_name = g_strdup(friend);
+	}
+	else
+	{
+		user->store_name = g_strdup(stored);
+	}
 
 	g_free(user->friendly_name);
 	user->friendly_name = g_strdup(friend);
@@ -393,9 +400,8 @@ static void lsin_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	if (session->ticket != NULL)
 		g_free(session->ticket);
 	session->ticket = g_strdup(cmd->params[6]);
-	purple_debug_info("nateon", "[%s] t=%s\n", __FUNCTION__, session->ticket);
 
-	purple_connection_set_display_name(gc, stored);
+	purple_connection_set_display_name(gc, user->store_name);
 
 	//nateon_cmdproc_send(cmdproc, "CONF", "0 0");
 	nateon_cmdproc_send(cmdproc, "GLST", NULL);

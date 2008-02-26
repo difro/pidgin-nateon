@@ -1,10 +1,10 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.50])
 
-m4_define([purple_lt_current], [2])
-m4_define([purple_major_version], [3])
-m4_define([purple_minor_version], [1])
-m4_define([purple_micro_version], [0])
+m4_define([purple_lt_current], [3])
+m4_define([purple_major_version], [2])
+m4_define([purple_minor_version], [3])
+m4_define([purple_micro_version], [1])
 m4_define([purple_version_suffix], [])
 m4_define([purple_version],
           [purple_major_version.purple_minor_version.purple_micro_version])
@@ -39,7 +39,10 @@ LIBTOOL="$LIBTOOL --silent"
 AC_PROG_INSTALL
 PKG_PROG_PKG_CONFIG
 
+ALL_LINGUAS="ko"
 AM_GLIB_GNU_GETTEXT
+GETTEXT_PACKAGE=$PACKAGE
+AC_SUBST(GETTEXT_PACKAGE)
 
 dnl Checks for header files.
 AC_HEADER_STDC
