@@ -135,6 +135,14 @@ void nateon_user_set_friendly_name(NateonUser *user, const char *name);
 void nateon_user_set_store_name(NateonUser *user, const char *name);
 
 /**
+ * Sets the buddy alias according to "view buddies by" setting for a user.
+ *
+ * @param session Nateon Session Handle
+ * @param user The user.
+ */
+void nateon_user_set_buddy_alias(NateonSession *session, NateonUser *user);
+
+/**
  * Sets the buddy icon for a local user.
  *
  * @param user     The user.

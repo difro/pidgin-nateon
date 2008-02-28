@@ -117,8 +117,7 @@ static const char *nateon_normalize(const PurpleAccount *account, const char *st
 //	return PURPLE_CMD_RET_OK;
 //}
 
-static void
-nateon_act_id(PurpleConnection *gc, const char *entry)
+static void nateon_act_id(PurpleConnection *gc, const char *entry)
 {
 	NateonCmdProc *cmdproc;
 	NateonSession *session;
@@ -141,6 +140,35 @@ nateon_act_id(PurpleConnection *gc, const char *entry)
 	}
 
 	nateon_cmdproc_send(cmdproc, "CNIK", "%s", alias);
+}
+
+static void nateon_act_view_buddies_by(PurpleAccount *account, int choice)
+{
+	PurpleBlistNode *gnode, *cnode, *bnode;
+	PurpleConnection *gc;
+
+	gc = purple_account_get_connection(account);
+	
+	purple_account_set_int(account, "view_buddies_by", choice);
+
+	for (gnode = purple_blist_get_root(); gnode; gnode = gnode->next) {
+		//PurpleGroup *group = (PurpleGroup *)gnode;
+		if(!PURPLE_BLIST_NODE_IS_GROUP(gnode))
+			continue;
+		for(cnode = gnode->child; cnode; cnode = cnode->next) {
+			if(!PURPLE_BLIST_NODE_IS_CONTACT(cnode))
+				continue;
+			for(bnode = cnode->child; bnode; bnode = bnode->next) {
+				PurpleBuddy *b;
+				if(!PURPLE_BLIST_NODE_IS_BUDDY(bnode))
+					continue;
+				b = (PurpleBuddy *)bnode;
+				if(purple_buddy_get_account(b) == account) {
+					nateon_user_set_buddy_alias(gc->proto_data, b->proto_data);
+				}
+			}
+		}
+	}
 }
 
 //static void
@@ -310,6 +338,29 @@ nateon_show_set_friendly_name(PurplePluginAction *action)
 					   _("Cancel"), NULL,
 					  purple_connection_get_account(gc), NULL, NULL,
 					  gc);
+}
+
+static void
+nateon_show_view_buddies_by(PurplePluginAction *action)
+{
+	PurpleConnection *gc;
+	PurpleAccount	 *account;
+
+	gc = (PurpleConnection *) action->context;
+	account = purple_connection_get_account(gc);
+
+	purple_request_choice(gc, _("View Buddies By."), 
+			_("View Buddies By."),
+			NULL, purple_account_get_int(account, "view_buddies_by", NATEON_VIEW_BUDDIES_BY_SCREEN_NAME),
+			_("OK"), G_CALLBACK(nateon_act_view_buddies_by),
+			_("Cancel"), NULL,
+			account, NULL, NULL,
+			account,
+			_("Name"), NATEON_VIEW_BUDDIES_BY_NAME,
+			_("Screen Name"), NATEON_VIEW_BUDDIES_BY_SCREEN_NAME,
+			_("Name and ID"), NATEON_VIEW_BUDDIES_BY_NAME_AND_ID,
+			_("Name and Screen Name"), NATEON_VIEW_BUDDIES_BY_NAME_AND_SCREEN_NAME,
+			NULL);
 }
 
 static void nateon_show_send_sms(PurplePluginAction *action)
@@ -755,6 +806,10 @@ nateon_actions(PurplePlugin *plugin, gpointer context)
 	PurplePluginAction *act;
 
 	act = purple_plugin_action_new(_("Set Friendly Name..."), nateon_show_set_friendly_name);
+	m = g_list_append(m, act);
+	m = g_list_append(m, NULL);
+
+	act = purple_plugin_action_new(_("View Buddies By..."), nateon_show_view_buddies_by);
 	m = g_list_append(m, act);
 	m = g_list_append(m, NULL);
 
@@ -2305,7 +2360,6 @@ init_plugin(PurplePlugin *plugin)
 	option = purple_account_option_int_new(_("Port"), "port", NATEON_PORT);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,
 											   option);
-
 //	option = purple_account_option_bool_new(_("Show custom smileys"),
 //										  "custom_smileys", TRUE);
 //	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,

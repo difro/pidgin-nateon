@@ -362,6 +362,7 @@ nateon_got_lst_user(NateonSession *session, NateonUser *user, int list_op, GList
 	account_name = nateon_user_get_account_name(user);
 	store = nateon_user_get_store_name(user);
 
+
 	if (list_op & NATEON_LIST_FL_OP)
 	{
 		GList *c;
@@ -372,9 +373,7 @@ nateon_got_lst_user(NateonSession *session, NateonUser *user, int list_op, GList
 			nateon_user_add_group_id(user, group_id);
 		}
 
-		/* FIXME: It might be a real alias */
-		/* Umm, what? This might fix bug #1385130 */
-		serv_got_alias(gc, account_name, store);
+		nateon_user_set_buddy_alias(session, user);
 	}
 
 	if (list_op & NATEON_LIST_AL_OP)

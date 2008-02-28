@@ -146,6 +146,59 @@ void nateon_user_set_store_name(NateonUser *user, const char *name)
 	user->store_name = g_strdup(name);
 }
 
+void nateon_user_set_buddy_alias(NateonSession *session, NateonUser *user)
+{
+	PurpleAccount *account;
+	PurpleConnection *gc;
+	const char *friend;
+	const char *account_name;
+	const char *store;
+	char *alias;
+
+	account = session->account;
+	gc = purple_account_get_connection(account);
+
+	account_name = nateon_user_get_account_name(user);
+	store = nateon_user_get_store_name(user);
+	friend = nateon_user_get_friendly_name(user);
+
+	switch (purple_account_get_int(account, "view_buddies_by", NATEON_VIEW_BUDDIES_BY_SCREEN_NAME)) {
+		case NATEON_VIEW_BUDDIES_BY_NAME:
+			alias = g_strdup(friend);
+			break;
+
+		case NATEON_VIEW_BUDDIES_BY_NAME_AND_ID:
+			alias = g_strdup_printf("%s (%s)", friend, account_name);
+			break;
+
+		case NATEON_VIEW_BUDDIES_BY_NAME_AND_SCREEN_NAME:
+			if (store)
+			{
+				alias = g_strdup_printf("%s (%s)", friend, store);
+			}
+			else
+			{
+				alias = g_strdup_printf("%s (%s)", friend, friend);
+			}
+			break;
+
+		case NATEON_VIEW_BUDDIES_BY_SCREEN_NAME:
+		default:
+			if (store)
+			{
+				alias = g_strdup(store);
+			} 
+			else
+			{
+				alias = g_strdup(friend);
+			}
+			break;
+	}
+
+	serv_got_alias(gc, account_name, alias);
+	g_free(alias);
+}
+
 void
 nateon_user_set_buddy_icon(NateonUser *user, PurpleStoredImage *img)
 {

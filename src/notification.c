@@ -873,9 +873,9 @@ nnik_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
         user = nateon_userlist_find_user_with_name(cmdproc->session->userlist, cmd->params[1]);
 
-        serv_got_alias(gc, cmd->params[1], store_name);
-
         nateon_user_set_store_name(user, store_name);
+
+        nateon_user_set_buddy_alias(gc->proto_data, user);
 
         nateon_user_update(user);
 }

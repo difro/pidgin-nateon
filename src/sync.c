@@ -131,7 +131,7 @@ static void list_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	g_free(user->store_name);
 	if (!g_strncasecmp(stored, "%00", 3))
 	{
-		user->store_name = g_strdup(friend);
+		user->store_name = NULL;
 	}
 	else
 	{

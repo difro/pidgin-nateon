@@ -1,22 +1,18 @@
-# Pidgin plugin for NateOn instant messaging service
-# Copyright (C) 2008, Hansun Lee <hansun.lee@gmail.com> 
+# Pidgin plugin for NateOn instant messaging service 
+# Copyright (C) 2008, Hansun Lee <hansun.lee@gmail.com>
 #
 # This file is distributed under the same license as the pidgin-nateon package.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: pidgin-nateon\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-02-26 16:48+0900\n"
-"PO-Revision-Date: 2008-02-26 16:48+0900\n"
+"PO-Revision-Date: 2008-02-28 23:45+0900\n"
 "Last-Translator: Hansun Lee <hansun.lee@gmail.com>\n"
 "Language-Team: Hansun Lee <hansun.lee@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Poedit-Language: Korean\n"
-"X-Poedit-Country: KOREA, REPUBLIC OF\n"
 
 #: ../src/dialog.c:112
 #, c-format
@@ -55,97 +51,117 @@ msgstr ""
 msgid "NATEON Error: %s\n"
 msgstr ""
 
-#: ../src/nateon.c:139
+#: ../src/nateon.c:138
 msgid "Your new NateOn friendly name is too long."
 msgstr ""
 
-#: ../src/nateon.c:305
+#: ../src/nateon.c:333
 msgid "Set your friendly name."
 msgstr ""
 
-#: ../src/nateon.c:306
+#: ../src/nateon.c:334
 msgid "This is the name that other NATEON buddies will see you as."
 msgstr ""
 
-#: ../src/nateon.c:309
+#: ../src/nateon.c:337 ../src/nateon.c:355
 msgid "OK"
 msgstr ""
 
-#: ../src/nateon.c:310
+#: ../src/nateon.c:338 ../src/nateon.c:356
 msgid "Cancel"
 msgstr ""
 
-#: ../src/nateon.c:481
+#: ../src/nateon.c:352 ../src/nateon.c:353
+msgid "View Buddies By."
+msgstr "친구 보기 방식"
+
+#: ../src/nateon.c:359 ../src/nateon.c:737
+msgid "Name"
+msgstr "이름"
+
+#: ../src/nateon.c:360
+msgid "Screen Name"
+msgstr "대화명"
+
+#: ../src/nateon.c:361
+msgid "Name and ID"
+msgstr "이름+아이디"
+
+#: ../src/nateon.c:362
+msgid "Name and Screen Name"
+msgstr "이름+대화명"
+
+#: ../src/nateon.c:532
 msgid "_Send"
 msgstr ""
 
-#: ../src/nateon.c:482
+#: ../src/nateon.c:533
 msgid "Close"
 msgstr ""
 
-#: ../src/nateon.c:686
-msgid "Name"
-msgstr ""
-
-#: ../src/nateon.c:691
+#: ../src/nateon.c:742
 msgid "Status"
 msgstr ""
 
-#: ../src/nateon.c:691
+#: ../src/nateon.c:742
 msgid "Idle"
 msgstr ""
 
-#: ../src/nateon.c:725
+#: ../src/nateon.c:776
 msgid "Busy"
 msgstr ""
 
-#: ../src/nateon.c:729
+#: ../src/nateon.c:780
 msgid "On The Phone"
 msgstr ""
 
-#: ../src/nateon.c:733
+#: ../src/nateon.c:784
 msgid "In meeting"
 msgstr ""
 
-#: ../src/nateon.c:757
+#: ../src/nateon.c:808
 msgid "Set Friendly Name..."
 msgstr ""
 
-#: ../src/nateon.c:761
-msgid "Send SMS message..."
-msgstr ""
+#: ../src/nateon.c:812
+msgid "View Buddies By..."
+msgstr "친구 보기 방식..."
 
-#: ../src/nateon.c:827
+#: ../src/nateon.c:816
+msgid "Send SMS message..."
+msgstr "문자 보내기..."
+
+#: ../src/nateon.c:882
 msgid "Send memo"
 msgstr "쪽지 보내기"
 
-#: ../src/nateon.c:830
+#: ../src/nateon.c:885
 msgid "Send SMS message"
 msgstr "문자 보내기"
 
-#: ../src/nateon.c:848
+#: ../src/nateon.c:903
 msgid "Copy buddy"
 msgstr "친구 복사"
 
-#: ../src/nateon.c:851
+#: ../src/nateon.c:906
 msgid "Move buddy"
 msgstr "친구 이동"
 
-#: ../src/nateon.c:859
+#: ../src/nateon.c:914
 msgid "Initiate _Chat"
 msgstr ""
 
-#: ../src/nateon.c:924
+#: ../src/nateon.c:979
 msgid "Failed to connect to server."
 msgstr ""
 
-#: ../src/nateon.c:2300
+#: ../src/nateon.c:2355
 msgid "Server"
-msgstr ""
+msgstr "서버"
 
-#: ../src/nateon.c:2305
+#: ../src/nateon.c:2360
 msgid "Port"
-msgstr ""
+msgstr "포트"
 
 #: ../src/notification.c:207
 #, c-format
@@ -239,11 +255,11 @@ msgstr ""
 msgid "%s has removed you from his or her buddy list."
 msgstr ""
 
-#: ../src/userlist.c:684
+#: ../src/userlist.c:683
 #, c-format
 msgid "Unable to add \"%s\"."
 msgstr ""
 
-#: ../src/userlist.c:686
+#: ../src/userlist.c:685
 msgid "The screen name specified is invalid."
 msgstr ""
