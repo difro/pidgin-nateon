@@ -869,9 +869,17 @@ nnik_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
         account = cmdproc->session->account;
         gc = purple_account_get_connection(account);
 
-        store_name = purple_url_decode(cmd->params[2]);
+        //store_name = purple_url_decode(cmd->params[2]);
+        if (!g_strncasecmp(cmd->params[2], "%00", 3))
+	{
+   		store_name = NULL;
+	}
+	else
+	{
+    		store_name = purple_url_decode(cmd->params[2]);
+	}
 
-        user = nateon_userlist_find_user_with_name(cmdproc->session->userlist, cmd->params[1]);
+	user = nateon_userlist_find_user_with_name(cmdproc->session->userlist, cmd->params[1]);
 
         nateon_user_set_store_name(user, store_name);
 

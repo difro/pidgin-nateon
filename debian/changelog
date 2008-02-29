@@ -1,3 +1,11 @@
+pidgin-nateon (2.3.1-svn120) unstable; urgency=low
+
+  * Aim at pidgin 2.3.1
+  * Can change buddies alias (name, screen name, name and id, name and screen name)
+  * Added korean translation
+
+ -- Hansun Lee <hansun.lee@gmail.com>  Fri, 29 Feb 2008 15:53:02 +0900
+
 pidgin-nateon (2.2.1-svn112) unstable; urgency=low
 
   * Add "Hidden" state 

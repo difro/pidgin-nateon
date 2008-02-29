@@ -5,14 +5,15 @@ Maintainer: Hansun Lee <hansun.lee@gmail.com>
 Homepage: http://nateon.haz3.com/
 Build-Depends: debhelper (>= 5), autotools-dev
 Standards-Version: 3.7.2
-Build-Depends: cdbs, debhelper (>= 5), autotools-dev, libpurple-dev
+Build-Depends: cdbs, debhelper (>= 5), autotools-dev, libpurple-dev,
+	       automake, autoconf, libtool
 
 Package: pidgin-nateon
 Architecture: any
-Depends: (>= 2.0.0) ${shlibs:Depends}, ${misc:Depends}, pidgin
+Depends: ${shlibs:Depends}, ${misc:Depends}, pidgin
 Description: Pidgin plugin for NateOn instant messaging service
  This is a plugin for Pidgin which provides connections to NateOn
- instant messaging service by SK Communications, Inc.
+ instant messaging service by SK Communications, Inc. (http://nateon.nate.com).
 
 Package: pidgin-nateon-dbg
 Architecture: any
@@ -20,7 +21,7 @@ Priority: extra
 Depends: pidgin-nateon
 Description: debugging symbols of pidgin-nateon
  This is a plugin for Pidgin which provides connections to NateOn
- instant messaging service by SK Communications, Inc.
+ instant messaging service by SK Communications, Inc. (http://nateon.nate.com).
  .
  This package contains the debugging symbols. Most people will not need this
  package.

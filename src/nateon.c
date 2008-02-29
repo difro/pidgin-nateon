@@ -885,7 +885,7 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 		act = purple_menu_action_new(_("Send SMS message"), PURPLE_CALLBACK(show_send_sms_cb), NULL, NULL);
 		m = g_list_append(m, act);
 
-		/* Copy/Move buddy */
+		/* Copy buddy */
 		for (gnode = purple_blist_get_root(); gnode; gnode = gnode->next)
 		{
 			PurpleGroup *group = (PurpleGroup *)gnode;
@@ -895,17 +895,9 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 
 			act = purple_menu_action_new(group->name, NULL, NULL, NULL);
 			m_copy = g_list_append(m_copy, act);
-
-			act = purple_menu_action_new(group->name, NULL, NULL, NULL);
-			m_move = g_list_append(m_move, act);
 		}
-
 		act = purple_menu_action_new(_("Copy buddy"), NULL, NULL, m_copy);
 		m = g_list_append(m, act);
-
-		act = purple_menu_action_new(_("Move buddy"), NULL, NULL, m_move);
-		m = g_list_append(m, act);
-
 	}
 
 	if (g_ascii_strcasecmp(buddy->name,
