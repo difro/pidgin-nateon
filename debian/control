@@ -2,7 +2,6 @@ Source: pidgin-nateon
 Section: net
 Priority: optional
 Maintainer: Hansun Lee <hansun.lee@gmail.com>
-Homepage: http://nateon.haz3.com/
 Build-Depends: debhelper (>= 5), autotools-dev
 Standards-Version: 3.7.2
 Build-Depends: cdbs, debhelper (>= 5), autotools-dev, libpurple-dev,

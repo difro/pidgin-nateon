@@ -2344,6 +2344,11 @@ init_plugin(PurplePlugin *plugin)
 {
 	PurpleAccountOption *option;
 
+#ifdef ENABLE_NLS
+	bindtextdomain(PACKAGE, LOCALEDIR);
+	bind_textdomain_codeset(PACKAGE, "UTF-8");
+#endif /* ENABLE_NLS */
+
 	option = purple_account_option_string_new(_("Server"), "server",
 											NATEON_SERVER);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,
