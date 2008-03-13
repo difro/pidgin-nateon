@@ -27,6 +27,7 @@
 #include "switchboard.h"
 #include "notification.h"
 #include "nateon-utils.h"
+#include "xfer.h"
 
 #include "error.h"
 
@@ -719,6 +720,50 @@ join_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 	if (swboard->closed)
 		nateon_switchboard_close(swboard);
+}
+
+static void
+whsp_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	NateonSession *session;
+	NateonSwitchBoard *swboard;
+	const char *account_name;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	session = cmdproc->session;
+	swboard = cmdproc->data;
+	account_name = cmd->params[1];
+
+	if (cmd->param_count == 4 && !strcmp(cmd->params[2], "FILE") && \
+			!strncmp(cmd->params[3], "REQUEST", strlen("REQUEST")))
+	{
+		/* Receiving File Transfer */
+		char **split;
+		int i;
+		int num_files;
+
+		split = g_strsplit(cmd->params[3], "%09", 0);
+
+		num_files = atoi(split[1]);
+
+		for (i = 0; i < num_files; i++) {
+			PurpleXfer *xfer;
+			char **file_data;
+			char *filename;
+
+			file_data = g_strsplit(split[i+2], "|", 0);	
+			filename = purple_strreplace(file_data[0], "%20", " ");
+
+			nateon_xfer_receive_file(session, swboard, account_name, filename, \
+										atoi(file_data[1]), file_data[2]);
+
+			g_free(filename);
+			g_strfreev(file_data);
+		}
+
+		g_strfreev(split);
+	}
 }
 
 //static void
@@ -1493,6 +1538,7 @@ nateon_switchboard_init(void)
 	nateon_table_add_cmd(cbs_table, NULL, "JOIN", join_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "BYE", bye_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "OUT", out_cmd);
+	nateon_table_add_cmd(cbs_table, NULL, "WHSP", whsp_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "QUIT", quit_cmd);
 //
 //#if 0

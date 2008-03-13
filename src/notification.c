@@ -23,6 +23,7 @@
  */
 #include "nateon.h"
 #include "notification.h"
+#include "xfer.h"
 #include "state.h"
 //#include "error.h"
 //#include "utils.h"
@@ -1438,6 +1439,26 @@ invt_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	g_free(host);
 }
 
+static void
+reqc_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	NateonSession *session;
+
+	session = cmdproc->session;
+
+	nateon_xfer_parse_reqc(session, cmd->params, cmd->param_count);
+}
+
+static void
+refr_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+    NateonSession *session;
+
+    session = cmdproc->session;
+
+    nateon_xfer_parse_refr(session, cmd->params, cmd->param_count);
+}
+
 //static void
 //xfr_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //{
@@ -1834,6 +1855,8 @@ nateon_notification_init(void)
 	nateon_table_add_cmd(cbs_table, NULL, "NNIK", nnik_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "KILL", kill_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "INVT", invt_cmd);
+	nateon_table_add_cmd(cbs_table, NULL, "REQC", reqc_cmd);
+	nateon_table_add_cmd(cbs_table, NULL, "REFR", refr_cmd);
 
 //
 //	nateon_table_add_cmd(cbs_table, NULL, "URL", url_cmd);

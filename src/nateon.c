@@ -680,23 +680,23 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 //		purple_xfer_request(xfer);
 //}
 
-//static gboolean
-//nateon_can_receive_file(PurpleConnection *gc, const char *who)
-//{
-//	PurpleAccount *account;
-//	char *normal;
-//	gboolean ret;
-//
-//	account = purple_connection_get_account(gc);
-//
-//	normal = g_strdup(nateon_normalize(account, purple_account_get_username(account)));
-//
-//	ret = strcmp(normal, nateon_normalize(account, who));
-//
-//	g_free(normal);
-//
-//	return ret;
-//}
+static gboolean
+nateon_can_receive_file(PurpleConnection *gc, const char *who)
+{
+	PurpleAccount *account;
+	char *normal;
+	gboolean ret;
+
+	account = purple_connection_get_account(gc);
+
+	normal = g_strdup(nateon_normalize(account, purple_account_get_username(account)));
+
+	ret = strcmp(normal, nateon_normalize(account, who));
+
+	g_free(normal);
+
+	return ret;
+}
 
 /**************************************************************************
  * Protocol Plugin ops
@@ -2287,7 +2287,7 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,					/* roomlist_get_list */
 	NULL,					/* roomlist_cancel */
 	NULL,					/* roomlist_expand_category */
-	NULL, //nateon_can_receive_file,	/* can_receive_file */
+	nateon_can_receive_file,	/* can_receive_file */
 	NULL, //nateon_send_file,			/* send_file */
 	NULL, //nateon_new_xfer,			/* new_xfer */
 	NULL,					/* offline_message */

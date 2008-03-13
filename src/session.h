@@ -101,6 +101,7 @@ struct _NateonSession
 	GList *switches; /**< The list of all the switchboards. */
 //	GList *directconns; /**< The list of all the directconnections. */
 	GList *slplinks; /**< The list of all the slplinks. */
+	GList *xfers; /* the list of all the file transfers */
 
 	int conv_seq; /**< The current conversation sequence number. */
 

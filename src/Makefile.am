@@ -45,7 +45,9 @@ NATEONSOURCES = \
 	user.c \
 	user.h \
 	userlist.c \
-	userlist.h
+	userlist.h \
+	xfer.c \
+	xfer.h
 
 AM_CFLAGS = $(st)
 
