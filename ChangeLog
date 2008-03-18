@@ -1,5 +1,8 @@
 Pidgin-NateOn: NateOn protocol plugin for pidgin
 
+version 2.3.1-svn127
+	* Support "File send/receive" - Thanks to difro
+
 version 2.3.1-svn120
 	* Aim at pidgin 2.3.1
 	* Can change buddies alias (name, screen name, name and id, name and

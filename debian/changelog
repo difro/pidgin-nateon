@@ -1,3 +1,9 @@
+pidgin-nateon (2.3.1-svn127) unstable; urgency=low
+
+  * Support "File send/receive" - Thanks to difro
+
+ -- Hansun Lee <hansun.lee@gmail.com>  Tue, 18 Mar 2008 16:26:49 +0900
+
 pidgin-nateon (2.3.1-svn120) unstable; urgency=low
 
   * Aim at pidgin 2.3.1
