@@ -923,7 +923,14 @@ mesg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	{
 		gc = cmdproc->session->account->gc;
 		swboard = cmdproc->data;
-		serv_got_typing(gc, swboard->im_user, NATEON_TYPING_RECV_TIMEOUT, PURPLE_TYPING);
+		if (!strcmp(cmd->params[3], "1"))
+		{
+			serv_got_typing(gc, swboard->im_user, NATEON_TYPING_RECV_TIMEOUT, PURPLE_TYPING);
+		}
+		else
+		{
+			serv_got_typing_stopped(gc, swboard->im_user);
+		}
 	}
 }
 

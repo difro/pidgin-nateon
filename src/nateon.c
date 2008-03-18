@@ -1081,8 +1081,8 @@ nateon_send_typing(PurpleConnection *gc, const char *who, PurpleTypingState stat
 	account = purple_connection_get_account(gc);
 	session = gc->proto_data;
 
-	if (state == PURPLE_NOT_TYPING)
-		return 0;
+//	if (state == PURPLE_NOT_TYPING)
+//		return 0;
 
 	if (!g_ascii_strcasecmp(who, purple_account_get_username(account)))
 	{
@@ -1104,7 +1104,14 @@ nateon_send_typing(PurpleConnection *gc, const char *who, PurpleTypingState stat
 //	nateon_message_set_flag(msg, 'U');
 //	nateon_message_set_attr(msg, "TypingUser",
 //						 purple_account_get_username(account));
-	nateon_message_set_bin_data(msg, "TYPING 1", 8);
+	if (state == PURPLE_TYPING)
+	{
+		nateon_message_set_bin_data(msg, "TYPING 1", 8);
+	}
+	else 
+	{
+		nateon_message_set_bin_data(msg, "TYPING 0", 8);
+	}
 
 	nateon_switchboard_send_msg(swboard, msg, FALSE);
 
