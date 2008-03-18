@@ -470,13 +470,20 @@ static void
 ctoc_cmd_post(NateonCmdProc *cmdproc, NateonCommand *cmd, char *payload,
 			 size_t len)
 {
-	char *command;
+	char *cmd_string;
+	NateonCommand *new_cmd;
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 	purple_debug_info("nateon", "[%s]\n%s\n", __FUNCTION__, payload);
 
-	command = purple_strreplace(payload, "\r\n", " ");
-	nateon_cmdproc_process_cmd_text(cmdproc, command);
+	cmd_string = purple_strreplace(payload, "\r\n", " ");
+	new_cmd = nateon_command_from_string(cmd_string);
+
+	//nateon_cmdproc_process_cmd_text(cmdproc, command);
+	nateon_cmdproc_process_cmd(cmdproc, new_cmd);
+
+	g_free(cmd_string);
+	nateon_command_unref(new_cmd);
 }
 
 static void
@@ -1446,7 +1453,7 @@ reqc_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 	session = cmdproc->session;
 
-	nateon_xfer_parse_reqc(session, cmd->params, cmd->param_count);
+	nateon_xfer_parse_reqc(session, cmdproc, cmd->params, cmd->param_count);
 }
 
 static void

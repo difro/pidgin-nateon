@@ -715,6 +715,8 @@ join_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 	process_queue(swboard);
 
+	nateon_cmdproc_process_queue(swboard->cmdproc);
+
 //	if (!session->http_method)
 //		send_clientcaps(swboard);
 
@@ -748,7 +750,6 @@ whsp_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 		num_files = atoi(split[1]);
 
 		for (i = 0; i < num_files; i++) {
-			PurpleXfer *xfer;
 			char **file_data;
 			char *filename;
 
@@ -761,6 +762,47 @@ whsp_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 			g_free(filename);
 			g_strfreev(file_data);
 		}
+
+		g_strfreev(split);
+	}
+	else if (cmd->param_count == 4 && !strcmp(cmd->params[2], "FILE") && \
+			!strncmp(cmd->params[3], "NACK", strlen("NACK")) )
+	{
+		/* file transfer denied */
+		char **split;
+		int i;
+		int num_files;
+		split = g_strsplit(cmd->params[3], "%09", 0);
+
+		num_files = atoi(split[1]);
+
+		for (i = 0; i < num_files; i++) {
+			char **file_data;
+			char *filename;
+
+			file_data = g_strsplit(split[i+2], "|", 0);	
+			filename = purple_strreplace(file_data[0], "%20", " ");
+
+			nateon_xfer_cancel_transfer(session, account_name, filename, file_data[2]);
+
+			g_free(filename);
+			g_strfreev(file_data);
+		}
+
+		g_strfreev(split);
+	}
+	else if (cmd->param_count == 4 && !strcmp(cmd->params[2], "FILE") && \
+			!strncmp(cmd->params[3], "CANCEL", strlen("")) )
+	{
+		/* file transfer cancelled */
+		char **split;
+		int i;
+		int num_files;
+		split = g_strsplit(cmd->params[3], "%09", 0);
+
+		num_files = atoi(split[1]);
+
+		nateon_xfer_cancel_transfer(session, account_name, NULL, split[2]);
 
 		g_strfreev(split);
 	}

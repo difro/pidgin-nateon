@@ -45,6 +45,7 @@
 #include "switchboard.h"
 #include "notification.h"
 #include "sync.h"
+#include "xfer.h"
 //#include "slplink.h"
 
 #if PHOTO_SUPPORT
@@ -666,25 +667,19 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 //	return xfer;
 //}
 
-//static void
-//nateon_send_file(PurpleConnection *gc, const char *who, const char *file)
-//{
-//	PurpleXfer *xfer = nateon_new_xfer(gc, who);
-//
-//	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-//	purple_debug_info("nateon", "[%s] who(%s), file(%s)\n", __FUNCTION__, who, file);
-//
-//	if (file)
-//		purple_xfer_request_accepted(xfer, file);
-//	else
-//		purple_xfer_request(xfer);
-//}
+static void
+nateon_send_file(PurpleConnection *gc, const char *who, const char *file)
+{
+	nateon_xfer_send_file(gc->proto_data, who, file);
+}
 
 static gboolean
 nateon_can_receive_file(PurpleConnection *gc, const char *who)
 {
+	NateonSession *session;
 	PurpleAccount *account;
 	char *normal;
+	GList *l;
 	gboolean ret;
 
 	account = purple_connection_get_account(gc);
@@ -694,6 +689,27 @@ nateon_can_receive_file(PurpleConnection *gc, const char *who)
 	ret = strcmp(normal, nateon_normalize(account, who));
 
 	g_free(normal);
+
+	if (ret == 0)
+	{
+		/* Can't send to oneself */
+		return FALSE;
+	}
+
+	/* Can't send more than one file at same time */
+	session = gc->proto_data;
+	ret = TRUE;
+	for (l = session->xfers; l != NULL; l = l->next)
+	{
+		NateonXfer *xfer;
+		xfer = l->data;
+		if (purple_xfer_get_type(xfer->prpl_xfer) == PURPLE_XFER_SEND &&
+				!strcmp(xfer->who, who))
+		{
+			ret = FALSE;
+			break;
+		}
+	}
 
 	return ret;
 }
@@ -2295,7 +2311,7 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,					/* roomlist_cancel */
 	NULL,					/* roomlist_expand_category */
 	nateon_can_receive_file,	/* can_receive_file */
-	NULL, //nateon_send_file,			/* send_file */
+	nateon_send_file,			/* send_file */
 	NULL, //nateon_new_xfer,			/* new_xfer */
 	NULL,					/* offline_message */
 	NULL,					/* whiteboard_prpl_ops */

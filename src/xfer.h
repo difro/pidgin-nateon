@@ -27,6 +27,8 @@
 
 #include "libpurple/network.h"
 
+#define NATEON_XFER_SEND_BUFFER_SIZE	(8191)
+
 typedef struct _NateonXfer NateonXfer;
 typedef struct _NateonXferConnection NateonXferConnection;
 
@@ -70,9 +72,11 @@ struct _NateonXfer
 	PurpleNetworkListenData	*p2p_listen_data;
 	PurpleProxyConnectData	*p2p_connect_data;
 	int		p2p_listen_pa;		/**< listen port watcher */
+	int		p2p_listen_fd;
 	char	*p2p_cookie;
 	int		p2p_listen_port;	/**< listening port number */
 	guint	p2p_timer;
+	int		p2p_read_pa;
 
 	/* FR-server related */
 	int fr_initiate_trid;
@@ -93,6 +97,10 @@ struct _NateonXfer
 
 	int recv_len;
 
+	FILE *local_fp;
+	char send_buf[NATEON_XFER_SEND_BUFFER_SIZE];
+	int send_data_trid;
+	int sent_len;
 };
 
 /**
@@ -107,8 +115,21 @@ struct _NateonXfer
 void nateon_xfer_receive_file(NateonSession *session, NateonSwitchBoard *swboard, \
 		const char *who, const char *filename, const int filesize, const char *cookie);
 
-void nateon_xfer_parse_reqc(NateonSession *session, char **params, int param_count);
+/**
+ * Start File-send process.
+ *
+ * @param session Nateon Session
+ * @param who file receiver account
+ * @param filename filename
+ */
+void nateon_xfer_send_file(NateonSession *session, const char *who, const char *filename);
+
+void nateon_xfer_parse_reqc(NateonSession *session, NateonCmdProc *cmdproc, char **params, \
+								int param_count);
 
 void nateon_xfer_parse_refr(NateonSession *session, char **params, int param_count);
+
+void nateon_xfer_cancel_transfer(NateonSession *session, const char *who, const char *filename,\
+									const char *cookie);
 
 #endif /* _NATEON_XFER_H_ */

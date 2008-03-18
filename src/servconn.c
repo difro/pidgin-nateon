@@ -282,8 +282,8 @@ nateon_servconn_disconnect(NateonServConn *servconn)
 
 	servconn->connected = FALSE;
 
-//	if (servconn->disconnect_cb != NULL)
-//		servconn->disconnect_cb(servconn);
+	if (servconn->disconnect_cb != NULL)
+		servconn->disconnect_cb(servconn);
 }
 
 static void
