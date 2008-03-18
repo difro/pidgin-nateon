@@ -406,6 +406,26 @@ p2p_listen_cb(int listenfd, gpointer data)
 	}
 }
 
+static gboolean
+p2p_timeout_cb(gpointer data)
+{
+	NateonXfer *xfer = data;
+
+	if (xfer->conntype == NATEON_XFER_CONN_NONE)
+	{
+		NateonTransaction *trans;
+		purple_debug_info("nateon", "p2p connection timed out. Connecting to FR server\n");
+
+		/* Send REFR to initiate FR-mode xfer */
+		trans = nateon_transaction_new(xfer->session->notification->cmdproc, "REFR", "%s", \
+									xfer->who);
+		nateon_cmdproc_send_trans(xfer->session->notification->cmdproc, trans);
+		xfer->fr_initiate_trid = trans->trId;
+	}
+
+	return FALSE;
+}
+
 static void
 nateon_xfer_init(PurpleXfer *xfer)
 {
@@ -421,6 +441,11 @@ nateon_xfer_init(PurpleXfer *xfer)
 	{
 		nate_xfer->p2p_listen_data = purple_network_listen_range(NATEON_P2P_START_PORT,\
 				NATEON_P2P_END_PORT, SOCK_STREAM, p2p_listen_cb, nate_xfer);
+
+		/* Start timer for FR-mode connection */
+		purple_debug_info("nateon", "starting timer for fr_connect\n");
+		nate_xfer->p2p_timer = purple_timeout_add(NATEON_P2P_TIMEOUT_SECONDS*1000, \
+				p2p_timeout_cb, nate_xfer);
 	}
 }
 
@@ -548,26 +573,6 @@ p2p_connect_cb(gpointer data, gint source, const char *error_message)
 	return;
 }
 
-static gboolean
-p2p_timeout_cb(gpointer data)
-{
-	NateonXfer *xfer = data;
-
-	if (xfer->conntype == NATEON_XFER_CONN_NONE)
-	{
-		NateonTransaction *trans;
-		purple_debug_info("nateon", "p2p connection timed out. Connecting to FR server\n");
-
-		/* Send REFR to initiate FR-mode xfer */
-		trans = nateon_transaction_new(xfer->session->notification->cmdproc, "REFR", "%s", \
-									xfer->who);
-		nateon_cmdproc_send_trans(xfer->session->notification->cmdproc, trans);
-		xfer->fr_initiate_trid = trans->trId;
-	}
-
-	return FALSE;
-}
-
 static void
 fr_connect_cb(gpointer data, gint source, const char *error_message)
 {
@@ -671,9 +676,6 @@ nateon_xfer_parse_reqc(NateonSession *session, char **params, int param_count)
 		xfer->p2p_connect_data = purple_proxy_connect(NULL, session->account, split[0], atoi(split[1]),
 				p2p_connect_cb, xfer);
 
-		/* Start timer for FR-mode connection */
-		purple_debug_info("nateon", "starting timer for fr_connect\n");
-		xfer->p2p_timer = purple_timeout_add_seconds(NATEON_P2P_TIMEOUT_SECONDS, p2p_timeout_cb, xfer);
 	}
 }
 
