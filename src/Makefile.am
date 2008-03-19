@@ -4,6 +4,7 @@ EXTRA_DIST = \
 pkgdir = $(libdir)/purple-$(PURPLE_MAJOR_VERSION)
 
 NATEONSOURCES = \
+	internal.h \
 	cmdproc.c \
 	cmdproc.h \
 	command.c \

@@ -47,14 +47,15 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 libnateon_a_AR = $(AR) $(ARFLAGS)
 libnateon_a_LIBADD =
-am__libnateon_a_SOURCES_DIST = cmdproc.c cmdproc.h command.c command.h \
-	dialog.c dialog.h error.c error.h group.c group.h history.c \
-	history.h memo.c memo.h msg.c msg.h nateon.c nateon.h \
-	nateon-utils.c nateon-utils.h notification.c notification.h \
-	servconn.c servconn.h session.c session.h slplink.c slplink.h \
-	switchboard.c switchboard.h state.c state.h sync.c sync.h \
-	table.c table.h transaction.c transaction.h user.c user.h \
-	userlist.c userlist.h xfer.c xfer.h
+am__libnateon_a_SOURCES_DIST = internal.h cmdproc.c cmdproc.h \
+	command.c command.h dialog.c dialog.h error.c error.h group.c \
+	group.h history.c history.h memo.c memo.h msg.c msg.h nateon.c \
+	nateon.h nateon-utils.c nateon-utils.h notification.c \
+	notification.h servconn.c servconn.h session.c session.h \
+	slplink.c slplink.h switchboard.c switchboard.h state.c \
+	state.h sync.c sync.h table.c table.h transaction.c \
+	transaction.h user.c user.h userlist.c userlist.h xfer.c \
+	xfer.h
 am__objects_1 = libnateon_a-cmdproc.$(OBJEXT) \
 	libnateon_a-command.$(OBJEXT) libnateon_a-dialog.$(OBJEXT) \
 	libnateon_a-error.$(OBJEXT) libnateon_a-group.$(OBJEXT) \
@@ -82,9 +83,9 @@ LTLIBRARIES = $(pkg_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 @STATIC_NATEON_FALSE@libnateon_la_DEPENDENCIES =  \
 @STATIC_NATEON_FALSE@	$(am__DEPENDENCIES_1)
-am__libnateon_la_SOURCES_DIST = cmdproc.c cmdproc.h command.c \
-	command.h dialog.c dialog.h error.c error.h group.c group.h \
-	history.c history.h memo.c memo.h msg.c msg.h nateon.c \
+am__libnateon_la_SOURCES_DIST = internal.h cmdproc.c cmdproc.h \
+	command.c command.h dialog.c dialog.h error.c error.h group.c \
+	group.h history.c history.h memo.c memo.h msg.c msg.h nateon.c \
 	nateon.h nateon-utils.c nateon-utils.h notification.c \
 	notification.h servconn.c servconn.h session.c session.h \
 	slplink.c slplink.h switchboard.c switchboard.h state.c \
@@ -287,6 +288,7 @@ EXTRA_DIST = \
 
 pkgdir = $(libdir)/purple-$(PURPLE_MAJOR_VERSION)
 NATEONSOURCES = \
+	internal.h \
 	cmdproc.c \
 	cmdproc.h \
 	command.c \

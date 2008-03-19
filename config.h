@@ -1,6 +1,9 @@
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* display version info */
+#define DISPLAY_VERSION "2.4.0"
+
 /* always defined to indicate that i18n is enabled */
 #define ENABLE_NLS 1
 
@@ -104,13 +107,13 @@
 #define PACKAGE_NAME "pidgin-nateon"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "pidgin-nateon 2.3.1"
+#define PACKAGE_STRING "pidgin-nateon 2.4.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "pidgin-nateon"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.3.1"
+#define PACKAGE_VERSION "2.4.0"
 
 /* Define if plugins are enabled. */
 #define PURPLE_PLUGINS 1
@@ -131,7 +134,7 @@
 /* #undef TM_IN_SYS_TIME */
 
 /* Version number of package */
-#define VERSION "2.3.1"
+#define VERSION "2.4.0"
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */

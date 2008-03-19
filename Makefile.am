@@ -8,6 +8,6 @@ EXTRA_DIST = \
 		
 noinst_HEADERS = config.h
 
-SUBDIRS = src libpurple pixmaps po
+SUBDIRS = src pixmaps po
 
 DISTCLEANFILES= intltool-extract intltool-merge intltool-update

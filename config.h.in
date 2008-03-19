@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* display version info */
+#undef DISPLAY_VERSION
+
 /* always defined to indicate that i18n is enabled */
 #undef ENABLE_NLS
 

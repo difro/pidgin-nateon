@@ -1,10 +1,10 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.50])
 
-m4_define([purple_lt_current], [3])
+m4_define([purple_lt_current], [4])
 m4_define([purple_major_version], [2])
-m4_define([purple_minor_version], [3])
-m4_define([purple_micro_version], [1])
+m4_define([purple_minor_version], [4])
+m4_define([purple_micro_version], [0])
 m4_define([purple_version_suffix], [])
 m4_define([purple_version],
           [purple_major_version.purple_minor_version.purple_micro_version])
@@ -84,6 +84,17 @@ You must have the GLib 2.0 development headers installed to build.
 ])])
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
+
+AC_ARG_WITH([extraversion],
+                        AC_HELP_STRING([--with-extraversion=STRING],
+                                                   [extra version number to be displayed in Help->About and --help (for packagers)]),
+                                                   EXTRA_VERSION=$withval)
+
+if test x"$EXTRA_VERSION" != "x" ; then
+        AC_DEFINE_UNQUOTED(DISPLAY_VERSION, "$VERSION-$EXTRA_VERSION", [display version info])
+else
+        AC_DEFINE_UNQUOTED(DISPLAY_VERSION, "$VERSION", [display version info])
+fi
 
 AM_CONDITIONAL(STATIC_NATEON, test "x$static_nateon" = "xyes")
 
@@ -174,7 +185,6 @@ AC_PATH_PROG(pidginpath, pidgin)
 
 AC_OUTPUT([Makefile
 		src/Makefile
-		libpurple/Makefile
 		pixmaps/Makefile
 		pixmaps/protocols/Makefile
 		pixmaps/protocols/16/Makefile

@@ -245,7 +245,7 @@ EXTRA_DIST = \
 		po/Makefile.mingw
 
 noinst_HEADERS = config.h
-SUBDIRS = src libpurple pixmaps po
+SUBDIRS = src pixmaps po
 DISTCLEANFILES = intltool-extract intltool-merge intltool-update
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

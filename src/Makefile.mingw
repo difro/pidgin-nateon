@@ -57,6 +57,7 @@ C_SRC =			cmdproc.c \
 			transaction.c \
 			user.c \
 			userlist.c \
+			xfer.c
 
 OBJECTS = $(C_SRC:%.c=%.o)
 
