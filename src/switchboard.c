@@ -792,7 +792,7 @@ whsp_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 		g_strfreev(split);
 	}
 	else if (cmd->param_count == 4 && !strcmp(cmd->params[2], "FILE") && \
-			!strncmp(cmd->params[3], "CANCEL", strlen("")) )
+			!strncmp(cmd->params[3], "CANCEL", strlen("CANCEL")) )
 	{
 		/* file transfer cancelled */
 		char **split;

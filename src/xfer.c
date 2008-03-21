@@ -7,8 +7,10 @@
 #define NATEON_P2P_START_PORT   (5004)
 #define NATEON_P2P_END_PORT	 (6004)
 
-static void
-nateon_xfer_end(PurpleXfer *xfer);
+static void nateon_xfer_end(PurpleXfer *xfer);
+static ssize_t nateon_xfer_sock_write(NateonXferConnection *conn, const char *buf, size_t len);
+static void nateon_xfer_send_next(NateonXfer *nate_xfer);
+
 static char*
 generate_p2p_cookie(NateonSession *session)
 {
@@ -52,186 +54,6 @@ nateon_xfer_request_denied(PurpleXfer *xfer)
 {
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 	nateon_xfer_end(xfer);
-}
-
-static void
-nateon_xfer_sock_write_cb(gpointer data, gint source, PurpleInputCondition cond)
-{
-	NateonXferConnection *conn = data;
-	int ret, writelen;
-
-	purple_debug_info("nateon", "write_cb\n");
-	writelen = purple_circ_buffer_get_max_read(conn->tx_buf);
-
-	if (writelen == 0) {
-		purple_input_remove(conn->tx_handler);
-		conn->tx_handler = -1;
-		return;
-	}
-
-	ret = write(conn->fd, conn->tx_buf->outptr, writelen);
-
-	if (ret < 0 && errno == EAGAIN)
-		return;
-	else if (ret <= 0) {
-		//nateon_servconn_got_error(servconn, NATEON_SERVCONN_ERROR_WRITE);
-		purple_debug_info("nateon", "%s:%s\n", __FUNCTION__, "socket write error");
-		return;
-	}
-
-	purple_circ_buffer_mark_read(conn->tx_buf, ret);
-}
-
-static ssize_t
-nateon_xfer_sock_write(NateonXferConnection *conn, const char *buf, size_t len)
-{
-	ssize_t ret = 0;
-
-	g_return_val_if_fail(conn != NULL, 0);
-
-	if (conn->tx_handler == -1) {
-		ret = write(conn->fd, buf, len);
-	} else {
-		ret = -1;
-		errno = EAGAIN;
-	}
-
-	if (ret < 0 && errno == EAGAIN)
-		ret = 0;
-	if (ret < len) {
-		if (conn->tx_handler == -1)
-			conn->tx_handler = purple_input_add(
-					conn->fd, PURPLE_INPUT_WRITE,
-					nateon_xfer_sock_write_cb, conn);
-		purple_circ_buffer_append(conn->tx_buf, buf + ret, len - ret);
-	}
-
-	if (ret == -1)
-	{
-		purple_debug_info("nateon", "%s:%s\n", __FUNCTION__, "socket write error");
-		//nateon_servconn_got_error(servconn, NATEON_SERVCONN_ERROR_WRITE);
-	}
-
-	return ret;
-}
-
-static ssize_t nateon_xfer_send_data(NateonXfer *nate_xfer, const char *buf, size_t len);
-
-static void
-nateon_xfer_send_next(NateonXfer *nate_xfer)
-{
-	NateonXferConnection *conn;
-	gchar *buf;
-	int cmd_len;
-
-	conn = &nate_xfer->conn;
-
-	if (nate_xfer->sent_len == purple_xfer_get_size(nate_xfer->prpl_xfer))
-	{
-		purple_input_remove(conn->tx_handler);
-		conn->tx_handler = -1;
-		return;
-	}
-	if (purple_xfer_get_size(nate_xfer->prpl_xfer)-nate_xfer->sent_len > NATEON_XFER_SEND_BUFFER_SIZE)
-	{
-		nate_xfer->chunk_len = NATEON_XFER_SEND_BUFFER_SIZE;
-	}
-	else
-	{
-		nate_xfer->chunk_len = purple_xfer_get_size(nate_xfer->prpl_xfer) - nate_xfer->sent_len;
-	}
-
-	buf = g_strdup_printf("FILE %d DATA %d\r\n",
-			nate_xfer->send_data_trid, nate_xfer->chunk_len);
-	cmd_len = strlen(buf);
-	buf = g_realloc(buf, cmd_len + nate_xfer->chunk_len);
-	fread(buf + cmd_len, 1, nate_xfer->chunk_len, nate_xfer->local_fp);
-	nateon_xfer_send_data(nate_xfer, buf, cmd_len + nate_xfer->chunk_len);
-	g_free(buf);
-	nate_xfer->send_data_trid++;
-}
-
-static void
-nateon_xfer_send_data_cb(gpointer data, gint source, PurpleInputCondition cond)
-{
-	NateonXfer *nate_xfer = data;
-	NateonXferConnection *conn = &nate_xfer->conn;
-	int ret, writelen;
-
-	writelen = purple_circ_buffer_get_max_read(conn->tx_buf);
-
-	if (writelen == 0)
-	{
-		purple_input_remove(conn->tx_handler);
-		conn->tx_handler = -1;
-		nate_xfer->sent_len += nate_xfer->chunk_len;
-		nateon_xfer_send_next(nate_xfer);
-		purple_xfer_set_bytes_sent(nate_xfer->prpl_xfer, nate_xfer->sent_len);
-		purple_xfer_update_progress(nate_xfer->prpl_xfer);
-		return;
-	}
-
-	ret = write(conn->fd, conn->tx_buf->outptr, writelen);
-
-	if (ret < 0 && errno == EAGAIN)
-		return;
-	else if (ret <= 0) {
-		//nateon_servconn_got_error(servconn, NATEON_SERVCONN_ERROR_WRITE);
-		purple_debug_info("nateon", "%s:%s\n", __FUNCTION__, "socket write error");
-		purple_input_remove(conn->tx_handler);
-		conn->tx_handler = -1;
-		purple_xfer_cancel_remote(nate_xfer->prpl_xfer);
-		return;
-	}
-
-	purple_circ_buffer_mark_read(conn->tx_buf, ret);
-}
-
-static ssize_t
-nateon_xfer_send_data(NateonXfer *nate_xfer, const char *buf, size_t len)
-{
-	ssize_t ret = 0;
-	NateonXferConnection *conn;
-
-	conn = &nate_xfer->conn;
-	if (conn->tx_handler == -1)
-	{
-		ret = write(conn->fd, buf, len);
-	}
-	else
-	{
-		ret = -1;
-		errno = EAGAIN;
-	}
-
-	if (ret < 0 && errno == EAGAIN)
-		ret = 0;
-	if (ret < len)
-	{
-		if (conn->tx_handler == -1)
-		{
-			conn->tx_handler = purple_input_add( conn->fd, PURPLE_INPUT_WRITE,
-					nateon_xfer_send_data_cb, nate_xfer);
-		}
-		purple_circ_buffer_append(conn->tx_buf, buf + ret, len - ret);
-	} else if (ret == len)
-	{
-		nate_xfer->sent_len += nate_xfer->chunk_len;
-		purple_xfer_set_bytes_sent(nate_xfer->prpl_xfer, nate_xfer->sent_len);
-		purple_xfer_update_progress(nate_xfer->prpl_xfer);
-		nateon_xfer_send_next(nate_xfer);
-		return ret;
-	}
-
-	if (ret == -1)
-	{
-		purple_debug_info("nateon", "%s:%s\n", __FUNCTION__, "socket write error");
-		purple_xfer_cancel_remote(nate_xfer->prpl_xfer);
-		//nateon_servconn_got_error(servconn, NATEON_SERVCONN_ERROR_WRITE);
-	}
-
-	return ret;
-
 }
 
 static void
@@ -360,11 +182,11 @@ nateon_xfer_process_p2p_cmd_send(NateonXfer *xfer, char *cmd)
 
 	g_strfreev(split);
 }
+
 static gssize 
-nateon_xfer_read(guchar **buffer, PurpleXfer *xfer)
+nateon_xfer_sock_read(NateonXferConnection *conn, guchar **buffer)
 {
 	NateonXfer *nate_xfer;
-	NateonXferConnection *conn;
 	int len, cur_len;
 	char buf[NATEON_BUF_LEN];
 	char *end, *cur, *old_rx_buf;
@@ -372,33 +194,19 @@ nateon_xfer_read(guchar **buffer, PurpleXfer *xfer)
 
 	*buffer = NULL;
 	buffer_len = 0;
+	nate_xfer = conn->nate_xfer;
 
-	nate_xfer = xfer->data;
-
-	if (purple_xfer_get_type(xfer) == PURPLE_XFER_RECEIVE) {
+	if (purple_xfer_get_type(nate_xfer->prpl_xfer) == PURPLE_XFER_RECEIVE) {
 		conn = &nate_xfer->conn;
 	
 		len = read(conn->fd, buf, sizeof(buf) - 1);
 
 		if (len <= 0) {
-			if (nate_xfer->recv_len == purple_xfer_get_size(xfer)) {
-				gchar *buf;
-				purple_debug_info("nateon", "%s:%s\n", __FUNCTION__, "file transfer complete");
-				purple_xfer_set_completed(xfer, TRUE);
-
-				/* Send FILE END to sender */
-				buf = g_strdup_printf("ATHC 0 END N 0\r\n");
-				nateon_xfer_sock_write(conn, buf, strlen(buf));
-				g_free(buf);
-				return 0;
-			}
-
 			if (len < 0 && errno == EAGAIN) {
 				return 0;
 			} else {
 				/* FIXME handle error */
 				purple_debug_info("nateon", "%s:read_error\n", __FUNCTION__);
-				//purple_debug_error("nateon", "xfer_read read error, len: %d error: %s\n", len, strerror(errno));
 				return -1;
 			}
 		}
@@ -435,11 +243,11 @@ nateon_xfer_read(guchar **buffer, PurpleXfer *xfer)
 					nate_xfer->chunk_len = 0;
 				}
 
-				if (nate_xfer->recv_len == purple_xfer_get_size(xfer)) {
+				if (nate_xfer->recv_len == purple_xfer_get_size(nate_xfer->prpl_xfer)) {
 					gchar *buf;
 
 					purple_debug_info("nateon", "%s:%s\n", __FUNCTION__, "file transfer complete");
-					purple_xfer_set_completed(xfer, TRUE);
+					purple_xfer_set_completed(nate_xfer->prpl_xfer, TRUE);
 
 					/* Send FILE END to sender */
 					buf = g_strdup_printf("ATHC 0 END N 0\r\n");
@@ -522,19 +330,238 @@ nateon_xfer_read(guchar **buffer, PurpleXfer *xfer)
 
 		g_free(old_rx_buf);
 
-		if (purple_xfer_is_completed(nate_xfer->prpl_xfer))
-		{
-			purple_xfer_end(nate_xfer->prpl_xfer);
-		}
 		return buffer_len;
 	}
 	return 0;
 }
 
-static gssize
-nateon_xfer_write(const guchar *buffer, size_t buflen, PurpleXfer *prpl_xfer)
+static void
+nateon_xfer_sock_read_cb(gpointer data, gint source, PurpleInputCondition condition)
 {
-	return 0;
+	NateonXfer *nate_xfer = data;
+	gssize r = 0;
+	guchar *buffer = NULL;
+
+	if (purple_xfer_get_type(nate_xfer->prpl_xfer) == PURPLE_XFER_RECEIVE)
+	{
+		r = nateon_xfer_sock_read(&nate_xfer->conn, &buffer);
+		if (r > 0)
+		{
+			const size_t wc = fwrite(buffer, 1, r, nate_xfer->dest_fp);
+			if (wc != r)
+			{
+				purple_debug_error("nateon", "%s:Unable to write whole buffer.\n");
+				purple_xfer_cancel_remote(nate_xfer->prpl_xfer);
+				g_free(buffer);
+				return;
+			}
+			purple_xfer_set_bytes_sent(nate_xfer->prpl_xfer, nate_xfer->recv_len);
+			purple_xfer_update_progress(nate_xfer->prpl_xfer);
+		}
+		else if (r < 0)
+		{
+			purple_xfer_cancel_remote(nate_xfer->prpl_xfer);
+
+		}
+	}
+	else if (purple_xfer_get_type(nate_xfer->prpl_xfer) == PURPLE_XFER_SEND)
+	{
+		r = nateon_xfer_sock_read(&nate_xfer->conn, &buffer);
+	}
+
+	if (r > 0)
+	{
+		g_free(buffer);
+	}
+
+	if (purple_xfer_is_completed(nate_xfer->prpl_xfer))
+	{
+		if (nate_xfer->dest_fp)
+		{
+			fclose(nate_xfer->dest_fp);
+			nate_xfer->dest_fp = NULL;
+		}
+		purple_xfer_end(nate_xfer->prpl_xfer);
+	}
+
+	return;
+}
+
+static void
+nateon_xfer_sock_write_cb(gpointer data, gint source, PurpleInputCondition cond)
+{
+	NateonXferConnection *conn = data;
+	int ret, writelen;
+
+	purple_debug_info("nateon", "write_cb\n");
+	writelen = purple_circ_buffer_get_max_read(conn->tx_buf);
+
+	if (writelen == 0) {
+		purple_input_remove(conn->tx_handler);
+		conn->tx_handler = -1;
+		return;
+	}
+
+	ret = write(conn->fd, conn->tx_buf->outptr, writelen);
+
+	if (ret < 0 && errno == EAGAIN)
+		return;
+	else if (ret <= 0) {
+		purple_debug_info("nateon", "%s:%s\n", __FUNCTION__, "socket write error");
+		return;
+	}
+
+	purple_circ_buffer_mark_read(conn->tx_buf, ret);
+}
+
+static ssize_t
+nateon_xfer_sock_write(NateonXferConnection *conn, const char *buf, size_t len)
+{
+	ssize_t ret = 0;
+
+	g_return_val_if_fail(conn != NULL, 0);
+
+	if (conn->tx_handler == -1) {
+		ret = write(conn->fd, buf, len);
+	} else {
+		ret = -1;
+		errno = EAGAIN;
+	}
+
+	if (ret < 0 && errno == EAGAIN)
+		ret = 0;
+	if (ret < len) {
+		if (conn->tx_handler == -1)
+			conn->tx_handler = purple_input_add(
+					conn->fd, PURPLE_INPUT_WRITE,
+					nateon_xfer_sock_write_cb, conn);
+		purple_circ_buffer_append(conn->tx_buf, buf + ret, len - ret);
+	}
+
+	if (ret == -1)
+	{
+		purple_debug_info("nateon", "%s:%s\n", __FUNCTION__, "socket write error");
+	}
+
+	return ret;
+}
+
+static ssize_t nateon_xfer_send_data(NateonXfer *nate_xfer, const char *buf, size_t len);
+
+static void
+nateon_xfer_send_next(NateonXfer *nate_xfer)
+{
+	NateonXferConnection *conn;
+	gchar *buf;
+	int cmd_len;
+
+	conn = &nate_xfer->conn;
+
+	if (nate_xfer->sent_len == purple_xfer_get_size(nate_xfer->prpl_xfer))
+	{
+		purple_input_remove(conn->tx_handler);
+		conn->tx_handler = -1;
+		return;
+	}
+	if (purple_xfer_get_size(nate_xfer->prpl_xfer)-nate_xfer->sent_len > NATEON_XFER_SEND_BUFFER_SIZE)
+	{
+		nate_xfer->chunk_len = NATEON_XFER_SEND_BUFFER_SIZE;
+	}
+	else
+	{
+		nate_xfer->chunk_len = purple_xfer_get_size(nate_xfer->prpl_xfer) - nate_xfer->sent_len;
+	}
+
+	buf = g_strdup_printf("FILE %d DATA %d\r\n",
+			nate_xfer->send_data_trid, nate_xfer->chunk_len);
+	cmd_len = strlen(buf);
+	buf = g_realloc(buf, cmd_len + nate_xfer->chunk_len);
+	fread(buf + cmd_len, 1, nate_xfer->chunk_len, nate_xfer->local_fp);
+	nateon_xfer_send_data(nate_xfer, buf, cmd_len + nate_xfer->chunk_len);
+	g_free(buf);
+	nate_xfer->send_data_trid++;
+}
+
+static void
+nateon_xfer_send_data_cb(gpointer data, gint source, PurpleInputCondition cond)
+{
+	NateonXfer *nate_xfer = data;
+	NateonXferConnection *conn = &nate_xfer->conn;
+	int ret, writelen;
+
+	writelen = purple_circ_buffer_get_max_read(conn->tx_buf);
+
+	if (writelen == 0)
+	{
+		purple_input_remove(conn->tx_handler);
+		conn->tx_handler = -1;
+		nate_xfer->sent_len += nate_xfer->chunk_len;
+		nateon_xfer_send_next(nate_xfer);
+		purple_xfer_set_bytes_sent(nate_xfer->prpl_xfer, nate_xfer->sent_len);
+		purple_xfer_update_progress(nate_xfer->prpl_xfer);
+		return;
+	}
+
+	ret = write(conn->fd, conn->tx_buf->outptr, writelen);
+
+	if (ret < 0 && errno == EAGAIN)
+		return;
+	else if (ret <= 0) {
+		//nateon_servconn_got_error(servconn, NATEON_SERVCONN_ERROR_WRITE);
+		purple_debug_info("nateon", "%s:%s\n", __FUNCTION__, "socket write error");
+		purple_input_remove(conn->tx_handler);
+		conn->tx_handler = -1;
+		purple_xfer_cancel_remote(nate_xfer->prpl_xfer);
+		return;
+	}
+
+	purple_circ_buffer_mark_read(conn->tx_buf, ret);
+}
+
+static ssize_t
+nateon_xfer_send_data(NateonXfer *nate_xfer, const char *buf, size_t len)
+{
+	ssize_t ret = 0;
+	NateonXferConnection *conn;
+
+	conn = &nate_xfer->conn;
+	if (conn->tx_handler == -1)
+	{
+		ret = write(conn->fd, buf, len);
+	}
+	else
+	{
+		ret = -1;
+		errno = EAGAIN;
+	}
+
+	if (ret < 0 && errno == EAGAIN)
+		ret = 0;
+	if (ret < len)
+	{
+		if (conn->tx_handler == -1)
+		{
+			conn->tx_handler = purple_input_add( conn->fd, PURPLE_INPUT_WRITE,
+					nateon_xfer_send_data_cb, nate_xfer);
+		}
+		purple_circ_buffer_append(conn->tx_buf, buf + ret, len - ret);
+	} else if (ret == len)
+	{
+		nate_xfer->sent_len += nate_xfer->chunk_len;
+		purple_xfer_set_bytes_sent(nate_xfer->prpl_xfer, nate_xfer->sent_len);
+		purple_xfer_update_progress(nate_xfer->prpl_xfer);
+		nateon_xfer_send_next(nate_xfer);
+		return ret;
+	}
+
+	if (ret == -1)
+	{
+		purple_debug_info("nateon", "%s:%s\n", __FUNCTION__, "socket write error");
+		purple_xfer_cancel_remote(nate_xfer->prpl_xfer);
+	}
+
+	return ret;
+
 }
 
 static NateonXfer*
@@ -555,21 +582,20 @@ nateon_xfer_find_by_p2pcookie(NateonSession *session, char *cookie)
 	return NULL;
 }
 
-static void p2p_read_cb(gpointer data, gint source, PurpleInputCondition condition);
-
 static void
 p2p_accept_cb(gpointer data, gint source, PurpleInputCondition cond)
 {
 	NateonXfer *nate_xfer = data;
 	int fd;
 
+	purple_input_remove(nate_xfer->p2p_listen_pa);
+	nate_xfer->p2p_listen_pa = -1;
+
 	if (nate_xfer->conntype != NATEON_XFER_CONN_NONE)
 	{
 		/* already connected p2p session exists. drop this connection */
 		purple_debug_info("nateon", "%s:drop duplicate connection\n", __FUNCTION__);
-		purple_input_remove(nate_xfer->p2p_listen_pa);
 		close(source);
-		nate_xfer->p2p_listen_pa = -1;
 		return;
 	}
 
@@ -578,9 +604,7 @@ p2p_accept_cb(gpointer data, gint source, PurpleInputCondition cond)
 	{
 		/* accept failed. wait for outgoing p2p or fr-conn to succeed */
 		purple_debug_info("nateon", "%s:accept error\n", __FUNCTION__);
-		purple_input_remove(nate_xfer->p2p_listen_pa);
 		close(source);
-		nate_xfer->p2p_listen_pa = -1;
 		return;
 	}
 
@@ -588,20 +612,11 @@ p2p_accept_cb(gpointer data, gint source, PurpleInputCondition cond)
 	nate_xfer->conntype = NATEON_XFER_CONN_P2P;
 	nate_xfer->conn.fd = fd;
 
-	purple_input_remove(nate_xfer->p2p_listen_pa);
 	close(source);
-	nate_xfer->p2p_listen_pa = -1;
 
-	if (purple_xfer_get_type(nate_xfer->prpl_xfer) == PURPLE_XFER_RECEIVE)
-	{
-		purple_xfer_start(nate_xfer->prpl_xfer, fd, NULL, 0);
-	}
-	else
-	{
-		purple_xfer_start(nate_xfer->prpl_xfer, -1, NULL, 0);
-		nate_xfer->p2p_read_pa = purple_input_add(fd, PURPLE_INPUT_READ, \
-				p2p_read_cb, nate_xfer);
-	}
+	purple_xfer_start(nate_xfer->prpl_xfer, -1, NULL, 0);
+	nate_xfer->conn.rx_pa = purple_input_add(fd, PURPLE_INPUT_READ, \
+			nateon_xfer_sock_read_cb, nate_xfer);
 
 	/* cancel other connecting processes */
 	if (nate_xfer->p2p_connect_data) {
@@ -619,17 +634,15 @@ p2p_listen_cb(int listenfd, gpointer data)
 {
 	NateonXfer *nate_xfer = data;
 
+	nate_xfer->p2p_listen_data = NULL;
+
 	if (listenfd == -1) {
-		/* FIXME handle error */
-		/*
-		purple_connection_error_reason(sip->gc,
-			PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-			_("Could not create listen socket"));
-		*/
+		purple_debug_info("nateon", 
+				"%s:Could not create listen socket. Wait for other connections.\n",
+				__FUNCTION__);
 		return;
 	}
 
-	nate_xfer->p2p_listen_data = NULL;
 	nate_xfer->p2p_listen_port = purple_network_get_port_from_fd(listenfd);
 	nate_xfer->my_ip = g_strdup(purple_network_get_my_ip(listenfd));
 	nate_xfer->p2p_listen_fd = listenfd;
@@ -700,6 +713,143 @@ p2p_timeout_cb(gpointer data)
 }
 
 static void
+p2p_connect_cb(gpointer data, gint source, const char *error_message)
+{
+	NateonXfer *nate_xfer = data;
+
+	gchar *buf;
+
+	nate_xfer->p2p_connect_data = NULL;
+
+	if (source < 0)
+	{
+		/* Simply wait for FR to begin */
+		purple_debug_info("nateon", "%s:Connect failed. err: [%s]\n", __FUNCTION__, error_message);
+		return;
+	}
+
+	if (nate_xfer->conntype != NATEON_XFER_CONN_NONE)
+	{
+		/* already connected session exists. drop this connection */
+		purple_debug_info("nateon", "%s:drop duplicate connection\n", __FUNCTION__);
+		close(source);
+		return;
+	}
+
+	purple_debug_info("nateon", "%s:using outgoing connection for p2p\n", __FUNCTION__);
+	nate_xfer->conntype = NATEON_XFER_CONN_P2P;
+	nate_xfer->conn.fd = source;
+
+	/* register watcher for read callback */
+	purple_xfer_start(nate_xfer->prpl_xfer, -1, NULL, 0);
+	nate_xfer->conn.rx_pa = purple_input_add(nate_xfer->conn.fd, PURPLE_INPUT_READ, \
+			nateon_xfer_sock_read_cb, nate_xfer);
+
+	buf = g_strdup_printf("ATHC 0 %s %s %s 6004 0\r\n",
+			nate_xfer->session->user->account_name,
+			nate_xfer->who,
+			nate_xfer->p2p_cookie);
+	nateon_xfer_sock_write(&nate_xfer->conn, buf, strlen(buf));
+	g_free(buf);
+
+	/* cancel other connecting processes */
+	if (nate_xfer->p2p_listen_data)
+	{
+		purple_network_listen_cancel(nate_xfer->p2p_listen_data);
+		nate_xfer->p2p_listen_data = NULL;
+	}
+	if (nate_xfer->p2p_listen_pa)
+	{
+		purple_input_remove(nate_xfer->p2p_listen_pa);
+		nate_xfer->p2p_listen_pa = -1;
+	}
+	if (nate_xfer->p2p_listen_fd)
+	{
+		close(nate_xfer->p2p_listen_fd);
+		nate_xfer->p2p_listen_fd = 0;
+	}
+	if (nate_xfer->p2p_timer) {
+		purple_timeout_remove(nate_xfer->p2p_timer);
+		nate_xfer->p2p_timer = 0;
+	}
+	return;
+}
+
+static void
+fr_connect_cb(gpointer data, gint source, const char *error_message)
+{
+	NateonXfer *nate_xfer = data;
+	gchar *buf;
+
+	nate_xfer->fr_connect_data = NULL;
+
+	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+	if (source < 0)
+	{
+		/* FIXME: Handle error. This was our last try.. */
+		purple_debug_info("nateon", "%s:Connect failed. err: [%s]\n", __FUNCTION__, error_message);
+		return;
+	}
+
+	if (nate_xfer->conntype != NATEON_XFER_CONN_NONE)
+	{
+		/* already connected p2p session exists. drop this connection */
+		purple_debug_info("nateon", "%s:drop duplicate connection\n", __FUNCTION__);
+		close(source);
+		return;
+	}
+
+	nate_xfer->conntype = NATEON_XFER_CONN_FR;
+
+	/* cancel p2p connection tries */
+	if (nate_xfer->p2p_connect_data)
+	{
+		purple_proxy_connect_cancel(nate_xfer->p2p_connect_data);
+		nate_xfer->p2p_connect_data = NULL;
+	}
+	if (nate_xfer->p2p_listen_data)
+	{
+		purple_network_listen_cancel(nate_xfer->p2p_listen_data);
+		nate_xfer->p2p_listen_data = NULL;
+	}
+	if (nate_xfer->p2p_listen_pa > 0)
+	{
+		purple_input_remove(nate_xfer->p2p_listen_pa);
+		nate_xfer->p2p_listen_pa = -1;
+	}
+	if (nate_xfer->p2p_listen_fd)
+	{
+		close(nate_xfer->p2p_listen_fd);
+		nate_xfer->p2p_listen_fd = 0;
+	}
+
+	purple_debug_info("nateon", "%s:using fr connection for file transfer\n", __FUNCTION__);
+	nate_xfer->conn.fd = source;
+
+	/* register watcher for read callback */
+	nate_xfer->conn.rx_pa = purple_input_add(nate_xfer->conn.fd, PURPLE_INPUT_READ, \
+			nateon_xfer_sock_read_cb, nate_xfer);
+	purple_xfer_start(nate_xfer->prpl_xfer, -1, NULL, 0);
+
+	if (purple_xfer_get_type(nate_xfer->prpl_xfer) == PURPLE_XFER_RECEIVE)
+	{
+		buf = g_strdup_printf("FRIN 0 %s %s\r\n", nate_xfer->session->user->account_name, 
+				nate_xfer->fr_authkey);
+		nateon_xfer_sock_write(&nate_xfer->conn, buf, strlen(buf));
+		g_free(buf);
+	}
+	else if (purple_xfer_get_type(nate_xfer->prpl_xfer) == PURPLE_XFER_SEND)
+	{
+		buf = g_strdup_printf("ATHC 0 %s %s %s %s 6004 0\r\n", 
+				nate_xfer->session->user->account_name, 
+				nate_xfer->who,
+				nate_xfer->p2p_cookie, nate_xfer->fr_authkey);
+		nateon_xfer_sock_write(&nate_xfer->conn, buf, strlen(buf));
+		g_free(buf);
+	}
+}
+
+static void
 nateon_xfer_init(PurpleXfer *xfer)
 {
 	NateonXfer *nate_xfer;
@@ -712,6 +862,15 @@ nateon_xfer_init(PurpleXfer *xfer)
 
 	if (purple_xfer_get_type(xfer) == PURPLE_XFER_RECEIVE)
 	{
+		nate_xfer->dest_fp = fopen(purple_xfer_get_local_filename(xfer), "wb");
+
+		if (nate_xfer->dest_fp == NULL) {
+			purple_debug_info("nateon", "%s: Error Writing File %s\n", __FUNCTION__,
+					purple_xfer_get_local_filename(xfer));
+			purple_xfer_cancel_local(xfer);
+			return;
+		}
+
 		nate_xfer->p2p_listen_data = purple_network_listen_range(NATEON_P2P_START_PORT,\
 				NATEON_P2P_END_PORT, SOCK_STREAM, p2p_listen_cb, nate_xfer);
 
@@ -801,6 +960,8 @@ nateon_xfer_end(PurpleXfer *xfer)
 		if (nate_xfer->fr_connect_data)
 			purple_proxy_connect_cancel(nate_xfer->fr_connect_data);
 
+		if (nate_xfer->conn.rx_pa > 0)
+			purple_input_remove(nate_xfer->conn.rx_pa);
 		if (nate_xfer->conn.rx_buf)
 			g_free(nate_xfer->conn.rx_buf);
 		if (nate_xfer->conn.tx_buf)
@@ -810,8 +971,6 @@ nateon_xfer_end(PurpleXfer *xfer)
 
 		if (nate_xfer->conn.fd)
 			close(nate_xfer->conn.fd);
-		if (nate_xfer->p2p_read_pa)
-			purple_input_remove(nate_xfer->p2p_read_pa);
 		if (nate_xfer->local_fp)
 			fclose(nate_xfer->local_fp);
 
@@ -841,168 +1000,10 @@ nateon_xfer_new(NateonSession *session, PurpleXferType type, const char *who)
 
 	xfer->conn.tx_handler = -1;
 	xfer->conn.tx_buf = purple_circ_buffer_new(0);
+	xfer->conn.nate_xfer = xfer;
 	xfer->p2p_listen_pa = -1;
 
 	return xfer;
-}
-
-static void
-p2p_read_cb(gpointer data, gint source, PurpleInputCondition condition)
-{
-	NateonXfer *nate_xfer = data;
-	gssize r = 0;
-	guchar *buffer = NULL;
-
-	r = purple_xfer_read(nate_xfer->prpl_xfer, &buffer);
-	if (r < 0) {
-		purple_input_remove(nate_xfer->p2p_read_pa);
-	}
-
-	return;
-}
-
-static void
-p2p_connect_cb(gpointer data, gint source, const char *error_message)
-{
-	NateonXfer *nate_xfer = data;
-
-	gchar *buf;
-
-	nate_xfer->p2p_connect_data = NULL;
-
-	if (source < 0)
-	{
-		/* Simply wait for FR to begin */
-		purple_debug_info("nateon", "%s:Connect failed. err: [%s]\n", __FUNCTION__, error_message);
-		return;
-	}
-
-	if (nate_xfer->conntype != NATEON_XFER_CONN_NONE)
-	{
-		/* already connected session exists. drop this connection */
-		purple_debug_info("nateon", "%s:drop duplicate connection\n", __FUNCTION__);
-		close(source);
-		return;
-	}
-
-	purple_debug_info("nateon", "%s:using outgoing connection for p2p\n", __FUNCTION__);
-	nate_xfer->conntype = NATEON_XFER_CONN_P2P;
-	nate_xfer->conn.fd = source;
-
-	buf = g_strdup_printf("ATHC 0 %s %s %s 6004 0\r\n",
-			nate_xfer->session->user->account_name,
-			nate_xfer->who,
-			nate_xfer->p2p_cookie);
-	nateon_xfer_sock_write(&nate_xfer->conn, buf, strlen(buf));
-	g_free(buf);
-
-	if (purple_xfer_get_type(nate_xfer->prpl_xfer) == PURPLE_XFER_RECEIVE)
-	{
-		purple_xfer_start(nate_xfer->prpl_xfer, source, NULL, 0);
-	}
-	else
-	{
-		//purple_xfer_set_status(nate_xfer->prpl_xfer, PURPLE_XFER_STATUS_STARTED);
-		purple_xfer_start(nate_xfer->prpl_xfer, -1, NULL, 0);
-		nate_xfer->p2p_read_pa = purple_input_add(source, PURPLE_INPUT_READ, \
-				p2p_read_cb, nate_xfer);
-	}
-
-	/* cancel other connecting processes */
-	if (nate_xfer->p2p_listen_data)
-	{
-		purple_network_listen_cancel(nate_xfer->p2p_listen_data);
-		nate_xfer->p2p_listen_data = NULL;
-	}
-	if (nate_xfer->p2p_listen_pa)
-	{
-		purple_input_remove(nate_xfer->p2p_listen_pa);
-		nate_xfer->p2p_listen_pa = -1;
-	}
-	if (nate_xfer->p2p_listen_fd)
-	{
-		close(nate_xfer->p2p_listen_fd);
-		nate_xfer->p2p_listen_fd = 0;
-	}
-	if (nate_xfer->p2p_timer) {
-		purple_timeout_remove(nate_xfer->p2p_timer);
-		nate_xfer->p2p_timer = 0;
-	}
-	return;
-}
-
-static void
-fr_connect_cb(gpointer data, gint source, const char *error_message)
-{
-	NateonXfer *nate_xfer = data;
-	gchar *buf;
-
-	nate_xfer->fr_connect_data = NULL;
-
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-	if (source < 0)
-	{
-		/* FIXME: Handle error. This was our last try.. */
-		purple_debug_info("nateon", "%s:Connect failed. err: [%s]\n", __FUNCTION__, error_message);
-		return;
-	}
-
-	if (nate_xfer->conntype != NATEON_XFER_CONN_NONE)
-	{
-		/* already connected p2p session exists. drop this connection */
-		purple_debug_info("nateon", "%s:drop duplicate connection\n", __FUNCTION__);
-		close(source);
-		return;
-	}
-
-	nate_xfer->conntype = NATEON_XFER_CONN_FR;
-
-	/* cancel p2p connection tries */
-	if (nate_xfer->p2p_connect_data)
-	{
-		purple_proxy_connect_cancel(nate_xfer->p2p_connect_data);
-		nate_xfer->p2p_connect_data = NULL;
-	}
-	if (nate_xfer->p2p_listen_data)
-	{
-		purple_network_listen_cancel(nate_xfer->p2p_listen_data);
-		nate_xfer->p2p_listen_data = NULL;
-	}
-	if (nate_xfer->p2p_listen_pa > 0)
-	{
-		purple_input_remove(nate_xfer->p2p_listen_pa);
-		nate_xfer->p2p_listen_pa = -1;
-	}
-	if (nate_xfer->p2p_listen_fd)
-	{
-		close(nate_xfer->p2p_listen_fd);
-		nate_xfer->p2p_listen_fd = 0;
-	}
-
-	purple_debug_info("nateon", "%s:using fr connection for file transfer\n", __FUNCTION__);
-	nate_xfer->conn.fd = source;
-
-	if (purple_xfer_get_type(nate_xfer->prpl_xfer) == PURPLE_XFER_RECEIVE)
-	{
-		buf = g_strdup_printf("FRIN 0 %s %s\r\n", nate_xfer->session->user->account_name, 
-				nate_xfer->fr_authkey);
-		nateon_xfer_sock_write(&nate_xfer->conn, buf, strlen(buf));
-		g_free(buf);
-
-		purple_xfer_start(nate_xfer->prpl_xfer, source, NULL, 0);
-	}
-	else if (purple_xfer_get_type(nate_xfer->prpl_xfer) == PURPLE_XFER_SEND)
-	{
-		buf = g_strdup_printf("ATHC 0 %s %s %s %s 6004 0\r\n", 
-				nate_xfer->session->user->account_name, 
-				nate_xfer->who,
-				nate_xfer->p2p_cookie, nate_xfer->fr_authkey);
-		nateon_xfer_sock_write(&nate_xfer->conn, buf, strlen(buf));
-		g_free(buf);
-		purple_xfer_start(nate_xfer->prpl_xfer, -1, NULL, 0);
-		nate_xfer->p2p_read_pa = purple_input_add(source, PURPLE_INPUT_READ, \
-				p2p_read_cb, nate_xfer);
-	}
 }
 
 void
@@ -1140,7 +1141,6 @@ nateon_xfer_receive_file(NateonSession *session, NateonSwitchBoard *swboard, \
 	purple_xfer_set_init_fnc(xfer->prpl_xfer, nateon_xfer_init);
 	purple_xfer_set_cancel_recv_fnc(xfer->prpl_xfer, nateon_xfer_cancel_recv);
 	purple_xfer_set_request_denied_fnc(xfer->prpl_xfer, nateon_xfer_request_denied);
-	purple_xfer_set_read_fnc(xfer->prpl_xfer, nateon_xfer_read);
 	purple_xfer_set_end_fnc(xfer->prpl_xfer, nateon_xfer_end);
 
 	purple_xfer_request(xfer->prpl_xfer);
@@ -1157,8 +1157,6 @@ nateon_xfer_send_file(NateonSession *session, const char *who, const char *filen
 	purple_xfer_set_init_fnc(xfer->prpl_xfer, nateon_xfer_init);
 	purple_xfer_set_cancel_recv_fnc(xfer->prpl_xfer, nateon_xfer_cancel_recv);
 	purple_xfer_set_request_denied_fnc(xfer->prpl_xfer, nateon_xfer_request_denied);
-	purple_xfer_set_read_fnc(xfer->prpl_xfer, nateon_xfer_read);
-	purple_xfer_set_write_fnc(xfer->prpl_xfer, nateon_xfer_write);
 	purple_xfer_set_end_fnc(xfer->prpl_xfer, nateon_xfer_end);
 	purple_xfer_set_cancel_send_fnc(xfer->prpl_xfer, nateon_xfer_cancel_send);
 

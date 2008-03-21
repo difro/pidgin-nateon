@@ -38,6 +38,7 @@ typedef struct _NateonXferConnection NateonXferConnection;
 struct _NateonXferConnection {
 	int fd;		/**< socket file descriptor */
 
+	int rx_pa;		/**< socket read watcher */
 	char *rx_buf;	/**< The receive buffer. */
 	int rx_len;		/**< The receive buffer length. */
 
@@ -46,6 +47,7 @@ struct _NateonXferConnection {
 
 	int inpa;
 
+	NateonXfer *nate_xfer;
 };
 
 typedef enum
@@ -76,7 +78,6 @@ struct _NateonXfer
 	char	*p2p_cookie;
 	int		p2p_listen_port;	/**< listening port number */
 	guint	p2p_timer;
-	int		p2p_read_pa;
 
 	/* FR-server related */
 	int fr_initiate_trid;
@@ -86,6 +87,7 @@ struct _NateonXfer
 	PurpleProxyConnectData *fr_connect_data;
 
 	char *file_cookie;	/**< cookie of the file transferred */
+	FILE *dest_fp;
 
 	NateonXferConnType conntype;
 
