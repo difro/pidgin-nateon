@@ -806,6 +806,30 @@ whsp_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 		g_strfreev(split);
 	}
+	else if (cmd->param_count == 4 && !strcmp(cmd->params[2], "DPIMG") && \
+			!strncmp(cmd->params[3], "REQUEST", strlen("REQUEST")) )
+	{
+		/* Receive Buddy Image */
+		char **split;
+		char **file_data;
+		PurpleBuddyIcon *icon;
+		char *icon_checksum;
+
+		split = g_strsplit(cmd->params[3], "%09", 0);
+		file_data = g_strsplit(split[2], "|", 0);
+
+		icon = purple_buddy_icons_find(session->account, account_name);
+		if ( (icon == NULL) || \
+				( strcmp(purple_buddy_icon_get_checksum(icon), file_data[0]) != 0))
+		{
+			nateon_xfer_receive_buddyimage(session, swboard, account_name, file_data[0],\
+					atoi(file_data[1]), file_data[2]);
+		}
+		if (icon)
+			purple_buddy_icon_unref(icon);
+
+		g_strfreev(split);
+	}
 }
 
 //static void

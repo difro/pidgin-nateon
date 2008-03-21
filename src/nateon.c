@@ -2258,7 +2258,7 @@ static PurplePluginProtocolInfo prpl_info =
 	0, //OPT_PROTO_MAIL_CHECK,
 	NULL,					/* user_splits */
 	NULL,					/* protocol_options */
-	NO_BUDDY_ICONS,				/* icon_spec */
+	{ "bmp,jpg", 0, 0, 500, 500, 0, PURPLE_ICON_SCALE_SEND},    /* icon_spec */
 	nateon_list_icon,			/* list_icon */
 	NULL,					/* list_emblems */
 	nateon_status_text,			/* status_text */

@@ -57,6 +57,12 @@ typedef enum
 	NATEON_XFER_CONN_FR
 } NateonXferConnType;
 
+typedef enum
+{
+    NATEON_XFER_CONTENT_FILE,
+    NATEON_XFER_CONTENT_BUDDYIMG
+} NateonXferContentType;
+
 /**
  * File Transfer.
  */
@@ -69,6 +75,8 @@ struct _NateonXfer
 
 	char *who;	/**< peer's account name */
 	char *my_ip;
+
+    NateonXferConnType content_type;
 
 	/* P2P related */
 	PurpleNetworkListenData	*p2p_listen_data;
@@ -133,5 +141,8 @@ void nateon_xfer_parse_refr(NateonSession *session, char **params, int param_cou
 
 void nateon_xfer_cancel_transfer(NateonSession *session, const char *who, const char *filename,\
 									const char *cookie);
+
+void nateon_xfer_receive_buddyimage(NateonSession *session, NateonSwitchBoard *swboard, \
+		const char *who, const char *uniq_name, const int filesize, const char *cookie);
 
 #endif /* _NATEON_XFER_H_ */
