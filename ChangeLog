@@ -1,5 +1,8 @@
 Pidgin-NateOn: NateOn protocol plugin for pidgin
 
+version 2.3.1-svn131
+	* Support "Show buddy icon" - Thank to difro
+
 version 2.3.1-svn127
 	* Support "File send/receive" - Thanks to difro
 

@@ -1,3 +1,8 @@
+pidgin-nateon (2.3.1-svn131) unstable; urgency=low
+  * Support "Show buddy icon" - Thank to difro
+
+ -- Hansun Lee <hansun.lee@gmail.com>  Fri, 21 Mar 2008 15:40:26 +0900
+
 pidgin-nateon (2.3.1-svn127) unstable; urgency=low
 
   * Support "File send/receive" - Thanks to difro
