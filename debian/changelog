@@ -1,4 +1,17 @@
+pidgin-nateon (1:2.3.1-svn134) hardy; urgency=low
+
+  * rebuild due to liblaunchpad-integration soname change 
+
+ -- Hansun Lee <hansun.lee@gmail.com>  Fri, 23 May 2008 15:27:43 +0900
+
+pidgin-nateon (2.3.1-svn134) hardy; urgency=low
+
+  * debian/control modified 
+
+ -- Hansun Lee <hansun.lee@gmail.com>  Fri, 23 May 2008 15:27:41 +0900
+
 pidgin-nateon (2.3.1-svn131) unstable; urgency=low
+
   * Support "Show buddy icon" - Thank to difro
 
  -- Hansun Lee <hansun.lee@gmail.com>  Fri, 21 Mar 2008 15:40:26 +0900
