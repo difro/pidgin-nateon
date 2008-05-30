@@ -176,10 +176,20 @@ connect_cb(gpointer data, gint source, const gchar *error_message)
 
 	if (source > 0)
 	{
+		NateonSession *session = servconn->session;
+		
 		servconn->connected = TRUE;
 
 		/* Someone wants to know we connected. */
-		servconn->connect_cb(servconn);
+		if (session->prs_method)
+		{
+			NateonCmdProc *cmdproc = servconn->cmdproc;
+			nateon_cmdproc_send(cmdproc, "RCON", "%s %d", servconn->host, 5004); 
+		}
+		else 
+		{
+			servconn->connect_cb(servconn);
+		}
 		servconn->inpa = purple_input_add(servconn->fd, PURPLE_INPUT_READ,
 			read_cb, data);
 	}
@@ -224,6 +234,12 @@ nateon_servconn_connect(NateonServConn *servconn, const char *host, int port)
 //
 //		return TRUE;
 //	}
+
+	if (session->prs_method)
+	{
+		host = purple_account_get_string(session->account, "prs_method_server", NATEON_PRS_SERVER); 
+		port = 80;
+	}
 
 	servconn->connect_data = purple_proxy_connect(NULL, session->account, host, port, connect_cb,
 		servconn);

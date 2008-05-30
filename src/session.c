@@ -104,13 +104,13 @@ nateon_session_destroy(NateonSession *session)
 }
 
 gboolean
-nateon_session_connect(NateonSession *session, const char *host, int port)
+nateon_session_connect(NateonSession *session, const char *host, int port, gboolean prs_method)
 {
 	g_return_val_if_fail(session != NULL, FALSE);
 	g_return_val_if_fail(!session->connected, TRUE);
 
 	session->connected = TRUE;
-//	session->http_method = http_method;
+	session->prs_method = prs_method;
 
 	if (session->notification == NULL)
 	{
@@ -134,8 +134,8 @@ nateon_session_disconnect(NateonSession *session)
 
 	session->connected = FALSE;
 
-//	while (session->switches != NULL)
-//		nateon_switchboard_close(session->switches->data);
+	while (session->switches != NULL)
+		nateon_switchboard_close(session->switches->data);
 
 	if (session->notification != NULL)
 		nateon_notification_close(session->notification);

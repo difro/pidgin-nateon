@@ -89,7 +89,7 @@ struct _NateonSession
 	gboolean connected;
 	gboolean logged_in; /**< A temporal flag to ignore local buddy list adds. */
 	gboolean destroying; /**< A flag that states if the session is being destroyed. */
-//	gboolean http_method;
+	gboolean prs_method;
 
 	NateonNotification *notification;
 //	NateonNexus *nexus;
@@ -141,10 +141,11 @@ void nateon_session_destroy(NateonSession *session);
  * @param session     The NATEON session.
  * @param host        The dispatch server host.
  * @param port        The dispatch server port.
+ * @param prs_method  Whether to use or not prs_method.  
  *
  * @return @c TRUE on success, @c FALSE on failure.
  */
-gboolean nateon_session_connect(NateonSession *session, const char *host, int port);
+gboolean nateon_session_connect(NateonSession *session, const char *host, int port, gboolean prs_method);
 
 /**
  * Disconnects from an NATEON session.

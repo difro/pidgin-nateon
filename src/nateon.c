@@ -948,7 +948,7 @@ nateon_login(PurpleAccount *account)
 	NateonSession *session;
 	const char *username;
 	const char *host;
-//	gboolean http_method = FALSE;
+	gboolean prs_method = FALSE;
 	int port;
 
 	gc = purple_account_get_connection(account);
@@ -964,7 +964,7 @@ nateon_login(PurpleAccount *account)
 //		return;
 //	}
 //
-//	http_method = purple_account_get_bool(account, "http_method", FALSE);
+	prs_method = purple_account_get_bool(account, "prs_method", FALSE);
 
 	host = purple_account_get_string(account, "server", NATEON_SERVER);
 	port = purple_account_get_int(account, "port", NATEON_PORT);
@@ -983,7 +983,7 @@ nateon_login(PurpleAccount *account)
 	if (strcmp(username, purple_account_get_username(account)))
 		purple_account_set_username(account, username);
 
-	if (!nateon_session_connect(session, host, port))
+	if (!nateon_session_connect(session, host, port, prs_method))
 		purple_connection_error(gc, _("Failed to connect to server."));
 }
 
@@ -2372,14 +2372,17 @@ init_plugin(PurplePlugin *plugin)
 	bind_textdomain_codeset(PACKAGE, "UTF-8");
 #endif /* ENABLE_NLS */
 
-	option = purple_account_option_string_new(_("Server"), "server",
-											NATEON_SERVER);
-	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,
-											   option);
+	option = purple_account_option_string_new(_("Server"), "server", NATEON_SERVER);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 
 	option = purple_account_option_int_new(_("Port"), "port", NATEON_PORT);
-	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,
-											   option);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+
+	option = purple_account_option_bool_new(_("Use PRS Method"), "prs_method", FALSE);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+
+	option = purple_account_option_string_new(_("PRS Method Server"), "prs_method_server", NATEON_PRS_SERVER);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 //	option = purple_account_option_bool_new(_("Show custom smileys"),
 //										  "custom_smileys", TRUE);
 //	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,

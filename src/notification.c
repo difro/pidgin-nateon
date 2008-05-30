@@ -225,6 +225,11 @@ group_error_helper(NateonSession *session, const char *msg, int group_id, int er
  * Login
  **************************************************************************/
 
+static void rcon_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	connect_cb(cmdproc->servconn);
+}
+
 //void
 //nateon_got_login_params(NateonSession *session, const char *login_params)
 //{
@@ -1794,6 +1799,9 @@ nateon_notification_init(void)
 	cbs_table = nateon_table_new();
 
 	/* Synchronous */
+
+	// PRS server
+	nateon_table_add_cmd(cbs_table, "RCON", "RCON", rcon_cmd);
 
 	// Login/Dispatch server
 	nateon_table_add_cmd(cbs_table, "PVER", "PVER", pver_cmd);

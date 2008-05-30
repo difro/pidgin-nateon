@@ -2,7 +2,7 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* display version info */
-#define DISPLAY_VERSION "2.4.0"
+#define DISPLAY_VERSION "2.4.2"
 
 /* always defined to indicate that i18n is enabled */
 #define ENABLE_NLS 1
@@ -107,13 +107,13 @@
 #define PACKAGE_NAME "pidgin-nateon"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "pidgin-nateon 2.4.0"
+#define PACKAGE_STRING "pidgin-nateon 2.4.2"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "pidgin-nateon"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.4.0"
+#define PACKAGE_VERSION "2.4.2"
 
 /* Define if plugins are enabled. */
 #define PURPLE_PLUGINS 1
@@ -122,7 +122,7 @@
 #define RETSIGTYPE void
 
 /* The size of `time_t', as computed by sizeof. */
-#define SIZEOF_TIME_T 4
+#define SIZEOF_TIME_T 8
 
 /* Loads static protocol plugin module initialization functions. */
 #define STATIC_PROTO_INIT static void static_proto_init() {  }
@@ -134,7 +134,7 @@
 /* #undef TM_IN_SYS_TIME */
 
 /* Version number of package */
-#define VERSION "2.4.0"
+#define VERSION "2.4.2"
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */

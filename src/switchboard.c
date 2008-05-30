@@ -1586,6 +1586,14 @@ nateon_switchboard_release(NateonSwitchBoard *swboard, NateonSBFlag flag)
 	return FALSE;
 }
 
+/************************************************************************** 
+ * PRS  
+**************************************************************************/ 
+static void rcon_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd) 
+{ 
+	connect_cb(cmdproc->servconn); 
+} 
+
 /**************************************************************************
  * Init stuff
  **************************************************************************/
@@ -1594,6 +1602,8 @@ void
 nateon_switchboard_init(void)
 {
 	cbs_table = nateon_table_new();
+
+	nateon_table_add_cmd(cbs_table, "RCON", "RCON", rcon_cmd);
 
 	nateon_table_add_cmd(cbs_table, "ENTR", "ENTR", entr_cmd);
 //	nateon_table_add_cmd(cbs_table, "ANS", "ANS", ans_cmd);
