@@ -1384,12 +1384,20 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	for (i = 0; i < (cmd->param_count - 1); i++)
 	{
 		char **params;
-		
+
 		purple_debug_info("nateon", "%d: [%s]\n", i, cmd->params[i]);
 
 		params = g_strsplit(cmd->params[i], ":", 0);
 
-		if (!strcmp(params[0], "from"))
+		if (params[0] == NULL)
+		{
+			params = &cmd->params[i+1];
+			contents = g_strjoinv(" ", params);
+			contents = purple_strreplace(contents, "\n", "<br>");
+			g_strstrip(contents);
+			break;
+		}
+		else if (!strcmp(params[0], "from"))
 		{
 			buddy_name = params[1];
 		}
@@ -1398,14 +1406,6 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 			int year, mon, day, hour, min, sec;
 			sscanf(params[1], "%04d%02d%02d%02d%02d%02d", &year, &mon, &day, &hour, &min, &sec);
 			date = g_strdup_printf("%04d-%02d-%2d %02d:%02d:%02d", year, mon, day, hour, min, sec);
-		}
-		else if (!strcmp(params[0], "uuid"))
-		{
-			params = &cmd->params[i+1];
-			contents = g_strjoinv(" ", params);
-			contents = purple_strreplace(contents, "\n", "<br>");
-			g_strstrip(contents);
-			break;
 		}
 	}
 
