@@ -1,8 +1,9 @@
-pidgin-nateon (1:2.4.2-svn136) hardy; urgency=low
+pidgin-nateon (1:2.4.2-svn140ubuntu1) jaunty; urgency=low
 
-  * rebuild due to liblaunchpad-integration soname change 
+  * Fixed segmentation fault when recived memo
+  * Fixed sms bug 
 
- -- Hansun Lee <hansun.lee@gmail.com>  Fri, 30 May 2008 21:47:00 +0900
+ -- Hansun Lee <hansun.lee@gmail.com>  Tue, 16 Jun 2009 00:14:22 +0900
 
 pidgin-nateon (2.4.2-svn136) hardy; urgency=low
 

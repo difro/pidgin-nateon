@@ -307,7 +307,15 @@ close_memo_cb(NateonSendData *data, const char *entry)
 static void show_send_sms(PurpleUtilFetchUrlData *url_data, gpointer data, const gchar *url_text, size_t len, const gchar *error_message)
 {
 	PurpleConnection *gc = (PurpleConnection *)data;
+	PurpleAccount *account;
+	NateonSession *session;
+	const char *username;
+
 	char *p, *q;
+
+	account = purple_connection_get_account(gc);
+	session = gc->proto_data;
+	username = purple_account_get_username(account);
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
@@ -315,9 +323,11 @@ static void show_send_sms(PurpleUtilFetchUrlData *url_data, gpointer data, const
 	{
 		if ((q = strchr(p, '\'')) != NULL)
 		{
-			char *uri = g_strndup(p, q - p);
-			purple_notify_uri(gc, uri);
-			g_free(uri);
+			char *uri1 = g_strndup(p, q - p);
+			char *uri2 = g_strdup_printf("%s?TICKET=%s&ID=%s&mobile=", uri1, session->ticket, username);
+			purple_notify_uri(gc, uri2);
+			g_free(uri1);
+			g_free(uri2);
 		}
 	}
 }

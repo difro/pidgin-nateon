@@ -1,5 +1,14 @@
 Pidgin-NateOn: NateOn protocol plugin for pidgin
 
+version 2.4.2-svn140
+	* Fixed sms bug
+
+version 2.4.2-svn139
+	* Fixed segmentation fault when recived memo
+
+version 2.4.1-svn136
+	* Support PRS tunneling
+
 version 2.4.1-svn136
 	* Support PRS tunneling
 
