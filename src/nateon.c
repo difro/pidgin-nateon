@@ -86,7 +86,7 @@ static const char *nateon_normalize(const PurpleAccount *account, const char *st
 	g_return_val_if_fail(str != NULL, NULL);
 
 	g_snprintf(buf, sizeof(buf), "%s%s", str,
-			   (strchr(str, '@') ? "" : "@nate.com"));
+			(strchr(str, '@') ? "" : "@nate.com"));
 
 	tmp = g_utf8_strdown(buf, -1);
 	strncpy(buf, tmp, sizeof(buf));
@@ -149,7 +149,7 @@ static void nateon_act_view_buddies_by(PurpleAccount *account, int choice)
 	PurpleConnection *gc;
 
 	gc = purple_account_get_connection(account);
-	
+
 	purple_account_set_int(account, "view_buddies_by", choice);
 
 	for (gnode = purple_blist_get_root(); gnode; gnode = gnode->next) {
@@ -262,7 +262,7 @@ static void nateon_act_view_buddies_by(PurpleAccount *account, int choice)
 //	g_free(data);
 //}
 
-static void
+	static void
 send_memo(PurpleConnection *gc, const char *who, const char *entry)
 {
 	PurpleAccount *account;
@@ -304,37 +304,9 @@ close_memo_cb(NateonSendData *data, const char *entry)
 	g_free(data);
 }
 
-static void show_send_sms(PurpleUtilFetchUrlData *url_data, gpointer data, const gchar *url_text, size_t len, const gchar *error_message)
-{
-	PurpleConnection *gc = (PurpleConnection *)data;
-	PurpleAccount *account;
-	NateonSession *session;
-	const char *username;
-
-	char *p, *q;
-
-	account = purple_connection_get_account(gc);
-	session = gc->proto_data;
-	username = purple_account_get_username(account);
-
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-
-	if ((p = strstr(url_text, "http://sms.nate.com/")) != NULL)
-	{
-		if ((q = strchr(p, '\'')) != NULL)
-		{
-			char *uri1 = g_strndup(p, q - p);
-			char *uri2 = g_strdup_printf("%s?TICKET=%s&ID=%s&mobile=", uri1, session->ticket, username);
-			purple_notify_uri(gc, uri2);
-			g_free(uri1);
-			g_free(uri2);
-		}
-	}
-}
-
 /* -- */
 
-static void
+	static void
 nateon_show_set_friendly_name(PurplePluginAction *action)
 {
 	PurpleConnection *gc;
@@ -342,16 +314,16 @@ nateon_show_set_friendly_name(PurplePluginAction *action)
 	gc = (PurpleConnection *) action->context;
 
 	purple_request_input(gc, NULL, _("Set your friendly name."),
-					   _("This is the name that other NATEON buddies will "
-						 "see you as."),
-					   purple_connection_get_display_name(gc), FALSE, FALSE, NULL,
-					   _("OK"), G_CALLBACK(nateon_act_id),
-					   _("Cancel"), NULL,
-					  purple_connection_get_account(gc), NULL, NULL,
-					  gc);
+			_("This is the name that other NATEON buddies will "
+				"see you as."),
+			purple_connection_get_display_name(gc), FALSE, FALSE, NULL,
+			_("OK"), G_CALLBACK(nateon_act_id),
+			_("Cancel"), NULL,
+			purple_connection_get_account(gc), NULL, NULL,
+			gc);
 }
 
-static void
+	static void
 nateon_show_view_buddies_by(PurplePluginAction *action)
 {
 	PurpleConnection *gc;
@@ -376,40 +348,22 @@ nateon_show_view_buddies_by(PurplePluginAction *action)
 
 static void nateon_show_send_sms(PurplePluginAction *action)
 {
-        PurpleConnection *gc;
+	PurpleConnection *gc;
 	PurpleAccount *account;
-        NateonSession *session;
-        const char *username;
-        char *content;
-        char *request;
+	NateonSession *session;
+	const char *username;
+	char *uri;
 
-        purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
 	gc = (PurpleConnection *) action->context;
 	account = purple_connection_get_account(gc);
 	session = gc->proto_data;
+	username = purple_account_get_username(account);
 
-        username = purple_account_get_username(account);
-
-        content = g_strdup_printf("t=%s&code=G009&param=%%3fTICKET%%3d%s%%26ID%%3d%s%%26mobile%%3d", session->ticket, session->ticket, username);
-
-        request = g_strdup_printf("POST /index.php HTTP/1.1\r\n"
-                        "Accept: */*\r\n"
-                        "Content-Type: application/x-www-form-urlencoded\r\n"
-                        "User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)\r\n"
-                        "Host: br.nate.com\r\n"
-                        "Content-Length:%d\r\n"
-                        "Connection: Keep-Alive\r\n"
-                        "\r\n%s", strlen(content), content);
-
-        purple_util_fetch_url_request("br.nate.com",
-                        TRUE,
-                        "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
-                        TRUE,
-                        request,
-                        TRUE,
-                        show_send_sms,
-                        gc);
+	uri = g_strdup_printf("http://br.nate.com/index.php?code=G047&param=TICKET%%3D%s%%26ID%%3d%s%%26mobile%%3d", session->ticket, username);
+	purple_notify_uri(gc, uri);
+	g_free(uri);
 }
 
 //static void
@@ -539,13 +493,12 @@ show_send_memo_cb(PurpleBlistNode *node, gpointer ignored)
 	data->account = buddy->name;
 
 	purple_request_input(gc, NULL, buddy->name, NULL,
-					   NULL, TRUE, FALSE, NULL,
-					   _("_Send"), G_CALLBACK(send_memo_cb),
-					   _("Close"), G_CALLBACK(close_memo_cb),
-					   purple_connection_get_account(gc), NULL, NULL,
-					   data);
+			NULL, TRUE, FALSE, NULL,
+			_("_Send"), G_CALLBACK(send_memo_cb),
+			_("Close"), G_CALLBACK(close_memo_cb),
+			purple_connection_get_account(gc), NULL, NULL,
+			data);
 }
-
 
 static void
 show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
@@ -554,8 +507,7 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 	PurpleConnection *gc;
 	NateonSession *session;
 	const char *username;
-	char *content;
-	char *request;
+	char *uri;
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
@@ -566,25 +518,9 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 	session = gc->proto_data;
 	username = purple_account_get_username(buddy->account);
 
-	content = g_strdup_printf("t=%s&code=G009&param=%%3fTICKET%%3d%s%%26ID%%3d%s%%26mobile%%3d", session->ticket, session->ticket, username);
-
-	request = g_strdup_printf("POST /index.php HTTP/1.1\r\n"
-			"Accept: */*\r\n"
-			"Content-Type: application/x-www-form-urlencoded\r\n"
-			"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)\r\n"
-			"Host: br.nate.com\r\n"
-			"Content-Length:%d\r\n"
-			"Connection: Keep-Alive\r\n"
-			"\r\n%s", strlen(content), content);
-
-	purple_util_fetch_url_request("br.nate.com", 
-			TRUE,
-			"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
-			TRUE,
-			request,
-			TRUE,
-			show_send_sms,
-			gc);
+	uri = g_strdup_printf("http://br.nate.com/index.php?code=G047&param=TICKET%%3D%s%%26ID%%3d%s%%26mobile%%3d", session->ticket, username);
+	purple_notify_uri(gc, uri);
+	g_free(uri);
 }
 
 //static void
@@ -677,13 +613,13 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 //	return xfer;
 //}
 
-static void
+	static void
 nateon_send_file(PurpleConnection *gc, const char *who, const char *file)
 {
 	nateon_xfer_send_file(gc->proto_data, who, file);
 }
 
-static gboolean
+	static gboolean
 nateon_can_receive_file(PurpleConnection *gc, const char *who)
 {
 	NateonSession *session;
@@ -749,7 +685,7 @@ static char* nateon_status_text(PurpleBuddy *buddy)
 	return NULL;
 }
 
-static void
+	static void
 nateon_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolean full)
 {
 	NateonUser *user;
@@ -768,23 +704,23 @@ nateon_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolea
 		purple_notify_user_info_add_pair(user_info, _("Status"), purple_presence_is_idle(presence) ? _("Idle") : purple_status_get_name(status));
 	}
 
-//	if (full && user)
-//	{
-//		purple_notify_user_info_add_pair(user_info, _("Has you"), ((user->list_op & (1 << NATEON_LIST_RL)) ? _("Yes") : _("No")));
-//
-//	}
-//
-//	/* XXX: This is being shown in non-full tooltips because the
-//	 * XXX: blocked icon overlay isn't always accurate for NATEON.
-//	 * XXX: This can die as soon as purple_privacy_check() knows that
-//	 * XXX: this prpl always honors both the allow and deny lists. */
-//	if (user)
-//	{
-//		purple_notify_user_info_add_pair(user_info, _("Blocked"), ((user->list_op & (1 << NATEON_LIST_BL)) ? _("Yes") : _("No")));
-//	}
+	//	if (full && user)
+	//	{
+	//		purple_notify_user_info_add_pair(user_info, _("Has you"), ((user->list_op & (1 << NATEON_LIST_RL)) ? _("Yes") : _("No")));
+	//
+	//	}
+	//
+	//	/* XXX: This is being shown in non-full tooltips because the
+	//	 * XXX: blocked icon overlay isn't always accurate for NATEON.
+	//	 * XXX: This can die as soon as purple_privacy_check() knows that
+	//	 * XXX: this prpl always honors both the allow and deny lists. */
+	//	if (user)
+	//	{
+	//		purple_notify_user_info_add_pair(user_info, _("Blocked"), ((user->list_op & (1 << NATEON_LIST_BL)) ? _("Yes") : _("No")));
+	//	}
 }
 
-static GList *
+	static GList *
 nateon_status_types(PurpleAccount *account)
 {
 	PurpleStatusType *status;
@@ -821,12 +757,12 @@ nateon_status_types(PurpleAccount *account)
 	return types;
 }
 
-static GList *
+	static GList *
 nateon_actions(PurplePlugin *plugin, gpointer context)
 {
-//	PurpleConnection *gc = (PurpleConnection *)context;
-//	PurpleAccount *account;
-//	const char *user;
+	//	PurpleConnection *gc = (PurpleConnection *)context;
+	//	PurpleAccount *account;
+	//	const char *user;
 
 	GList *m = NULL;
 	PurplePluginAction *act;
@@ -842,44 +778,44 @@ nateon_actions(PurplePlugin *plugin, gpointer context)
 	act = purple_plugin_action_new(_("Send SMS message..."), nateon_show_send_sms);
 	m = g_list_append(m, act);
 
-//	act = purple_plugin_action_new(_("Set Home Phone Number..."),
-//								 nateon_show_set_home_phone);
-//	m = g_list_append(m, act);
-//
-//	act = purple_plugin_action_new(_("Set Work Phone Number..."),
-//			nateon_show_set_work_phone);
-//	m = g_list_append(m, act);
-//
-//	act = purple_plugin_action_new(_("Set Mobile Phone Number..."),
-//			nateon_show_set_mobile_phone);
-//	m = g_list_append(m, act);
-//	m = g_list_append(m, NULL);
-//
-//#if 0
-//	act = purple_plugin_action_new(_("Enable/Disable Mobile Devices..."),
-//			nateon_show_set_mobile_support);
-//	m = g_list_append(m, act);
-//#endif
-//
-//	act = purple_plugin_action_new(_("Allow/Disallow Mobile Pages..."),
-//			nateon_show_set_mobile_pages);
-//	m = g_list_append(m, act);
-//
-//	account = purple_connection_get_account(gc);
-//	user = nateon_normalize(account, purple_account_get_username(account));
-//
-//	if (strstr(user, "@hotmail.com") != NULL)
-//	{
-//		m = g_list_append(m, NULL);
-//		act = purple_plugin_action_new(_("Open Hotmail Inbox"),
-//				nateon_show_hotmail_inbox);
-//		m = g_list_append(m, act);
-//	}
+	//	act = purple_plugin_action_new(_("Set Home Phone Number..."),
+	//								 nateon_show_set_home_phone);
+	//	m = g_list_append(m, act);
+	//
+	//	act = purple_plugin_action_new(_("Set Work Phone Number..."),
+	//			nateon_show_set_work_phone);
+	//	m = g_list_append(m, act);
+	//
+	//	act = purple_plugin_action_new(_("Set Mobile Phone Number..."),
+	//			nateon_show_set_mobile_phone);
+	//	m = g_list_append(m, act);
+	//	m = g_list_append(m, NULL);
+	//
+	//#if 0
+	//	act = purple_plugin_action_new(_("Enable/Disable Mobile Devices..."),
+	//			nateon_show_set_mobile_support);
+	//	m = g_list_append(m, act);
+	//#endif
+	//
+	//	act = purple_plugin_action_new(_("Allow/Disallow Mobile Pages..."),
+	//			nateon_show_set_mobile_pages);
+	//	m = g_list_append(m, act);
+	//
+	//	account = purple_connection_get_account(gc);
+	//	user = nateon_normalize(account, purple_account_get_username(account));
+	//
+	//	if (strstr(user, "@hotmail.com") != NULL)
+	//	{
+	//		m = g_list_append(m, NULL);
+	//		act = purple_plugin_action_new(_("Open Hotmail Inbox"),
+	//				nateon_show_hotmail_inbox);
+	//		m = g_list_append(m, act);
+	//	}
 
 	return m;
 }
 
-static GList *
+	static GList *
 nateon_buddy_menu(PurpleBuddy *buddy)
 {
 	NateonUser *user;
@@ -897,14 +833,14 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 		GList *m_copy = NULL;
 		GList *m_move = NULL;
 
-//		if (user->mobile)
-//		{
-//			act = purple_menu_action_new(_("Send to Mobile"),
-//			                           PURPLE_CALLBACK(show_send_to_mobile_cb),
-//			                           NULL, NULL);
-//			m = g_list_append(m, act);
-//		}
-//		
+		//		if (user->mobile)
+		//		{
+		//			act = purple_menu_action_new(_("Send to Mobile"),
+		//			                           PURPLE_CALLBACK(show_send_to_mobile_cb),
+		//			                           NULL, NULL);
+		//			m = g_list_append(m, act);
+		//		}
+		//		
 		act = purple_menu_action_new(_("Send memo"), PURPLE_CALLBACK(show_send_memo_cb), NULL, NULL);
 		m = g_list_append(m, act);
 
@@ -927,12 +863,12 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 	}
 
 	if (g_ascii_strcasecmp(buddy->name,
-	                       purple_account_get_username(buddy->account)))
+				purple_account_get_username(buddy->account)))
 	{
 		act = purple_menu_action_new(_("Initiate _Chat"), NULL, NULL, NULL);
-//		act = purple_menu_action_new(_("Initiate _Chat"),
-//		                           PURPLE_CALLBACK(initiate_chat_cb),
-//		                           NULL, NULL);
+		//		act = purple_menu_action_new(_("Initiate _Chat"),
+		//		                           PURPLE_CALLBACK(initiate_chat_cb),
+		//		                           NULL, NULL);
 		m = g_list_append(m, act);
 	}
 
@@ -951,7 +887,7 @@ static GList *nateon_blist_node_menu(PurpleBlistNode *node)
 	}
 }
 
-static void
+	static void
 nateon_login(PurpleAccount *account)
 {
 	PurpleConnection *gc;
@@ -963,17 +899,17 @@ nateon_login(PurpleAccount *account)
 
 	gc = purple_account_get_connection(account);
 
-//	if (!purple_ssl_is_supported())
-//	{
-//		gc->wants_to_die = TRUE;
-//		purple_connection_error(gc,
-//			_("SSL support is needed for NATEON. Please install a supported "
-//			  "SSL library. See http://purple.sf.net/faq-ssl.php for more "
-//			  "information."));
-//
-//		return;
-//	}
-//
+	//	if (!purple_ssl_is_supported())
+	//	{
+	//		gc->wants_to_die = TRUE;
+	//		purple_connection_error(gc,
+	//			_("SSL support is needed for NATEON. Please install a supported "
+	//			  "SSL library. See http://purple.sf.net/faq-ssl.php for more "
+	//			  "information."));
+	//
+	//		return;
+	//	}
+	//
 	prs_method = purple_account_get_bool(account, "prs_method", FALSE);
 
 	host = purple_account_get_string(account, "server", NATEON_SERVER);
@@ -997,7 +933,7 @@ nateon_login(PurpleAccount *account)
 		purple_connection_error(gc, _("Failed to connect to server."));
 }
 
-static void
+	static void
 nateon_close(PurpleConnection *gc)
 {
 	NateonSession *session;
@@ -1011,49 +947,49 @@ nateon_close(PurpleConnection *gc)
 	gc->proto_data = NULL;
 }
 
-static int
+	static int
 nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
-			PurpleMessageFlags flags)
+		PurpleMessageFlags flags)
 {
 	PurpleAccount *account;
-//	PurpleBuddy *buddy = purple_find_buddy(gc->account, who);
+	//	PurpleBuddy *buddy = purple_find_buddy(gc->account, who);
 	NateonMessage *msg;
-//	char *msgformat;
+	//	char *msgformat;
 	char *msgtext;
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
 	account = purple_connection_get_account(gc);
 
-//	if (buddy)
-//	{
-//                PurplePresence *p = purple_buddy_get_presence(buddy);
-//                if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_MOBILE)) {
-//                        char *text = purple_markup_strip_html(message);
-//                        send_to_mobile(gc, who, text);
-//                        g_free(text);
-//                        return 1;
-//                }
-//        }
+	//	if (buddy)
+	//	{
+	//                PurplePresence *p = purple_buddy_get_presence(buddy);
+	//                if (purple_presence_is_status_primitive_active(p, PURPLE_STATUS_MOBILE)) {
+	//                        char *text = purple_markup_strip_html(message);
+	//                        send_to_mobile(gc, who, text);
+	//                        g_free(text);
+	//                        return 1;
+	//                }
+	//        }
 
 	msgtext = nateon_import_html(message);
 	purple_debug_info("nateon", "message:%s\n", message);
-//	purple_debug_info("nateon", "format :%s\n", msgformat);
+	//	purple_debug_info("nateon", "format :%s\n", msgformat);
 	purple_debug_info("nateon", "text   :%s\n", msgtext);
 
 
-//	if (strlen(msgtext) + strlen(msgformat) + strlen(VERSION) > 1564)
-//	{
-//		g_free(msgformat);
-//		g_free(msgtext);
-//
-//		return -E2BIG;
-//	}
+	//	if (strlen(msgtext) + strlen(msgformat) + strlen(VERSION) > 1564)
+	//	{
+	//		g_free(msgformat);
+	//		g_free(msgtext);
+	//
+	//		return -E2BIG;
+	//	}
 
 	msg = nateon_message_new_plain(msgtext);
-//	nateon_message_set_attr(msg, "X-MMS-IM-Format", msgformat);
+	//	nateon_message_set_attr(msg, "X-MMS-IM-Format", msgformat);
 
-//	g_free(msgformat);
+	//	g_free(msgformat);
 	g_free(msgtext);
 
 	if (g_ascii_strcasecmp(who, purple_account_get_username(account)))
@@ -1066,37 +1002,37 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 
 		nateon_switchboard_send_msg(swboard, msg, TRUE);
 	}
-//	else
-//	{
-//		char *body_str, *body_enc, *pre, *post;
-//		const char *format;
-//		/*
-//		 * In NATEON, you can't send messages to yourself, so
-//		 * we'll fake like we received it ;)
-//		 */
-//		body_str = nateon_message_to_string(msg);
-//		body_enc = g_markup_escape_text(body_str, -1);
-//		g_free(body_str);
-//
-//		format = nateon_message_get_attr(msg, "X-MMS-IM-Format");
-//		nateon_parse_format(format, &pre, &post);
-//		body_str = g_strdup_printf("%s%s%s", pre ? pre :  "",
-//								   body_enc ? body_enc : "", post ? post : "");
-//		g_free(body_enc);
-//		g_free(pre);
-//		g_free(post);
-//
-//		serv_got_typing_stopped(gc, who);
-//		serv_got_im(gc, who, body_str, flags, time(NULL));
-//		g_free(body_str);
-//	}
+	//	else
+	//	{
+	//		char *body_str, *body_enc, *pre, *post;
+	//		const char *format;
+	//		/*
+	//		 * In NATEON, you can't send messages to yourself, so
+	//		 * we'll fake like we received it ;)
+	//		 */
+	//		body_str = nateon_message_to_string(msg);
+	//		body_enc = g_markup_escape_text(body_str, -1);
+	//		g_free(body_str);
+	//
+	//		format = nateon_message_get_attr(msg, "X-MMS-IM-Format");
+	//		nateon_parse_format(format, &pre, &post);
+	//		body_str = g_strdup_printf("%s%s%s", pre ? pre :  "",
+	//								   body_enc ? body_enc : "", post ? post : "");
+	//		g_free(body_enc);
+	//		g_free(pre);
+	//		g_free(post);
+	//
+	//		serv_got_typing_stopped(gc, who);
+	//		serv_got_im(gc, who, body_str, flags, time(NULL));
+	//		g_free(body_str);
+	//	}
 
 	nateon_message_destroy(msg);
 
 	return 1;
 }
 
-static unsigned int
+	static unsigned int
 nateon_send_typing(PurpleConnection *gc, const char *who, PurpleTypingState state)
 {
 	PurpleAccount *account;
@@ -1107,8 +1043,8 @@ nateon_send_typing(PurpleConnection *gc, const char *who, PurpleTypingState stat
 	account = purple_connection_get_account(gc);
 	session = gc->proto_data;
 
-//	if (state == PURPLE_NOT_TYPING)
-//		return 0;
+	//	if (state == PURPLE_NOT_TYPING)
+	//		return 0;
 
 	if (!g_ascii_strcasecmp(who, purple_account_get_username(account)))
 	{
@@ -1126,10 +1062,10 @@ nateon_send_typing(PurpleConnection *gc, const char *who, PurpleTypingState stat
 	swboard->flag |= NATEON_SB_FLAG_IM;
 
 	msg = nateon_message_new(NATEON_MSG_TYPING);
-//	nateon_message_set_content_type(msg, "text/x-msmsgscontrol");
-//	nateon_message_set_flag(msg, 'U');
-//	nateon_message_set_attr(msg, "TypingUser",
-//						 purple_account_get_username(account));
+	//	nateon_message_set_content_type(msg, "text/x-msmsgscontrol");
+	//	nateon_message_set_flag(msg, 'U');
+	//	nateon_message_set_attr(msg, "TypingUser",
+	//						 purple_account_get_username(account));
 	if (state == PURPLE_TYPING)
 	{
 		nateon_message_set_bin_data(msg, "TYPING 1", 8);
@@ -1224,7 +1160,7 @@ static void nateon_set_idle(PurpleConnection *gc, int idle)
 //}
 //#endif
 
-static void
+	static void
 nateon_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 {
 	NateonSession *session;
@@ -1244,7 +1180,7 @@ nateon_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 	{
 #if 0
 		fake_userlist_add_buddy(session->sync_userlist, who, NATEON_LIST_FL,
-								group ? group->name : NULL);
+				group ? group->name : NULL);
 #else
 		purple_debug_error("nateon", "nateon_add_buddy called before connected\n");
 #endif
@@ -1276,7 +1212,7 @@ nateon_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 	nateon_userlist_add_buddy(userlist, who, NATEON_LIST_FL, group ? group->name : NULL);
 }
 
-static void
+	static void
 nateon_rem_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 {
 	NateonSession *session;
@@ -1294,29 +1230,29 @@ nateon_rem_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 	nateon_userlist_rem_buddy(userlist, buddy->name, NATEON_LIST_FL, group->name);
 }
 
-static void
+	static void
 nateon_add_permit(PurpleConnection *gc, const char *who)
 {
-//	NateonSession *session;
-//	NateonUserList *userlist;
-//	NateonUser *user;
-//
+	//	NateonSession *session;
+	//	NateonUserList *userlist;
+	//	NateonUser *user;
+	//
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
-//	session = gc->proto_data;
-//	userlist = session->userlist;
-//	user = nateon_userlist_find_user(userlist, who);
-//
-//	if (!session->logged_in)
-//		return;
-//
-//	if (user != NULL && user->list_op & NATEON_LIST_BL_OP)
-//		nateon_userlist_rem_buddy(userlist, who, NATEON_LIST_BL, NULL);
-//
-//	nateon_userlist_add_buddy(userlist, who, NATEON_LIST_AL, NULL);
+	//	session = gc->proto_data;
+	//	userlist = session->userlist;
+	//	user = nateon_userlist_find_user(userlist, who);
+	//
+	//	if (!session->logged_in)
+	//		return;
+	//
+	//	if (user != NULL && user->list_op & NATEON_LIST_BL_OP)
+	//		nateon_userlist_rem_buddy(userlist, who, NATEON_LIST_BL, NULL);
+	//
+	//	nateon_userlist_add_buddy(userlist, who, NATEON_LIST_AL, NULL);
 }
 
-static void
+	static void
 nateon_add_deny(PurpleConnection *gc, const char *who)
 {
 	NateonSession *session;
@@ -1338,30 +1274,30 @@ nateon_add_deny(PurpleConnection *gc, const char *who)
 	nateon_userlist_add_buddy(userlist, who, NATEON_LIST_BL, NULL);
 }
 
-static void
+	static void
 nateon_rem_permit(PurpleConnection *gc, const char *who)
 {
-//	NateonSession *session;
-//	NateonUserList *userlist;
-//	NateonUser *user;
-//
+	//	NateonSession *session;
+	//	NateonUserList *userlist;
+	//	NateonUser *user;
+	//
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
-//	session = gc->proto_data;
-//	userlist = session->userlist;
-//
-//	if (!session->logged_in)
-//		return;
-//
-//	user = nateon_userlist_find_user(userlist, who);
-//
-//	nateon_userlist_rem_buddy(userlist, who, NATEON_LIST_AL, NULL);
-//
-//	if (user != NULL && user->list_op & NATEON_LIST_RL_OP)
-//		nateon_userlist_add_buddy(userlist, who, NATEON_LIST_BL, NULL);
+	//	session = gc->proto_data;
+	//	userlist = session->userlist;
+	//
+	//	if (!session->logged_in)
+	//		return;
+	//
+	//	user = nateon_userlist_find_user(userlist, who);
+	//
+	//	nateon_userlist_rem_buddy(userlist, who, NATEON_LIST_AL, NULL);
+	//
+	//	if (user != NULL && user->list_op & NATEON_LIST_RL_OP)
+	//		nateon_userlist_add_buddy(userlist, who, NATEON_LIST_BL, NULL);
 }
 
-static void
+	static void
 nateon_rem_deny(PurpleConnection *gc, const char *who)
 {
 	NateonSession *session;
@@ -1384,132 +1320,132 @@ nateon_rem_deny(PurpleConnection *gc, const char *who)
 		nateon_userlist_add_buddy(userlist, who, NATEON_LIST_AL, NULL);
 }
 
-static void
+	static void
 nateon_set_permit_deny(PurpleConnection *gc)
 {
-//	PurpleAccount *account;
-//	NateonSession *session;
-//	NateonCmdProc *cmdproc;
-//
+	//	PurpleAccount *account;
+	//	NateonSession *session;
+	//	NateonCmdProc *cmdproc;
+	//
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
-//	account = purple_connection_get_account(gc);
-//	session = gc->proto_data;
-//	cmdproc = session->notification->cmdproc;
-//
-//	if (account->perm_deny == PURPLE_PRIVACY_ALLOW_ALL ||
-//		account->perm_deny == PURPLE_PRIVACY_DENY_USERS)
-//	{
-//		nateon_cmdproc_send(cmdproc, "BLP", "%s", "AL");
-//	}
-//	else
-//	{
-//		nateon_cmdproc_send(cmdproc, "BLP", "%s", "BL");
-//	}
+	//	account = purple_connection_get_account(gc);
+	//	session = gc->proto_data;
+	//	cmdproc = session->notification->cmdproc;
+	//
+	//	if (account->perm_deny == PURPLE_PRIVACY_ALLOW_ALL ||
+	//		account->perm_deny == PURPLE_PRIVACY_DENY_USERS)
+	//	{
+	//		nateon_cmdproc_send(cmdproc, "BLP", "%s", "AL");
+	//	}
+	//	else
+	//	{
+	//		nateon_cmdproc_send(cmdproc, "BLP", "%s", "BL");
+	//	}
 }
 
-static void
+	static void
 nateon_chat_invite(PurpleConnection *gc, int id, const char *msg,
-				const char *who)
+		const char *who)
 {
-//	NateonSession *session;
-//	NateonSwitchBoard *swboard;
-//
+	//	NateonSession *session;
+	//	NateonSwitchBoard *swboard;
+	//
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 
-//	session = gc->proto_data;
-//
-//	swboard = nateon_session_find_swboard_with_id(session, id);
-//
-//	if (swboard == NULL)
-//	{
-//		/* if we have no switchboard, everyone else left the chat already */
-//		swboard = nateon_switchboard_new(session);
-//		nateon_switchboard_request(swboard);
-//		swboard->chat_id = id;
-//		swboard->conv = purple_find_chat(gc, id);
-//	}
-//
-//	swboard->flag |= NATEON_SB_FLAG_IM;
-//
-//	nateon_switchboard_request_add_user(swboard, who);
+	//	session = gc->proto_data;
+	//
+	//	swboard = nateon_session_find_swboard_with_id(session, id);
+	//
+	//	if (swboard == NULL)
+	//	{
+	//		/* if we have no switchboard, everyone else left the chat already */
+	//		swboard = nateon_switchboard_new(session);
+	//		nateon_switchboard_request(swboard);
+	//		swboard->chat_id = id;
+	//		swboard->conv = purple_find_chat(gc, id);
+	//	}
+	//
+	//	swboard->flag |= NATEON_SB_FLAG_IM;
+	//
+	//	nateon_switchboard_request_add_user(swboard, who);
 }
 
-static void
+	static void
 nateon_chat_leave(PurpleConnection *gc, int id)
 {
-//	NateonSession *session;
-//	NateonSwitchBoard *swboard;
-//	PurpleConversation *conv;
-//
+	//	NateonSession *session;
+	//	NateonSwitchBoard *swboard;
+	//	PurpleConversation *conv;
+	//
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 
-//	session = gc->proto_data;
-//
-//	swboard = nateon_session_find_swboard_with_id(session, id);
-//
-//	/* if swboard is NULL we were the only person left anyway */
-//	if (swboard == NULL)
-//		return;
-//
-//	conv = swboard->conv;
-//
-//	nateon_switchboard_release(swboard, NATEON_SB_FLAG_IM);
-//
-//	/* If other switchboards managed to associate themselves with this
-//	 * conv, make sure they know it's gone! */
-//	if (conv != NULL)
-//	{
-//		while ((swboard = nateon_session_find_swboard_with_conv(session, conv)) != NULL)
-//			swboard->conv = NULL;
-//	}
+	//	session = gc->proto_data;
+	//
+	//	swboard = nateon_session_find_swboard_with_id(session, id);
+	//
+	//	/* if swboard is NULL we were the only person left anyway */
+	//	if (swboard == NULL)
+	//		return;
+	//
+	//	conv = swboard->conv;
+	//
+	//	nateon_switchboard_release(swboard, NATEON_SB_FLAG_IM);
+	//
+	//	/* If other switchboards managed to associate themselves with this
+	//	 * conv, make sure they know it's gone! */
+	//	if (conv != NULL)
+	//	{
+	//		while ((swboard = nateon_session_find_swboard_with_conv(session, conv)) != NULL)
+	//			swboard->conv = NULL;
+	//	}
 }
 
-static int
+	static int
 nateon_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessageFlags flags)
 {
-//	PurpleAccount *account;
-//	NateonSession *session;
-//	NateonSwitchBoard *swboard;
-//	NateonMessage *msg;
-//	char *msgformat;
-//	char *msgtext;
-//
+	//	PurpleAccount *account;
+	//	NateonSession *session;
+	//	NateonSwitchBoard *swboard;
+	//	NateonMessage *msg;
+	//	char *msgformat;
+	//	char *msgtext;
+	//
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 
-//	account = purple_connection_get_account(gc);
-//	session = gc->proto_data;
-//	swboard = nateon_session_find_swboard_with_id(session, id);
-//
-//	if (swboard == NULL)
-//		return -EINVAL;
-//
-//	if (!swboard->ready)
-//		return 0;
-//
-//	swboard->flag |= NATEON_SB_FLAG_IM;
-//
-//	nateon_import_html(message, &msgformat, &msgtext);
-//
-//	if (strlen(msgtext) + strlen(msgformat) + strlen(VERSION) > 1564)
-//	{
-//		g_free(msgformat);
-//		g_free(msgtext);
-//
-//		return -E2BIG;
-//	}
-//
-//	msg = nateon_message_new_plain(msgtext);
-//	nateon_message_set_attr(msg, "X-MMS-IM-Format", msgformat);
-//	nateon_switchboard_send_msg(swboard, msg, FALSE);
-//	nateon_message_destroy(msg);
-//
-//	g_free(msgformat);
-//	g_free(msgtext);
-//
-//	serv_got_chat_in(gc, id, purple_account_get_username(account), 0,
-//					 message, time(NULL));
-//
+	//	account = purple_connection_get_account(gc);
+	//	session = gc->proto_data;
+	//	swboard = nateon_session_find_swboard_with_id(session, id);
+	//
+	//	if (swboard == NULL)
+	//		return -EINVAL;
+	//
+	//	if (!swboard->ready)
+	//		return 0;
+	//
+	//	swboard->flag |= NATEON_SB_FLAG_IM;
+	//
+	//	nateon_import_html(message, &msgformat, &msgtext);
+	//
+	//	if (strlen(msgtext) + strlen(msgformat) + strlen(VERSION) > 1564)
+	//	{
+	//		g_free(msgformat);
+	//		g_free(msgtext);
+	//
+	//		return -E2BIG;
+	//	}
+	//
+	//	msg = nateon_message_new_plain(msgtext);
+	//	nateon_message_set_attr(msg, "X-MMS-IM-Format", msgformat);
+	//	nateon_switchboard_send_msg(swboard, msg, FALSE);
+	//	nateon_message_destroy(msg);
+	//
+	//	g_free(msgformat);
+	//	g_free(msgtext);
+	//
+	//	serv_got_chat_in(gc, id, purple_account_get_username(account), 0,
+	//					 message, time(NULL));
+	//
 	return 0;
 }
 
@@ -1530,9 +1466,9 @@ nateon_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessag
 //	}
 //}
 
-static void
+	static void
 nateon_group_buddy(PurpleConnection *gc, const char *who,
-				const char *old_group_name, const char *new_group_name)
+		const char *old_group_name, const char *new_group_name)
 {
 	NateonSession *session;
 	NateonUserList *userlist;
@@ -1546,9 +1482,9 @@ nateon_group_buddy(PurpleConnection *gc, const char *who,
 	nateon_userlist_move_buddy(userlist, who, old_group_name, new_group_name);
 }
 
-static void
+	static void
 nateon_rename_group(PurpleConnection *gc, const char *old_name,
-				 PurpleGroup *group, GList *moved_buddies)
+		PurpleGroup *group, GList *moved_buddies)
 {
 	NateonSession *session;
 	NateonUserList *userlist;
@@ -1596,7 +1532,7 @@ nateon_rename_group(PurpleConnection *gc, const char *old_name,
 	}
 }
 
-static void
+	static void
 nateon_convo_closed(PurpleConnection *gc, const char *who)
 {
 	NateonSession *session;
@@ -1642,7 +1578,7 @@ nateon_convo_closed(PurpleConnection *gc, const char *who)
 //	nateon_change_status(session);
 //}
 
-static void
+	static void
 nateon_remove_group(PurpleConnection *gc, PurpleGroup *group)
 {
 	NateonSession *session;
@@ -1738,10 +1674,10 @@ nateon_remove_group(PurpleConnection *gc, PurpleGroup *group)
 //#endif
 /*
 #define NATEON_GOT_INFO_GET_FIELD(a, b) \
-	found = purple_markup_extract_info_field(stripped, stripped_len, s, \
-			"\n" a "\t", 0, "\n", 0, "Undisclosed", b, 0, NULL, NULL); \
-	if (found) \
-		sect_info = TRUE;
+found = purple_markup_extract_info_field(stripped, stripped_len, s, \
+"\n" a "\t", 0, "\n", 0, "Undisclosed", b, 0, NULL, NULL); \
+if (found) \
+sect_info = TRUE;
 */
 //static void
 //nateon_got_info(void *data, const char *url_text, size_t len)
@@ -2226,23 +2162,23 @@ nateon_remove_group(PurpleConnection *gc, PurpleGroup *group)
 //#endif
 //}
 
-static void
+	static void
 nateon_get_info(PurpleConnection *gc, const char *name)
 {
-//	NateonGetInfoData *data;
-//	char *url;
-//
-//	data       = g_new0(NateonGetInfoData, 1);
-//	data->gc   = gc;
-//	data->name = g_strdup(name);
-//
-//	url = g_strdup_printf("%s%s", PROFILE_URL, name);
-//
-//	purple_url_fetch(url, FALSE,
-//				   "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
-//				   TRUE, nateon_got_info, data);
-//
-//	g_free(url);
+	//	NateonGetInfoData *data;
+	//	char *url;
+	//
+	//	data       = g_new0(NateonGetInfoData, 1);
+	//	data->gc   = gc;
+	//	data->name = g_strdup(name);
+	//
+	//	url = g_strdup_printf("%s%s", PROFILE_URL, name);
+	//
+	//	purple_url_fetch(url, FALSE,
+	//				   "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+	//				   TRUE, nateon_got_info, data);
+	//
+	//	g_free(url);
 }
 
 static gboolean nateon_load(PurplePlugin *plugin)
@@ -2325,14 +2261,14 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL, //nateon_new_xfer,			/* new_xfer */
 	NULL,					/* offline_message */
 	NULL,					/* whiteboard_prpl_ops */
-        NULL,                                   /* send_raw */
-        NULL,                                   /* roomlist_room_serialize */
+	NULL,                                   /* send_raw */
+	NULL,                                   /* roomlist_room_serialize */
 
-        /* padding */
-        NULL,
-        NULL,
-        NULL,
-        NULL
+	/* padding */
+	NULL,
+	NULL,
+	NULL,
+	NULL
 };
 
 static PurplePluginInfo info =
@@ -2349,9 +2285,9 @@ static PurplePluginInfo info =
 	"prpl-nateon",				/**< id             */
 	"NateOn",				/**< name           */
 	VERSION,				/**< version        */
-						/**  summary        */
+	/**  summary        */
 	N_("NateOn Protocol Plugin"),
-						/**  description    */
+	/**  description    */
 	N_("NateOn Protocol Plugin"),
 	"Hansun Lee <hansun.lee@gmail.com>",	/**< author         */
 	"http://nateon.haz3.com",		/**< homepage       */
@@ -2365,14 +2301,14 @@ static PurplePluginInfo info =
 	NULL, 					/**< prefs_info     */
 	nateon_actions,
 
-        /* padding */
-        NULL,
-        NULL,
-        NULL,
-        NULL
+	/* padding */
+	NULL,
+	NULL,
+	NULL,
+	NULL
 };
 
-static void
+	static void
 init_plugin(PurplePlugin *plugin)
 {
 	PurpleAccountOption *option;
@@ -2393,11 +2329,12 @@ init_plugin(PurplePlugin *plugin)
 
 	option = purple_account_option_string_new(_("PRS Method Server"), "prs_method_server", NATEON_PRS_SERVER);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
-//	option = purple_account_option_bool_new(_("Show custom smileys"),
-//										  "custom_smileys", TRUE);
-//	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,
+	//	option = purple_account_option_bool_new(_("Show custom smileys"),
+	//										  "custom_smileys", TRUE);
+	//	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,
 
 	purple_prefs_remove("/plugins/prpl/nateon");
 }
 
 PURPLE_INIT_PLUGIN(nateon, init_plugin, info);
+/* vim: set ts=4 sw=4: */
