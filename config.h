@@ -1,8 +1,11 @@
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define if building universal (internal helper macro) */
+/* #undef AC_APPLE_UNIVERSAL_BUILD */
+
 /* display version info */
-#define DISPLAY_VERSION "2.4.2"
+#define DISPLAY_VERSION "2.5.6"
 
 /* always defined to indicate that i18n is enabled */
 #define ENABLE_NLS 1
@@ -107,13 +110,13 @@
 #define PACKAGE_NAME "pidgin-nateon"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "pidgin-nateon 2.4.2"
+#define PACKAGE_STRING "pidgin-nateon 2.5.6"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "pidgin-nateon"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.4.2"
+#define PACKAGE_VERSION "2.5.6"
 
 /* Define if plugins are enabled. */
 #define PURPLE_PLUGINS 1
@@ -122,7 +125,7 @@
 #define RETSIGTYPE void
 
 /* The size of `time_t', as computed by sizeof. */
-#define SIZEOF_TIME_T 8
+#define SIZEOF_TIME_T 4
 
 /* Loads static protocol plugin module initialization functions. */
 #define STATIC_PROTO_INIT static void static_proto_init() {  }
@@ -134,11 +137,19 @@
 /* #undef TM_IN_SYS_TIME */
 
 /* Version number of package */
-#define VERSION "2.4.2"
+#define VERSION "2.5.6"
 
-/* Define to 1 if your processor stores words with the most significant byte
-   first (like Motorola and SPARC, unlike Intel and VAX). */
-/* #undef WORDS_BIGENDIAN */
+/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+   significant byte first (like Motorola and SPARC, unlike Intel). */
+#if defined AC_APPLE_UNIVERSAL_BUILD
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#else
+# ifndef WORDS_BIGENDIAN
+/* #  undef WORDS_BIGENDIAN */
+# endif
+#endif
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */

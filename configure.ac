@@ -1,10 +1,10 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.50])
 
-m4_define([purple_lt_current], [4])
+m4_define([purple_lt_current], [5])
 m4_define([purple_major_version], [2])
-m4_define([purple_minor_version], [4])
-m4_define([purple_micro_version], [2])
+m4_define([purple_minor_version], [5])
+m4_define([purple_micro_version], [6])
 m4_define([purple_version_suffix], [])
 m4_define([purple_version],
           [purple_major_version.purple_minor_version.purple_micro_version])
