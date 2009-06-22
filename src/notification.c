@@ -1364,6 +1364,17 @@ cnik_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	purple_connection_set_display_name(gc, friendly);
 }
 
+static void tick_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{	
+	NateonSession *session;
+
+	session = cmdproc->session;
+
+	if (session->ticket != NULL)
+		g_free(session->ticket);
+	session->ticket = g_strdup(cmd->params[1]);
+}
+
 static void
 imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
@@ -1848,6 +1859,8 @@ nateon_notification_init(void)
 
 	// CTOC
 	nateon_table_add_cmd(cbs_table, NULL, "IMSG", imsg_cmd);
+	// TICK
+	nateon_table_add_cmd(cbs_table, NULL, "TICK", tick_cmd);
 
 	// Buddy
 //	nateon_table_add_cmd(cbs_table, NULL, "ADDB", addb_cmd);

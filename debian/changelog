@@ -1,3 +1,9 @@
+pidgin-nateon (1:2.5.6-svn143ubuntu1) jaunty; urgency=low
+
+  * Support TICK command
+
+ -- Hansun Lee <hansun.lee@gmail.com>  Tue, 23 Jun 2009 00:57:01 +0900
+
 pidgin-nateon (1:2.4.2-svn140ubuntu1) jaunty; urgency=low
 
   * Fixed segmentation fault when recived memo

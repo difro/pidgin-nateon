@@ -125,7 +125,7 @@
 #define RETSIGTYPE void
 
 /* The size of `time_t', as computed by sizeof. */
-#define SIZEOF_TIME_T 4
+#define SIZEOF_TIME_T 8
 
 /* Loads static protocol plugin module initialization functions. */
 #define STATIC_PROTO_INIT static void static_proto_init() {  }
