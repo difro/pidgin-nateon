@@ -63,18 +63,18 @@ all: $(PIDGIN_CONFIG_H)
 #	$(MAKE) -C $(PURPLE_TOP) -f $(MINGW_MAKEFILE)
 #	$(MAKE) -C $(PIDGIN_TOP) -f $(MINGW_MAKEFILE)
 #	$(MAKE) -C $(PURPLE_PO_TOP) -f $(MINGW_MAKEFILE)
-	$(MAKE) -C $(PIDGIN_TREE_TOP)/src -f $(MINGW_MAKEFILE)
-	$(MAKE) -C $(PIDGIN_TREE_TOP)/pixmaps -f $(MINGW_MAKEFILE)
-	$(MAKE) -C $(PIDGIN_TREE_TOP)/po -f $(MINGW_MAKEFILE)
+	$(MAKE) -C src -f $(MINGW_MAKEFILE)
+	$(MAKE) -C pixmaps -f $(MINGW_MAKEFILE)
+	$(MAKE) -C po -f $(MINGW_MAKEFILE)
 
 install: all $(PIDGIN_INSTALL_DIR)
 #	$(MAKE) -C $(PURPLE_TOP) -f $(MINGW_MAKEFILE) install
 #	$(MAKE) -C $(PIDGIN_TOP) -f $(MINGW_MAKEFILE) install
 #	$(MAKE) -C $(PURPLE_PO_TOP) -f $(MINGW_MAKEFILE) install
 #	$(MAKE) -C share -f $(MINGW_MAKEFILE) install
-	$(MAKE) -C $(PIDGIN_TREE_TOP)/src -f $(MINGW_MAKEFILE) install
-	$(MAKE) -C $(PIDGIN_TREE_TOP)/pixmaps -f $(MINGW_MAKEFILE) install
-	$(MAKE) -C $(PIDGIN_TREE_TOP)/po -f $(MINGW_MAKEFILE) install
+	$(MAKE) -C src -f $(MINGW_MAKEFILE) install
+	$(MAKE) -C pixmaps -f $(MINGW_MAKEFILE) install
+	$(MAKE) -C po -f $(MINGW_MAKEFILE) install
 
 create_release_install_dir: install
 	rm -rf $(PIDGIN_INSTALL_DIR).release
@@ -107,9 +107,9 @@ clean:
 #	$(MAKE) -C $(PURPLE_PO_TOP) -f $(MINGW_MAKEFILE) clean
 #	$(MAKE) -C $(PIDGIN_TOP) -f $(MINGW_MAKEFILE) clean
 #	$(MAKE) -C $(PURPLE_TOP) -f $(MINGW_MAKEFILE) clean
-	$(MAKE) -C $(PIDGIN_TREE_TOP)/src -f $(MINGW_MAKEFILE) clean 
-	$(MAKE) -C $(PIDGIN_TREE_TOP)/pixmaps -f $(MINGW_MAKEFILE) clean 
-	$(MAKE) -C $(PIDGIN_TREE_TOP)/po -f $(MINGW_MAKEFILE) clean 
+	$(MAKE) -C src -f $(MINGW_MAKEFILE) clean 
+	$(MAKE) -C pixmaps -f $(MINGW_MAKEFILE) clean 
+	$(MAKE) -C po -f $(MINGW_MAKEFILE) clean 
 #	rm -f $(PIDGIN_CONFIG_H) ./VERSION pidgin*.exe
 #	rm -rf doc/html Doxyfile.mingw
 
