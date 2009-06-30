@@ -57,9 +57,9 @@ libnateon_la_LDFLAGS = -module -avoid-version
 if STATIC_NATEON
 
 st = -DPURPLE_STATIC_PRPL
-noinst_LIBRARIES = libnateon.a
-libnateon_a_SOURCES = $(NATEONSOURCES)
-libnateon_a_CFLAGS  = $(AM_CFLAGS)
+noinst_LTLIBRARIES = libnateon.la
+libnateon_la_SOURCES = $(NATEONSOURCES)
+libnateon_la_CFLAGS  = $(AM_CFLAGS)
 
 else
 
