@@ -184,26 +184,25 @@ nateon_session_find_swboard_with_conv(NateonSession *session, PurpleConversation
 	return NULL;
 }
 
-//NateonSwitchBoard *
-//nateon_session_find_swboard_with_id(const NateonSession *session, int chat_id)
-//{
-//	GList *l;
-//
-//	g_return_val_if_fail(session != NULL, NULL);
-//	g_return_val_if_fail(chat_id >= 0,    NULL);
-//
-//	for (l = session->switches; l != NULL; l = l->next)
-//	{
-//		NateonSwitchBoard *swboard;
-//
-//		swboard = l->data;
-//
-//		if (swboard->chat_id == chat_id)
-//			return swboard;
-//	}
-//
-//	return NULL;
-//}
+NateonSwitchBoard *nateon_session_find_swboard_with_id(const NateonSession *session, int chat_id)
+{
+	GList *l;
+
+	g_return_val_if_fail(session != NULL, NULL);
+	g_return_val_if_fail(chat_id >= 0,    NULL);
+
+	for (l = session->switches; l != NULL; l = l->next)
+	{
+		NateonSwitchBoard *swboard;
+
+		swboard = l->data;
+
+		if (swboard->chat_id == chat_id)
+			return swboard;
+	}
+
+	return NULL;
+}
 
 NateonSwitchBoard *
 nateon_session_get_swboard(NateonSession *session, const char *username,

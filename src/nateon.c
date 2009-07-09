@@ -523,34 +523,34 @@ show_send_sms_cb(PurpleBlistNode *node, gpointer ignored)
 	g_free(uri);
 }
 
-//static void
-//initiate_chat_cb(PurpleBlistNode *node, gpointer data)
-//{
-//	PurpleBuddy *buddy;
-//	PurpleConnection *gc;
-//
-//	NateonSession *session;
-//	NateonSwitchBoard *swboard;
-//
-//	g_return_if_fail(PURPLE_BLIST_NODE_IS_BUDDY(node));
-//
-//	buddy = (PurpleBuddy *) node;
-//	gc = purple_account_get_connection(buddy->account);
-//
-//	session = gc->proto_data;
-//
-//	swboard = nateon_switchboard_new(session);
-//	nateon_switchboard_request(swboard);
-//	nateon_switchboard_request_add_user(swboard, buddy->name);
-//
-//	/* TODO: This might move somewhere else, after USR might be */
-//	swboard->chat_id = session->conv_seq++;
-//	swboard->conv = serv_got_joined_chat(gc, swboard->chat_id, "NATEON Chat");
-//	swboard->flag = NATEON_SB_FLAG_IM;
-//
-//	purple_conv_chat_add_user(PURPLE_CONV_CHAT(swboard->conv),
-//							purple_account_get_username(buddy->account), NULL, PURPLE_CBFLAGS_NONE, TRUE);
-//}
+	static void
+initiate_chat_cb(PurpleBlistNode *node, gpointer data)
+{
+	PurpleBuddy *buddy;
+	PurpleConnection *gc;
+
+	NateonSession *session;
+	NateonSwitchBoard *swboard;
+
+	g_return_if_fail(PURPLE_BLIST_NODE_IS_BUDDY(node));
+
+	buddy = (PurpleBuddy *) node;
+	gc = purple_account_get_connection(buddy->account);
+
+	session = gc->proto_data;
+
+	swboard = nateon_switchboard_new(session);
+	nateon_switchboard_request(swboard);
+	nateon_switchboard_request_add_user(swboard, buddy->name);
+
+	/* TODO: This might move somewhere else, after USR might be */
+	swboard->chat_id = session->conv_seq++;
+	swboard->conv = serv_got_joined_chat(gc, swboard->chat_id, "NATEON Chat");
+	swboard->flag = NATEON_SB_FLAG_IM;
+
+	purple_conv_chat_add_user(PURPLE_CONV_CHAT(swboard->conv),
+			purple_account_get_username(buddy->account), NULL, PURPLE_CBFLAGS_NONE, TRUE);
+}
 
 //static void
 //t_nateon_xfer_init(PurpleXfer *xfer)
@@ -865,10 +865,10 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 	if (g_ascii_strcasecmp(buddy->name,
 				purple_account_get_username(buddy->account)))
 	{
-		act = purple_menu_action_new(_("Initiate _Chat"), NULL, NULL, NULL);
-		//		act = purple_menu_action_new(_("Initiate _Chat"),
-		//		                           PURPLE_CALLBACK(initiate_chat_cb),
-		//		                           NULL, NULL);
+		//act = purple_menu_action_new(_("Initiate _Chat"), NULL, NULL, NULL);
+		act = purple_menu_action_new(_("Initiate _Chat"),
+				PURPLE_CALLBACK(initiate_chat_cb),
+				NULL, NULL);
 		m = g_list_append(m, act);
 	}
 
@@ -1344,108 +1344,105 @@ nateon_set_permit_deny(PurpleConnection *gc)
 	//	}
 }
 
-	static void
-nateon_chat_invite(PurpleConnection *gc, int id, const char *msg,
-		const char *who)
+static void nateon_chat_invite(PurpleConnection *gc, int id, const char *msg, const char *who)
 {
-	//	NateonSession *session;
-	//	NateonSwitchBoard *swboard;
-	//
+	NateonSession *session;
+	NateonSwitchBoard *swboard;
+
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 
-	//	session = gc->proto_data;
-	//
-	//	swboard = nateon_session_find_swboard_with_id(session, id);
-	//
-	//	if (swboard == NULL)
-	//	{
-	//		/* if we have no switchboard, everyone else left the chat already */
-	//		swboard = nateon_switchboard_new(session);
-	//		nateon_switchboard_request(swboard);
-	//		swboard->chat_id = id;
-	//		swboard->conv = purple_find_chat(gc, id);
-	//	}
-	//
-	//	swboard->flag |= NATEON_SB_FLAG_IM;
-	//
-	//	nateon_switchboard_request_add_user(swboard, who);
+	session = gc->proto_data;
+
+	swboard = nateon_session_find_swboard_with_id(session, id);
+
+	if (swboard == NULL)
+	{
+		/* if we have no switchboard, everyone else left the chat already */
+		swboard = nateon_switchboard_new(session);
+		nateon_switchboard_request(swboard);
+		swboard->chat_id = id;
+		swboard->conv = purple_find_chat(gc, id);
+	}
+
+	swboard->flag |= NATEON_SB_FLAG_IM;
+
+	nateon_switchboard_request_add_user(swboard, who);
 }
 
-	static void
-nateon_chat_leave(PurpleConnection *gc, int id)
+static void nateon_chat_leave(PurpleConnection *gc, int id)
 {
-	//	NateonSession *session;
-	//	NateonSwitchBoard *swboard;
-	//	PurpleConversation *conv;
-	//
+	NateonSession *session;
+	NateonSwitchBoard *swboard;
+	PurpleConversation *conv;
+
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 
-	//	session = gc->proto_data;
-	//
-	//	swboard = nateon_session_find_swboard_with_id(session, id);
-	//
-	//	/* if swboard is NULL we were the only person left anyway */
-	//	if (swboard == NULL)
-	//		return;
-	//
-	//	conv = swboard->conv;
-	//
-	//	nateon_switchboard_release(swboard, NATEON_SB_FLAG_IM);
-	//
-	//	/* If other switchboards managed to associate themselves with this
-	//	 * conv, make sure they know it's gone! */
-	//	if (conv != NULL)
-	//	{
-	//		while ((swboard = nateon_session_find_swboard_with_conv(session, conv)) != NULL)
-	//			swboard->conv = NULL;
-	//	}
+	session = gc->proto_data;
+
+	swboard = nateon_session_find_swboard_with_id(session, id);
+
+	/* if swboard is NULL we were the only person left anyway */
+	if (swboard == NULL)
+		return;
+
+	conv = swboard->conv;
+
+	nateon_switchboard_release(swboard, NATEON_SB_FLAG_IM);
+
+	/* If other switchboards managed to associate themselves with this
+	 * conv, make sure they know it's gone! */
+	if (conv != NULL)
+	{
+		while ((swboard = nateon_session_find_swboard_with_conv(session, conv)) != NULL)
+			swboard->conv = NULL;
+	}
 }
 
-	static int
-nateon_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessageFlags flags)
+static int nateon_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessageFlags flags)
 {
-	//	PurpleAccount *account;
-	//	NateonSession *session;
-	//	NateonSwitchBoard *swboard;
-	//	NateonMessage *msg;
-	//	char *msgformat;
-	//	char *msgtext;
-	//
+	PurpleAccount *account;
+	NateonSession *session;
+	NateonSwitchBoard *swboard;
+	NateonMessage *msg;
+	//char *msgformat;
+	char *msgtext;
+
+	// 살펴볼 것!! =.=
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 
-	//	account = purple_connection_get_account(gc);
-	//	session = gc->proto_data;
-	//	swboard = nateon_session_find_swboard_with_id(session, id);
-	//
-	//	if (swboard == NULL)
-	//		return -EINVAL;
-	//
-	//	if (!swboard->ready)
-	//		return 0;
-	//
-	//	swboard->flag |= NATEON_SB_FLAG_IM;
-	//
-	//	nateon_import_html(message, &msgformat, &msgtext);
-	//
-	//	if (strlen(msgtext) + strlen(msgformat) + strlen(VERSION) > 1564)
-	//	{
-	//		g_free(msgformat);
-	//		g_free(msgtext);
-	//
-	//		return -E2BIG;
-	//	}
-	//
-	//	msg = nateon_message_new_plain(msgtext);
-	//	nateon_message_set_attr(msg, "X-MMS-IM-Format", msgformat);
-	//	nateon_switchboard_send_msg(swboard, msg, FALSE);
-	//	nateon_message_destroy(msg);
-	//
-	//	g_free(msgformat);
-	//	g_free(msgtext);
-	//
-	//	serv_got_chat_in(gc, id, purple_account_get_username(account), 0,
-	//					 message, time(NULL));
-	//
+	account = purple_connection_get_account(gc);
+	session = gc->proto_data;
+	swboard = nateon_session_find_swboard_with_id(session, id);
+
+	if (swboard == NULL)
+		return -EINVAL;
+
+	if (!swboard->ready)
+		return 0;
+
+	swboard->flag |= NATEON_SB_FLAG_IM;
+
+	//nateon_import_html(message, &msgformat, &msgtext);
+	msgtext = nateon_import_html(message);
+
+//	if (strlen(msgtext) + strlen(msgformat) + strlen(VERSION) > 1564)
+//	{
+//		g_free(msgformat);
+//		g_free(msgtext);
+//
+//		return -E2BIG;
+//	}
+	
+	msg = nateon_message_new_plain(msgtext);
+//	nateon_message_set_attr(msg, "X-MMS-IM-Format", msgformat);
+	nateon_switchboard_send_msg(swboard, msg, FALSE);
+	nateon_message_destroy(msg);
+
+	//g_free(msgformat);
+	g_free(msgtext);
+
+	serv_got_chat_in(gc, id, purple_account_get_username(account), 0, message, time(NULL));
+
 	return 0;
 }
 
@@ -2202,67 +2199,67 @@ static gboolean nateon_unload(PurplePlugin *plugin)
 static PurplePluginProtocolInfo prpl_info =
 {
 	0, //OPT_PROTO_MAIL_CHECK,
-	NULL,					/* user_splits */
-	NULL,					/* protocol_options */
+	NULL,						/* user_splits */
+	NULL,						/* protocol_options */
 	{ "bmp,jpg", 0, 0, 500, 500, 0, PURPLE_ICON_SCALE_SEND},    /* icon_spec */
 	nateon_list_icon,			/* list_icon */
-	NULL,					/* list_emblems */
+	NULL,						/* list_emblems */
 	nateon_status_text,			/* status_text */
-	nateon_tooltip_text,			/* tooltip_text */
-	nateon_status_types,			/* away_states */
-	nateon_blist_node_menu,			/* blist_node_menu */
-	NULL,					/* chat_info */
-	NULL,					/* chat_info_defaults */
+	nateon_tooltip_text,		/* tooltip_text */
+	nateon_status_types,		/* away_states */
+	nateon_blist_node_menu,		/* blist_node_menu */
+	NULL,						/* chat_info */
+	NULL,						/* chat_info_defaults */
 	nateon_login,				/* login */
 	nateon_close,				/* close */
 	nateon_send_im,				/* send_im */
-	NULL,					/* set_info */
+	NULL,						/* set_info */
 	nateon_send_typing,			/* send_typing */
 	nateon_get_info,			/* get_info */
 	nateon_set_status,			/* set_away */
 	nateon_set_idle,			/* set_idle */
-	NULL,					/* change_passwd */
+	NULL,						/* change_passwd */
 	nateon_add_buddy,			/* add_buddy */
-	NULL,					/* add_buddies */
+	NULL,						/* add_buddies */
 	nateon_rem_buddy,			/* remove_buddy */
-	NULL,					/* remove_buddies */
+	NULL,						/* remove_buddies */
 	nateon_add_permit,			/* add_permit */
 	nateon_add_deny,			/* add_deny */
 	nateon_rem_permit,			/* rem_permit */
 	nateon_rem_deny,			/* rem_deny */
-	nateon_set_permit_deny,			/* set_permit_deny */
-	NULL,					/* join_chat */
-	NULL,					/* reject chat invite */
-	NULL,					/* get_chat_name */
-	NULL, //nateon_chat_invite,			/* chat_invite */
-	NULL, //nateon_chat_leave,			/* chat_leave */
-	NULL,					/* chat_whisper */
+	nateon_set_permit_deny,		/* set_permit_deny */
+	NULL,						/* join_chat */
+	NULL,						/* reject chat invite */
+	NULL,						/* get_chat_name */
+	nateon_chat_invite,			/* chat_invite */
+	nateon_chat_leave,			/* chat_leave */
+	NULL,						/* chat_whisper */
 	nateon_chat_send,			/* chat_send */
-	NULL, //nateon_keepalive,			/* keepalive */
-	NULL,					/* register_user */
-	NULL,					/* get_cb_info */
-	NULL,					/* get_cb_away */
-	NULL,					/* alias_buddy */
+	NULL, //nateon_keepalive,	/* keepalive */
+	NULL,						/* register_user */
+	NULL,						/* get_cb_info */
+	NULL,						/* get_cb_away */
+	NULL,						/* alias_buddy */
 	nateon_group_buddy,			/* group_buddy */
-	nateon_rename_group,			/* rename_group */
-	NULL,					/* buddy_free */
-	nateon_convo_closed,			/* convo_closed */
+	nateon_rename_group,		/* rename_group */
+	NULL,						/* buddy_free */
+	nateon_convo_closed,		/* convo_closed */
 	nateon_normalize,			/* normalize */
-	NULL, //nateon_set_buddy_icon,		/* set_buddy_icon */
-	nateon_remove_group,			/* remove_group */
-	NULL,					/* get_cb_real_name */
-	NULL,					/* set_chat_topic */
-	NULL,					/* find_blist_chat */
-	NULL,					/* roomlist_get_list */
-	NULL,					/* roomlist_cancel */
-	NULL,					/* roomlist_expand_category */
+	NULL, //nateon_set_buddy_icon,	/* set_buddy_icon */
+	nateon_remove_group,		/* remove_group */
+	NULL,						/* get_cb_real_name */
+	NULL,						/* set_chat_topic */
+	NULL,						/* find_blist_chat */
+	NULL,						/* roomlist_get_list */
+	NULL,						/* roomlist_cancel */
+	NULL,						/* roomlist_expand_category */
 	nateon_can_receive_file,	/* can_receive_file */
 	nateon_send_file,			/* send_file */
-	NULL, //nateon_new_xfer,			/* new_xfer */
-	NULL,					/* offline_message */
-	NULL,					/* whiteboard_prpl_ops */
-	NULL,                                   /* send_raw */
-	NULL,                                   /* roomlist_room_serialize */
+	NULL, //nateon_new_xfer,	/* new_xfer */
+	NULL,						/* offline_message */
+	NULL,						/* whiteboard_prpl_ops */
+	NULL,						/* send_raw */
+	NULL,						/* roomlist_room_serialize */
 
 	/* padding */
 	NULL,

@@ -214,7 +214,7 @@ nateon_switchboard_add_user(NateonSwitchBoard *swboard, const char *user)
 	NateonCmdProc *cmdproc;
 	PurpleAccount *account;
 
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	purple_debug_info("nateon", "[%s:%d]\n", __FUNCTION__, __LINE__);
 
 	g_return_if_fail(swboard != NULL);
 
@@ -704,7 +704,7 @@ join_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	NateonSwitchBoard *swboard;
 	const char *account_name;
 
-	account_name = cmd->params[0];
+	account_name = cmd->params[1];
 
 	session = cmdproc->session;
 	account = session->account;
@@ -1057,28 +1057,34 @@ mesg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //	nateon_switchboard_disconnect(swboard);
 //}
 
-//static void
-//user_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
-//{
-//	NateonSwitchBoard *swboard;
-//
-//	swboard = cmdproc->data;
-//
-//#if 0
-//	GList *l;
-//
-//	for (l = swboard->users; l != NULL; l = l->next)
-//	{
-//		const char *user;
-//		user = l->data;
-//
-//		nateon_cmdproc_send(cmdproc, "CAL", "%s", user);
-//	}
-//#endif
-//
-//	swboard->ready = TRUE;
-//	nateon_cmdproc_process_queue(cmdproc);
-//}
+static void
+user_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	NateonSwitchBoard *swboard;
+
+	purple_debug_info("nateon", "[%s:%d]\n", __FUNCTION__, __LINE__);
+
+	swboard = cmdproc->data;
+
+	// 수정필요 =.=/
+	swboard->total_users = atoi(cmd->params[2]);
+	nateon_switchboard_add_user(swboard, cmd->params[3]);
+
+#if 0
+	GList *l;
+
+	for (l = swboard->users; l != NULL; l = l->next)
+	{
+		const char *user;
+		user = l->data;
+
+		nateon_cmdproc_send(cmdproc, "CAL", "%s", user);
+	}
+#endif
+
+	swboard->ready = TRUE;
+	nateon_cmdproc_process_queue(cmdproc);
+}
 
 ///**************************************************************************
 // * Message Handlers
@@ -1613,8 +1619,8 @@ nateon_switchboard_init(void)
 //	nateon_table_add_cmd(cbs_table, "MSG", "NAK", nak_cmd);
 //
 //	nateon_table_add_cmd(cbs_table, "USR", "USR", usr_cmd);
-//	nateon_table_add_cmd(cbs_table, NULL, "USER", user_cmd);
-//
+	nateon_table_add_cmd(cbs_table, NULL, "USER", user_cmd);
+
 //	nateon_table_add_cmd(cbs_table, NULL, "MSG", msg_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "MESG", mesg_cmd);
 //	nateon_table_add_cmd(cbs_table, NULL, "JOI", joi_cmd);
@@ -1660,3 +1666,5 @@ nateon_switchboard_end(void)
 {
 	nateon_table_destroy(cbs_table);
 }
+
+/* vim: ts=4 sw=4: */

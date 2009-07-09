@@ -174,16 +174,15 @@ NateonSwitchBoard *nateon_session_find_swboard(NateonSession *session, const cha
  */
 NateonSwitchBoard *nateon_session_find_swboard_with_conv(NateonSession *session, PurpleConversation *conv);
 
-///**
-// * Finds a switchboard with the given chat ID.
-// *
-// * @param session The NATEON session.
-// * @param chat_id The chat ID to search for.
-// *
-// * @return The switchboard, if found.
-// */
-//NateonSwitchBoard *nateon_session_find_swboard_with_id(const NateonSession *session,
-//												 int chat_id);
+/**
+ * Finds a switchboard with the given chat ID.
+ *
+ * @param session The NATEON session.
+ * @param chat_id The chat ID to search for.
+ *
+ * @return The switchboard, if found.
+ */
+NateonSwitchBoard *nateon_session_find_swboard_with_id(const NateonSession *session, int chat_id);
 
 /**
  * Returns a switchboard to communicate with certain username.
