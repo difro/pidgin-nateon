@@ -143,6 +143,11 @@ static void nateon_act_id(PurpleConnection *gc, const char *entry)
 	nateon_cmdproc_send(cmdproc, "CNIK", "%s", alias);
 }
 
+void nateon_act_id_(PurpleConnection *gc, const char *entry)
+{
+    return nateon_act_id(gc, entry);
+}
+
 static void nateon_act_view_buddies_by(PurpleAccount *account, int choice)
 {
 	PurpleBlistNode *gnode, *cnode, *bnode;
@@ -2255,7 +2260,7 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,						/* roomlist_expand_category */
 	nateon_can_receive_file,	/* can_receive_file */
 	nateon_send_file,			/* send_file */
-	NULL, //nateon_new_xfer,	/* new_xfer */
+	nateon_new_xfer,			/* new_xfer */
 	NULL,						/* offline_message */
 	NULL,						/* whiteboard_prpl_ops */
 	NULL,						/* send_raw */

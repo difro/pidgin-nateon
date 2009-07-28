@@ -1274,3 +1274,22 @@ nateon_xfer_receive_buddyimage(NateonSession *session, NateonSwitchBoard *swboar
 
 	nateon_xfer_init(xfer->prpl_xfer);
 }
+
+PurpleXfer*
+nateon_new_xfer(PurpleConnection *gc, const char *who)
+{
+    NateonXfer *xfer;
+
+    purple_debug_info("nateon", "%s: who:%s\n", __FUNCTION__, who);
+
+    xfer = nateon_xfer_new(gc->proto_data, PURPLE_XFER_SEND, who);
+    xfer->content_type = NATEON_XFER_CONTENT_FILE;
+    purple_xfer_set_init_fnc(xfer->prpl_xfer, nateon_xfer_init);
+    purple_xfer_set_cancel_recv_fnc(xfer->prpl_xfer, nateon_xfer_cancel_recv);
+    purple_xfer_set_request_denied_fnc(xfer->prpl_xfer, nateon_xfer_request_denied);
+    purple_xfer_set_end_fnc(xfer->prpl_xfer, nateon_xfer_end);
+    purple_xfer_set_cancel_send_fnc(xfer->prpl_xfer, nateon_xfer_cancel_send);
+
+    xfer->swboard = nateon_session_get_swboard(xfer->session, xfer->who, NATEON_SB_FLAG_FT);
+    return xfer->prpl_xfer;
+}

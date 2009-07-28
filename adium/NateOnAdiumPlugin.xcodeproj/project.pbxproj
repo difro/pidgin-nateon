@@ -1,0 +1,523 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6970FA14100C338300A1A111 /* cmdproc.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9E5100C338300A1A111 /* cmdproc.c */; };
+		6970FA15100C338300A1A111 /* command.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9E7100C338300A1A111 /* command.c */; };
+		6970FA17100C338300A1A111 /* dialog.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9EA100C338300A1A111 /* dialog.c */; };
+		6970FA18100C338300A1A111 /* error.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9EC100C338300A1A111 /* error.c */; };
+		6970FA19100C338300A1A111 /* group.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9EE100C338300A1A111 /* group.c */; };
+		6970FA1A100C338300A1A111 /* history.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9F0100C338300A1A111 /* history.c */; };
+		6970FA1B100C338300A1A111 /* memo.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9F3100C338300A1A111 /* memo.c */; };
+		6970FA1C100C338300A1A111 /* msg.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9F5100C338300A1A111 /* msg.c */; };
+		6970FA1D100C338300A1A111 /* nateon-utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9F7100C338300A1A111 /* nateon-utils.c */; };
+		6970FA1E100C338300A1A111 /* nateon.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9F9100C338300A1A111 /* nateon.c */; };
+		6970FA1F100C338300A1A111 /* notification.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9FB100C338300A1A111 /* notification.c */; };
+		6970FA20100C338300A1A111 /* servconn.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9FD100C338300A1A111 /* servconn.c */; };
+		6970FA21100C338300A1A111 /* session.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970F9FF100C338300A1A111 /* session.c */; };
+		6970FA22100C338300A1A111 /* slplink.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970FA01100C338300A1A111 /* slplink.c */; };
+		6970FA23100C338300A1A111 /* state.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970FA03100C338300A1A111 /* state.c */; };
+		6970FA24100C338300A1A111 /* switchboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970FA05100C338300A1A111 /* switchboard.c */; };
+		6970FA25100C338300A1A111 /* sync.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970FA07100C338300A1A111 /* sync.c */; };
+		6970FA26100C338300A1A111 /* table.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970FA09100C338300A1A111 /* table.c */; };
+		6970FA28100C338300A1A111 /* transaction.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970FA0C100C338300A1A111 /* transaction.c */; };
+		6970FA29100C338300A1A111 /* user.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970FA0E100C338300A1A111 /* user.c */; };
+		6970FA2A100C338300A1A111 /* userlist.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970FA10100C338300A1A111 /* userlist.c */; };
+		6970FA2B100C338300A1A111 /* xfer.c in Sources */ = {isa = PBXBuildFile; fileRef = 6970FA12100C338300A1A111 /* xfer.c */; };
+		8D5B49B0048680CD000E48DA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
+		AC5181870CD8F94A00AC625B /* ESNateOnAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = AC51817C0CD8F94A00AC625B /* ESNateOnAccount.m */; };
+		AC51818C0CD8F94A00AC625B /* ESNateOnLibpurpleServicePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = AC5181840CD8F94A00AC625B /* ESNateOnLibpurpleServicePlugin.m */; };
+		AC51818D0CD8F94A00AC625B /* ESNateOnService.m in Sources */ = {isa = PBXBuildFile; fileRef = AC5181860CD8F94A00AC625B /* ESNateOnService.m */; };
+		ACD4AC530CD91E4900002BDB /* NateOn.png in Resources */ = {isa = PBXBuildFile; fileRef = ACD4AC520CD91E4900002BDB /* NateOn.png */; };
+		ACD4AC550CD91F0100002BDB /* PurpleDefaultsNateOn.plist in Resources */ = {isa = PBXBuildFile; fileRef = ACD4AC540CD91F0100002BDB /* PurpleDefaultsNateOn.plist */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		089C167EFE841241C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		32DBCF630370AF2F00C91783 /* NateOnAdiumPlugin_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NateOnAdiumPlugin_Prefix.pch; sourceTree = "<group>"; };
+		6970F9E5100C338300A1A111 /* cmdproc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmdproc.c; path = ../src/cmdproc.c; sourceTree = SOURCE_ROOT; };
+		6970F9E6100C338300A1A111 /* cmdproc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cmdproc.h; path = ../src/cmdproc.h; sourceTree = SOURCE_ROOT; };
+		6970F9E7100C338300A1A111 /* command.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = command.c; path = ../src/command.c; sourceTree = SOURCE_ROOT; };
+		6970F9E8100C338300A1A111 /* command.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = command.h; path = ../src/command.h; sourceTree = SOURCE_ROOT; };
+		6970F9EA100C338300A1A111 /* dialog.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dialog.c; path = ../src/dialog.c; sourceTree = SOURCE_ROOT; };
+		6970F9EB100C338300A1A111 /* dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dialog.h; path = ../src/dialog.h; sourceTree = SOURCE_ROOT; };
+		6970F9EC100C338300A1A111 /* error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = error.c; path = ../src/error.c; sourceTree = SOURCE_ROOT; };
+		6970F9ED100C338300A1A111 /* error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = error.h; path = ../src/error.h; sourceTree = SOURCE_ROOT; };
+		6970F9EE100C338300A1A111 /* group.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = group.c; path = ../src/group.c; sourceTree = SOURCE_ROOT; };
+		6970F9EF100C338300A1A111 /* group.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = group.h; path = ../src/group.h; sourceTree = SOURCE_ROOT; };
+		6970F9F0100C338300A1A111 /* history.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = history.c; path = ../src/history.c; sourceTree = SOURCE_ROOT; };
+		6970F9F1100C338300A1A111 /* history.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = history.h; path = ../src/history.h; sourceTree = SOURCE_ROOT; };
+		6970F9F2100C338300A1A111 /* internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = internal.h; path = ../src/internal.h; sourceTree = SOURCE_ROOT; };
+		6970F9F3100C338300A1A111 /* memo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = memo.c; path = ../src/memo.c; sourceTree = SOURCE_ROOT; };
+		6970F9F4100C338300A1A111 /* memo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memo.h; path = ../src/memo.h; sourceTree = SOURCE_ROOT; };
+		6970F9F5100C338300A1A111 /* msg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = msg.c; path = ../src/msg.c; sourceTree = SOURCE_ROOT; };
+		6970F9F6100C338300A1A111 /* msg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = msg.h; path = ../src/msg.h; sourceTree = SOURCE_ROOT; };
+		6970F9F7100C338300A1A111 /* nateon-utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "nateon-utils.c"; path = "../src/nateon-utils.c"; sourceTree = SOURCE_ROOT; };
+		6970F9F8100C338300A1A111 /* nateon-utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "nateon-utils.h"; path = "../src/nateon-utils.h"; sourceTree = SOURCE_ROOT; };
+		6970F9F9100C338300A1A111 /* nateon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = nateon.c; path = ../src/nateon.c; sourceTree = SOURCE_ROOT; };
+		6970F9FA100C338300A1A111 /* nateon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nateon.h; path = ../src/nateon.h; sourceTree = SOURCE_ROOT; };
+		6970F9FB100C338300A1A111 /* notification.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = notification.c; path = ../src/notification.c; sourceTree = SOURCE_ROOT; };
+		6970F9FC100C338300A1A111 /* notification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = notification.h; path = ../src/notification.h; sourceTree = SOURCE_ROOT; };
+		6970F9FD100C338300A1A111 /* servconn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = servconn.c; path = ../src/servconn.c; sourceTree = SOURCE_ROOT; };
+		6970F9FE100C338300A1A111 /* servconn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = servconn.h; path = ../src/servconn.h; sourceTree = SOURCE_ROOT; };
+		6970F9FF100C338300A1A111 /* session.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = session.c; path = ../src/session.c; sourceTree = SOURCE_ROOT; };
+		6970FA00100C338300A1A111 /* session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = session.h; path = ../src/session.h; sourceTree = SOURCE_ROOT; };
+		6970FA01100C338300A1A111 /* slplink.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = slplink.c; path = ../src/slplink.c; sourceTree = SOURCE_ROOT; };
+		6970FA02100C338300A1A111 /* slplink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = slplink.h; path = ../src/slplink.h; sourceTree = SOURCE_ROOT; };
+		6970FA03100C338300A1A111 /* state.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = state.c; path = ../src/state.c; sourceTree = SOURCE_ROOT; };
+		6970FA04100C338300A1A111 /* state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = state.h; path = ../src/state.h; sourceTree = SOURCE_ROOT; };
+		6970FA05100C338300A1A111 /* switchboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = switchboard.c; path = ../src/switchboard.c; sourceTree = SOURCE_ROOT; };
+		6970FA06100C338300A1A111 /* switchboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = switchboard.h; path = ../src/switchboard.h; sourceTree = SOURCE_ROOT; };
+		6970FA07100C338300A1A111 /* sync.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sync.c; path = ../src/sync.c; sourceTree = SOURCE_ROOT; };
+		6970FA08100C338300A1A111 /* sync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sync.h; path = ../src/sync.h; sourceTree = SOURCE_ROOT; };
+		6970FA09100C338300A1A111 /* table.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = table.c; path = ../src/table.c; sourceTree = SOURCE_ROOT; };
+		6970FA0A100C338300A1A111 /* table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = table.h; path = ../src/table.h; sourceTree = SOURCE_ROOT; };
+		6970FA0C100C338300A1A111 /* transaction.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = transaction.c; path = ../src/transaction.c; sourceTree = SOURCE_ROOT; };
+		6970FA0D100C338300A1A111 /* transaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = transaction.h; path = ../src/transaction.h; sourceTree = SOURCE_ROOT; };
+		6970FA0E100C338300A1A111 /* user.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = user.c; path = ../src/user.c; sourceTree = SOURCE_ROOT; };
+		6970FA0F100C338300A1A111 /* user.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = user.h; path = ../src/user.h; sourceTree = SOURCE_ROOT; };
+		6970FA10100C338300A1A111 /* userlist.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = userlist.c; path = ../src/userlist.c; sourceTree = SOURCE_ROOT; };
+		6970FA11100C338300A1A111 /* userlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = userlist.h; path = ../src/userlist.h; sourceTree = SOURCE_ROOT; };
+		6970FA12100C338300A1A111 /* xfer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xfer.c; path = ../src/xfer.c; sourceTree = SOURCE_ROOT; };
+		6970FA13100C338300A1A111 /* xfer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xfer.h; path = ../src/xfer.h; sourceTree = SOURCE_ROOT; };
+		6970FA50100C357C00A1A111 /* libglib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libglib.framework; path = "../../adium-1.3/Frameworks/libglib.framework"; sourceTree = SOURCE_ROOT; };
+		6970FA51100C357C00A1A111 /* libgmodule.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libgmodule.framework; path = "../../adium-1.3/Frameworks/libgmodule.framework"; sourceTree = SOURCE_ROOT; };
+		6970FA52100C357C00A1A111 /* libgobject.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libgobject.framework; path = "../../adium-1.3/Frameworks/libgobject.framework"; sourceTree = SOURCE_ROOT; };
+		6970FA53100C357C00A1A111 /* libgthread.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libgthread.framework; path = "../../adium-1.3/Frameworks/libgthread.framework"; sourceTree = SOURCE_ROOT; };
+		6970FA54100C357C00A1A111 /* libintl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libintl.framework; path = "../../adium-1.3/Frameworks/libintl.framework"; sourceTree = SOURCE_ROOT; };
+		6970FA55100C357C00A1A111 /* libmeanwhile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libmeanwhile.framework; path = "../../adium-1.3/Frameworks/libmeanwhile.framework"; sourceTree = SOURCE_ROOT; };
+		6970FA68100C358E00A1A111 /* FriBidi.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FriBidi.framework; path = "../../adium-1.3/build/Development/FriBidi.framework"; sourceTree = SOURCE_ROOT; };
+		6970FBB1100C373700A1A111 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		8D5B49B6048680CD000E48DA /* NateOnAdiumPlugin.AdiumLibpurplePlugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NateOnAdiumPlugin.AdiumLibpurplePlugin; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D5B49B7048680CD000E48DA /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AC0319890D7A5349007A72C0 /* Adium.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Adium.framework; path = "../../adium-1.3/build/Development/Adium.framework"; sourceTree = SOURCE_ROOT; };
+		AC031A020D7A53FC007A72C0 /* AdiumLibpurple.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdiumLibpurple.framework; path = "../../adium-1.3/build/Development/AdiumLibpurple.framework"; sourceTree = SOURCE_ROOT; };
+		AC031A420D7A5408007A72C0 /* AIUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AIUtilities.framework; path = "../../adium-1.3/build/Development/AIUtilities.framework"; sourceTree = SOURCE_ROOT; };
+		AC031AAC0D7A54F9007A72C0 /* libpurple.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libpurple.framework; path = "../../adium-1.3/Frameworks/libpurple.framework"; sourceTree = SOURCE_ROOT; };
+		AC51817B0CD8F94A00AC625B /* ESNateOnAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESNateOnAccount.h; sourceTree = "<group>"; };
+		AC51817C0CD8F94A00AC625B /* ESNateOnAccount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ESNateOnAccount.m; sourceTree = "<group>"; };
+		AC5181830CD8F94A00AC625B /* ESNateOnLibpurpleServicePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESNateOnLibpurpleServicePlugin.h; sourceTree = "<group>"; };
+		AC5181840CD8F94A00AC625B /* ESNateOnLibpurpleServicePlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ESNateOnLibpurpleServicePlugin.m; sourceTree = "<group>"; };
+		AC5181850CD8F94A00AC625B /* ESNateOnService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESNateOnService.h; sourceTree = "<group>"; };
+		AC5181860CD8F94A00AC625B /* ESNateOnService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ESNateOnService.m; sourceTree = "<group>"; };
+		ACD4AC520CD91E4900002BDB /* NateOn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NateOn.png; sourceTree = "<group>"; };
+		ACD4AC540CD91F0100002BDB /* PurpleDefaultsNateOn.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PurpleDefaultsNateOn.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8D5B49B3048680CD000E48DA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		089C166AFE841209C02AAC07 /* NateOnAdiumPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				AC51817B0CD8F94A00AC625B /* ESNateOnAccount.h */,
+				AC51817C0CD8F94A00AC625B /* ESNateOnAccount.m */,
+				AC5181830CD8F94A00AC625B /* ESNateOnLibpurpleServicePlugin.h */,
+				AC5181840CD8F94A00AC625B /* ESNateOnLibpurpleServicePlugin.m */,
+				AC5181850CD8F94A00AC625B /* ESNateOnService.h */,
+				AC5181860CD8F94A00AC625B /* ESNateOnService.m */,
+				08FB77AFFE84173DC02AAC07 /* Classes */,
+				32C88E010371C26100C91783 /* Other Sources */,
+				089C167CFE841241C02AAC07 /* Resources */,
+				089C1671FE841209C02AAC07 /* Frameworks and Libraries */,
+				19C28FB8FE9D52D311CA2CBB /* Products */,
+				6970FBB1100C373700A1A111 /* Cocoa.framework */,
+			);
+			name = NateOnAdiumPlugin;
+			sourceTree = "<group>";
+		};
+		089C1671FE841209C02AAC07 /* Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7ACFEA557BF11CA2CBB /* Linked Frameworks */,
+				1058C7AEFEA557BF11CA2CBB /* Other Frameworks */,
+			);
+			name = "Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		089C167CFE841241C02AAC07 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				ACD4AC540CD91F0100002BDB /* PurpleDefaultsNateOn.plist */,
+				ACD4AC520CD91E4900002BDB /* NateOn.png */,
+				8D5B49B7048680CD000E48DA /* Info.plist */,
+				089C167DFE841241C02AAC07 /* InfoPlist.strings */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		08FB77AFFE84173DC02AAC07 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		1058C7ACFEA557BF11CA2CBB /* Linked Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6970FA68100C358E00A1A111 /* FriBidi.framework */,
+				6970FA50100C357C00A1A111 /* libglib.framework */,
+				6970FA51100C357C00A1A111 /* libgmodule.framework */,
+				6970FA52100C357C00A1A111 /* libgobject.framework */,
+				6970FA53100C357C00A1A111 /* libgthread.framework */,
+				6970FA54100C357C00A1A111 /* libintl.framework */,
+				6970FA55100C357C00A1A111 /* libmeanwhile.framework */,
+				AC031AAC0D7A54F9007A72C0 /* libpurple.framework */,
+				AC031A420D7A5408007A72C0 /* AIUtilities.framework */,
+				AC031A020D7A53FC007A72C0 /* AdiumLibpurple.framework */,
+				AC0319890D7A5349007A72C0 /* Adium.framework */,
+			);
+			name = "Linked Frameworks";
+			sourceTree = "<group>";
+		};
+		1058C7AEFEA557BF11CA2CBB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		19C28FB8FE9D52D311CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8D5B49B6048680CD000E48DA /* NateOnAdiumPlugin.AdiumLibpurplePlugin */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		32C88E010371C26100C91783 /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				ACD4AA550CD9139700002BDB /* NateOnPurple */,
+				32DBCF630370AF2F00C91783 /* NateOnAdiumPlugin_Prefix.pch */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		ACD4AA550CD9139700002BDB /* NateOnPurple */ = {
+			isa = PBXGroup;
+			children = (
+				6970F9E5100C338300A1A111 /* cmdproc.c */,
+				6970F9E6100C338300A1A111 /* cmdproc.h */,
+				6970F9E7100C338300A1A111 /* command.c */,
+				6970F9E8100C338300A1A111 /* command.h */,
+				6970F9EA100C338300A1A111 /* dialog.c */,
+				6970F9EB100C338300A1A111 /* dialog.h */,
+				6970F9EC100C338300A1A111 /* error.c */,
+				6970F9ED100C338300A1A111 /* error.h */,
+				6970F9EE100C338300A1A111 /* group.c */,
+				6970F9EF100C338300A1A111 /* group.h */,
+				6970F9F0100C338300A1A111 /* history.c */,
+				6970F9F1100C338300A1A111 /* history.h */,
+				6970F9F2100C338300A1A111 /* internal.h */,
+				6970F9F3100C338300A1A111 /* memo.c */,
+				6970F9F4100C338300A1A111 /* memo.h */,
+				6970F9F5100C338300A1A111 /* msg.c */,
+				6970F9F6100C338300A1A111 /* msg.h */,
+				6970F9F7100C338300A1A111 /* nateon-utils.c */,
+				6970F9F8100C338300A1A111 /* nateon-utils.h */,
+				6970F9F9100C338300A1A111 /* nateon.c */,
+				6970F9FA100C338300A1A111 /* nateon.h */,
+				6970F9FB100C338300A1A111 /* notification.c */,
+				6970F9FC100C338300A1A111 /* notification.h */,
+				6970F9FD100C338300A1A111 /* servconn.c */,
+				6970F9FE100C338300A1A111 /* servconn.h */,
+				6970F9FF100C338300A1A111 /* session.c */,
+				6970FA00100C338300A1A111 /* session.h */,
+				6970FA01100C338300A1A111 /* slplink.c */,
+				6970FA02100C338300A1A111 /* slplink.h */,
+				6970FA03100C338300A1A111 /* state.c */,
+				6970FA04100C338300A1A111 /* state.h */,
+				6970FA05100C338300A1A111 /* switchboard.c */,
+				6970FA06100C338300A1A111 /* switchboard.h */,
+				6970FA07100C338300A1A111 /* sync.c */,
+				6970FA08100C338300A1A111 /* sync.h */,
+				6970FA09100C338300A1A111 /* table.c */,
+				6970FA0A100C338300A1A111 /* table.h */,
+				6970FA0C100C338300A1A111 /* transaction.c */,
+				6970FA0D100C338300A1A111 /* transaction.h */,
+				6970FA0E100C338300A1A111 /* user.c */,
+				6970FA0F100C338300A1A111 /* user.h */,
+				6970FA10100C338300A1A111 /* userlist.c */,
+				6970FA11100C338300A1A111 /* userlist.h */,
+				6970FA12100C338300A1A111 /* xfer.c */,
+				6970FA13100C338300A1A111 /* xfer.h */,
+			);
+			name = NateOnPurple;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8D5B49AC048680CD000E48DA /* NateOnPlugin */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB913A08733D840010E9CD /* Build configuration list for PBXNativeTarget "NateOnPlugin" */;
+			buildPhases = (
+				8D5B49AF048680CD000E48DA /* Resources */,
+				8D5B49B1048680CD000E48DA /* Sources */,
+				8D5B49B3048680CD000E48DA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NateOnPlugin;
+			productInstallPath = "$(HOME)/Library/Bundles";
+			productName = NateOnAdiumPlugin;
+			productReference = 8D5B49B6048680CD000E48DA /* NateOnAdiumPlugin.AdiumLibpurplePlugin */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		089C1669FE841209C02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "NateOnAdiumPlugin" */;
+			compatibilityVersion = "Xcode 2.4";
+			hasScannedForEncodings = 1;
+			mainGroup = 089C166AFE841209C02AAC07 /* NateOnAdiumPlugin */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8D5B49AC048680CD000E48DA /* NateOnPlugin */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8D5B49AF048680CD000E48DA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D5B49B0048680CD000E48DA /* InfoPlist.strings in Resources */,
+				ACD4AC530CD91E4900002BDB /* NateOn.png in Resources */,
+				ACD4AC550CD91F0100002BDB /* PurpleDefaultsNateOn.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8D5B49B1048680CD000E48DA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AC5181870CD8F94A00AC625B /* ESNateOnAccount.m in Sources */,
+				AC51818C0CD8F94A00AC625B /* ESNateOnLibpurpleServicePlugin.m in Sources */,
+				AC51818D0CD8F94A00AC625B /* ESNateOnService.m in Sources */,
+				6970FA14100C338300A1A111 /* cmdproc.c in Sources */,
+				6970FA15100C338300A1A111 /* command.c in Sources */,
+				6970FA17100C338300A1A111 /* dialog.c in Sources */,
+				6970FA18100C338300A1A111 /* error.c in Sources */,
+				6970FA19100C338300A1A111 /* group.c in Sources */,
+				6970FA1A100C338300A1A111 /* history.c in Sources */,
+				6970FA1B100C338300A1A111 /* memo.c in Sources */,
+				6970FA1C100C338300A1A111 /* msg.c in Sources */,
+				6970FA1D100C338300A1A111 /* nateon-utils.c in Sources */,
+				6970FA1E100C338300A1A111 /* nateon.c in Sources */,
+				6970FA1F100C338300A1A111 /* notification.c in Sources */,
+				6970FA20100C338300A1A111 /* servconn.c in Sources */,
+				6970FA21100C338300A1A111 /* session.c in Sources */,
+				6970FA22100C338300A1A111 /* slplink.c in Sources */,
+				6970FA23100C338300A1A111 /* state.c in Sources */,
+				6970FA24100C338300A1A111 /* switchboard.c in Sources */,
+				6970FA25100C338300A1A111 /* sync.c in Sources */,
+				6970FA26100C338300A1A111 /* table.c in Sources */,
+				6970FA28100C338300A1A111 /* transaction.c in Sources */,
+				6970FA29100C338300A1A111 /* user.c in Sources */,
+				6970FA2A100C338300A1A111 /* userlist.c in Sources */,
+				6970FA2B100C338300A1A111 /* xfer.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		089C167DFE841241C02AAC07 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				089C167EFE841241C02AAC07 /* English */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB913B08733D840010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ADIUM = "../../adium-1.3";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_4)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_5)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_6)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_7)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_8)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_9)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../AdiumX_1.1.1/build/Deployment\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../AdiumX_1.1.1/build/Deployment\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_4 = "\"$(SRCROOT)\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_5 = "\"$(SRCROOT)\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_6 = "\"$(SRCROOT)/../adium/trunk/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_7 = "\"$(SRCROOT)/../adium/trunk/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_8 = "\"$(SRCROOT)/../../adium-1.3/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_9 = "\"$(SRCROOT)/../../adium-1.3/build/Development\"";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = NateOnAdiumPlugin_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = "VERSION=\"\\\"r142\"\\\"";
+				HEADER_SEARCH_PATHS = (
+					"$(ADIUM)/Frameworks/libglib.framework/Headers",
+					"$(ADIUM)/Frameworks/libpurple.framework/Headers",
+					"$(ADIUM)/build/Development/Adium.framework/Headers",
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Library/Bundles";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)\"";
+				OTHER_CFLAGS = "-DPURPLE_STATIC_PRPL";
+				OTHER_LDFLAGS = (
+					"-undefined",
+					dynamic_lookup,
+				);
+				PRODUCT_NAME = NateOnAdiumPlugin;
+				WRAPPER_EXTENSION = AdiumLibpurplePlugin;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		1DEB913C08733D840010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ADIUM = "../../adium-1.3";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_5)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_6)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_8)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_9)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = /Users/mario/src/adium/trunk/build/Development;
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/build/Deployment\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_4 = "\"$(SRCROOT)\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_5 = "\"$(SRCROOT)\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_6 = "\"$(SRCROOT)/../adium/trunk/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_7 = "\"$(SRCROOT)/../adium/trunk/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_8 = "\"$(SRCROOT)/../../adium-1.3/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_9 = "\"$(SRCROOT)/../../adium-1.3/build/Development\"";
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = NateOnAdiumPlugin_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				HEADER_SEARCH_PATHS = (
+					"$(ADIUM)/Frameworks/libglib.framework/Headers",
+					"$(ADIUM)/Frameworks/libpurple.framework/Headers",
+					"$(ADIUM)/build/Development/Adium.framework/Headers",
+				);
+				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../libpurple/trunk/pidgin/libpurple\"";
+				HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../adium/trunk/Frameworks/libpurple.framework/Headers\"";
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "\"$(HOME)/Library/Application Support/Adium 2.0/PlugIns/\"";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)\"";
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				OTHER_CFLAGS = (
+					"-DPURPLE_STATIC_PRPL",
+					"-DVERSION=1",
+				);
+				OTHER_LDFLAGS = (
+					"-undefined",
+					dynamic_lookup,
+				);
+				PRODUCT_NAME = NateOnAdiumPlugin;
+				REZ_SEARCH_PATHS = "";
+				STRIPFLAGS = "-u";
+				STRIP_STYLE = "non-global";
+				WRAPPER_EXTENSION = AdiumLibpurplePlugin;
+			};
+			name = Release;
+		};
+		1DEB913F08733D840010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+			};
+			name = Debug;
+		};
+		1DEB914008733D840010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					i386,
+					ppc,
+				);
+				DEAD_CODE_STRIPPING = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB913A08733D840010E9CD /* Build configuration list for PBXNativeTarget "NateOnPlugin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB913B08733D840010E9CD /* Debug */,
+				1DEB913C08733D840010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "NateOnAdiumPlugin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB913F08733D840010E9CD /* Debug */,
+				1DEB914008733D840010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 089C1669FE841209C02AAC07 /* Project object */;
+}

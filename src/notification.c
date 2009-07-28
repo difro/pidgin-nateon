@@ -1399,16 +1399,17 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 		purple_debug_info("nateon", "%d: [%s]\n", i, cmd->params[i]);
 
 		params = g_strsplit(cmd->params[i], ":", 0);
+ 
+        if (params[0] == NULL || !strcmp(params[0], "uuid"))
+        {
 
-		if (params[0] == NULL)
-		{
-			params = &cmd->params[i+1];
-			contents = g_strjoinv(" ", params);
-			contents = purple_strreplace(contents, "\n", "<br>");
-			g_strstrip(contents);
-			break;
-		}
-		else if (!strcmp(params[0], "from"))
+            params = &cmd->params[i+1];
+            contents = g_strjoinv(" ", params);
+            contents = purple_strreplace(contents, "\n", "<br>");
+            g_strstrip(contents);
+            break;
+        }
+        else if (!strcmp(params[0], "from"))
 		{
 			buddy_name = params[1];
 		}

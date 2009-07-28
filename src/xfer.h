@@ -145,4 +145,5 @@ void nateon_xfer_cancel_transfer(NateonSession *session, const char *who, const 
 void nateon_xfer_receive_buddyimage(NateonSession *session, NateonSwitchBoard *swboard, \
 		const char *who, const char *uniq_name, const int filesize, const char *cookie);
 
+PurpleXfer* nateon_new_xfer(PurpleConnection *gc, const char *who);
 #endif /* _NATEON_XFER_H_ */
