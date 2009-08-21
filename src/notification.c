@@ -307,13 +307,12 @@ static void rcon_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //	nateon_session_set_error(cmdproc->session, nateonerr, NULL);
 //}
 
-//static void
-//usr_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
-//{
-//	NateonErrorType nateonerr = 0;
-//
-//	switch (error)
-//	{
+static void lsin_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
+{
+	NateonErrorType nateonerr = 0;
+
+	switch (error)
+	{
 //		case 500:
 //		case 601:
 //		case 910:
@@ -321,15 +320,16 @@ static void rcon_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 //			nateonerr = NATEON_ERROR_SERV_UNAVAILABLE;
 //			break;
 //		case 911:
-//			nateonerr = NATEON_ERROR_AUTH;
-//			break;
-//		default:
-//			return;
-//			break;
-//	}
-//
-//	nateon_session_set_error(cmdproc->session, nateonerr, NULL);
-//}
+		case 301:
+			nateonerr = NATEON_ERROR_AUTH;
+			break;
+		default:
+			return;
+			break;
+	}
+
+	nateon_session_set_error(cmdproc->session, nateonerr, NULL);
+}
 
 static void pver_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
@@ -1897,8 +1897,8 @@ nateon_notification_init(void)
 //	nateon_table_add_error(cbs_table, "REG", reg_error);
 //	nateon_table_add_error(cbs_table, "RMG", rmg_error);
 //	/* nateon_table_add_error(cbs_table, "REA", rea_error); */
-//	nateon_table_add_error(cbs_table, "USR", usr_error);
-//
+	nateon_table_add_error(cbs_table, "LSIN", lsin_error);
+
 //	nateon_table_add_msg_type(cbs_table,
 //						   "text/x-msmsgsprofile",
 //						   profile_msg);
