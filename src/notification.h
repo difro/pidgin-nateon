@@ -37,6 +37,9 @@ struct _NateonNotification
 	NateonServConn *servconn;
 
 	gboolean in_use;
+
+	guint pong_timer;
+	guint pong_count;
 };
 
 #include "state.h"

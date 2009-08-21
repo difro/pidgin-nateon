@@ -33,6 +33,11 @@
 #include "sync.h"
 //#include "slplink.h"
 
+/* interval between sending PONG packets */
+#define NATEON_PONG_CHECK_INTERVAL  (10)    /* in seconds */
+/* disconnect session after this many PONG retries */
+#define NATEON_PONG_MAX_RETRIES     (3)
+
 static NateonTable *cbs_table;
 
 /**************************************************************************
@@ -79,6 +84,11 @@ nateon_notification_destroy(NateonNotification *notification)
 	nateon_servconn_set_destroy_cb(notification->servconn, NULL);
 
 	nateon_servconn_destroy(notification->servconn);
+
+	if (notification->pong_timer) {
+		purple_timeout_remove(notification->pong_timer);
+		notification->pong_timer = 0;
+	}
 
 	g_free(notification);
 }
@@ -362,15 +372,35 @@ static void reqs_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	g_free(host);
 }
 
+static gboolean pong_check_cb(gpointer data)
+{
+	NateonNotification *notification = data;
+	NateonCmdProc *cmdproc = notification->cmdproc;
+	NateonSession *session = cmdproc->session;
+	PurpleConnection *gc = session->account->gc;
+
+	if (notification->pong_count >= NATEON_PONG_MAX_RETRIES - 1) {
+		/* Tell libpurple to reconnect */
+		purple_connection_error_reason(gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
+				_("Network seems to be down."));
+		return FALSE;
+	}
+	nateon_cmdproc_send(cmdproc, "PONG", NULL);
+	notification->pong_count++;
+	return TRUE;
+}
+
 static void lsin_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
 	NateonSession *session;
+	NateonNotification *notification;
 	PurpleConnection *gc;
 	NateonSync *sync;
 	NateonUser *user;
 	char *user_id, *stored, *friend;
 
 	session = cmdproc->session;
+	notification = cmdproc->data;
 	gc = purple_account_get_connection(session->account);
 
 	nateon_session_set_login_step(session, NATEON_LOGIN_STEP_AUTH);
@@ -411,6 +441,10 @@ static void lsin_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 	//nateon_cmdproc_send(cmdproc, "CONF", "0 0");
 	nateon_cmdproc_send(cmdproc, "GLST", NULL);
+
+	/* Start 'PONG' heartbeat timer */
+	notification->pong_timer = purple_timeout_add(NATEON_PONG_CHECK_INTERVAL*1000, \
+			pong_check_cb, notification);
 }
 
 static void infy_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
@@ -438,6 +472,12 @@ static void ntfy_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 static void ping_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
 	nateon_cmdproc_send(cmdproc, "PING", NULL);
+}
+
+static void pong_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	NateonNotification *notification = cmdproc->data;
+	notification->pong_count = 0;
 }
 
 /**************************************************************************
@@ -1856,6 +1896,7 @@ nateon_notification_init(void)
 	nateon_table_add_cmd(cbs_table, NULL, "INFY", infy_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "NTFY", ntfy_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "PING", ping_cmd);
+	nateon_table_add_cmd(cbs_table, NULL, "PONG", pong_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "CTOC", ctoc_cmd);
 
 	// CTOC
