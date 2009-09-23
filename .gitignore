@@ -1,0 +1,6 @@
+.DS_Store
+*.swp
+adium/NateOnAdiumPlugin.xcodeproj/*.mode1v3
+adium/NateOnAdiumPlugin.xcodeproj/*.pbxuser
+adium/build
+cscope.out
