@@ -127,7 +127,7 @@ extern void	nateon_act_id_(PurpleConnection *gc, const char *entry);
 	NSMenuItem			*menuItem;
 	
 	[menuItemArray addObject:[NSMenuItem separatorItem]];
-	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:@"Toggle Real Name"
+	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:@"Change Alias Format"
 																	 target:self
 																	 action:@selector(toggleNameAction:)
 															  keyEquivalent:@""] autorelease];
@@ -140,9 +140,14 @@ extern void	nateon_act_id_(PurpleConnection *gc, const char *entry);
 
 - (void)toggleNameAction:(NSMenuItem *)sender
 {
-	BOOL isName = purple_account_get_int(account, "view_buddies_by", NO);
+	int choice = purple_account_get_int(account, "view_buddies_by", NATEON_VIEW_BUDDIES_BY_SCREEN_NAME);
 
-	[self viewBuddiesBy: (isName?NO:YES)];
+	if (choice == NATEON_VIEW_BUDDIES_BY_NAME_AND_SCREEN_NAME) {
+		choice = NATEON_VIEW_BUDDIES_BY_NAME;
+	} else {
+		choice++;
+	}
+	[self viewBuddiesBy:choice];
 }
 
 
@@ -185,12 +190,26 @@ extern void	nateon_act_id_(PurpleConnection *gc, const char *entry);
 	friend = nateon_user_get_friendly_name(user);
 	
 	switch (choice) {
-		case NO:
+		case NATEON_VIEW_BUDDIES_BY_NAME:
 			alias = g_strdup(friend);
 			break;
-		case YES:
-			alias = g_strdup(store);
+
+		case NATEON_VIEW_BUDDIES_BY_NAME_AND_ID:
+			alias = g_strdup_printf("%s (%s)", friend, account_name);
 			break;
+
+		case NATEON_VIEW_BUDDIES_BY_NAME_AND_SCREEN_NAME:
+			if (store)
+			{
+				alias = g_strdup_printf("%s (%s)", friend, store);
+			}
+			else
+			{
+				alias = g_strdup_printf("%s (%s)", friend, friend);
+			}
+			break;
+
+		case NATEON_VIEW_BUDDIES_BY_SCREEN_NAME:
 		default:
 			if (store)
 			{
