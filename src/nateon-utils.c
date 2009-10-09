@@ -71,6 +71,10 @@ nateon_parse_format(const char *payload)
 
 	body = purple_strreplace(tmp, "%25", "%");
 	g_free(tmp);
+	tmp = body;
+
+	body = purple_strreplace(tmp, "%0D", "");
+	g_free(tmp);
 
 	purple_debug_info("nateon", "[%s], %s\n", __FUNCTION__, fontface);
 	purple_debug_info("nateon", "[%s], %d\n", __FUNCTION__, fontcolor);
