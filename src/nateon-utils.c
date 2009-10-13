@@ -263,6 +263,11 @@ nateon_import_html(const char *html)
 			g_string_append(msg, "%20");
 			c ++;
 		}
+		else if (*c == '\n')
+		{
+			g_string_append(msg, "%0D%0A");
+			c ++;
+		}
 		else if (*c == '<')
 		{
 			if (!g_ascii_strncasecmp(c + 1, "br>", 3))
