@@ -77,7 +77,7 @@ nateon_parse_format(const char *payload)
 	g_free(tmp);
 
 	purple_debug_info("nateon", "[%s], %s\n", __FUNCTION__, fontface);
-	purple_debug_info("nateon", "[%s], %d\n", __FUNCTION__, fontcolor);
+	purple_debug_info("nateon", "[%s], %s\n", __FUNCTION__, fontcolor);
 	purple_debug_info("nateon", "[%s], %s\n", __FUNCTION__, fonteffect);
 	purple_debug_info("nateon", "[%s], %s\n", __FUNCTION__, body);
 //	cur = strstr(mime, "FN=");

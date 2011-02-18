@@ -55,6 +55,8 @@
 
 //#include "ft.h"
 
+#include "msg.h"
+
 #define NATEON_BUF_LEN 8192
 
 //#define USEROPT_NATEONSERVER 3

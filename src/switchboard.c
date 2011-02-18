@@ -528,7 +528,7 @@ release_msg(NateonSwitchBoard *swboard, NateonMessage *msg)
 	//char *payload;
 	//gsize payload_len;
 
-	purple_debug_info("nateon", "%s\n", msg);
+	purple_debug_info("nateon", "%p\n", msg);
 
 	g_return_if_fail(swboard != NULL);
 	g_return_if_fail(msg     != NULL);
@@ -1519,7 +1519,7 @@ ress_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
 //	int reason = NATEON_SB_ERROR_UNKNOWN;
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-	purple_debug_info("nateon", "[%s] error(%s)\n", __FUNCTION__, error);
+	purple_debug_info("nateon", "[%s] error(%d)\n", __FUNCTION__, error);
 
 //	if (error == 913)
 //		reason = NATEON_SB_ERROR_OFFLINE;

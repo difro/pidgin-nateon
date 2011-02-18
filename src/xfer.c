@@ -215,7 +215,7 @@ nateon_xfer_process_p2p_cmd_send(NateonXfer *xfer, char *cmd)
 			purple_xfer_cancel_remote(xfer->prpl_xfer);
 			return;
 		}
-		buf = g_strdup_printf("FILE %s INFO FILENAME %d CHAT 0\n",
+        buf = g_strdup_printf("FILE %s INFO FILENAME %d CHAT 0\r\n",
 				split[1], purple_xfer_get_size(xfer->prpl_xfer));
 		nateon_xfer_sock_write(&xfer->conn, buf, strlen(buf));
 		g_free(buf);
@@ -230,7 +230,7 @@ nateon_xfer_process_p2p_cmd_send(NateonXfer *xfer, char *cmd)
 
 	else if (!strncmp(split[0], "FILE", 4) && !strncmp(split[2], "END", 3)) 
 	{
-		purple_debug_info("nateon", "%s: file transfer complete\n", __FUNCTION__);
+        purple_debug_info("nateon", "%s: recved FILE END. file transfer complete\n", __FUNCTION__);
 		purple_xfer_set_completed(xfer->prpl_xfer, TRUE);
 	}
 
@@ -259,6 +259,11 @@ nateon_xfer_sock_read(NateonXferConnection *conn, guchar **buffer)
 			if (len < 0 && errno == EAGAIN) {
 				return 0;
 			} else {
+				if (nate_xfer->recv_len == purple_xfer_get_size(nate_xfer->prpl_xfer))
+				{
+					purple_xfer_set_completed(nate_xfer->prpl_xfer, TRUE);
+					return 0;
+				}
 				/* FIXME handle error */
 				purple_debug_info("nateon", "%s:read_error\n", __FUNCTION__);
 				return -1;
@@ -404,7 +409,7 @@ nateon_xfer_sock_read_cb(gpointer data, gint source, PurpleInputCondition condit
 			const size_t wc = fwrite(buffer, 1, r, nate_xfer->dest_fp);
 			if (wc != r)
 			{
-				purple_debug_error("nateon", "%s:Unable to write whole buffer.\n");
+				purple_debug_error("nateon", "%s:Unable to write whole buffer.\n", __FUNCTION__);
 				if (nate_xfer->content_type == NATEON_XFER_CONTENT_FILE)
 				{
 					purple_xfer_cancel_remote(nate_xfer->prpl_xfer);
@@ -424,12 +429,27 @@ nateon_xfer_sock_read_cb(gpointer data, gint source, PurpleInputCondition condit
 			{
 				purple_xfer_cancel_remote(nate_xfer->prpl_xfer);
 			}
+			else if (nate_xfer->content_type == NATEON_XFER_CONTENT_BUDDYIMG)
+			{
+				purple_debug_info("nateon", "%s:Error fetching buddy icon\n",
+						__FUNCTION__);
+				nateon_xfer_cancel_recv(nate_xfer->prpl_xfer);
+				return;
+			}
 
 		}
 	}
 	else if (purple_xfer_get_type(nate_xfer->prpl_xfer) == PURPLE_XFER_SEND)
 	{
 		r = nateon_xfer_sock_read(&nate_xfer->conn, &buffer);
+		if (r < 0)
+		{
+			if (purple_xfer_get_bytes_sent(nate_xfer->prpl_xfer) == \
+					purple_xfer_get_size(nate_xfer->prpl_xfer) )
+			{
+				purple_xfer_set_completed(nate_xfer->prpl_xfer, TRUE);
+			}
+		}
 	}
 
 	if (r > 0)
@@ -455,7 +475,7 @@ nateon_xfer_sock_read_cb(gpointer data, gint source, PurpleInputCondition condit
 			filesize = purple_xfer_get_size(nate_xfer->prpl_xfer);
 			imgbuf = g_malloc(filesize);
 			filepath = purple_xfer_get_local_filename(nate_xfer->prpl_xfer);
-			fp = fopen(filepath, "rb");
+            fp = g_fopen(filepath, "rb");
 			if (fp)
 			{
 				ret = fread(imgbuf, 1, filesize, fp);
@@ -952,7 +972,7 @@ nateon_xfer_init(PurpleXfer *xfer)
 	{
 		if (nate_xfer->content_type == NATEON_XFER_CONTENT_FILE)
 		{
-			nate_xfer->dest_fp = fopen(purple_xfer_get_local_filename(xfer), "wb");
+            nate_xfer->dest_fp = g_fopen(purple_xfer_get_local_filename(xfer), "wb");
 		}
 		else if (nate_xfer->content_type == NATEON_XFER_CONTENT_BUDDYIMG)
 		{
@@ -985,7 +1005,7 @@ nateon_xfer_init(PurpleXfer *xfer)
 
 		swboard = nate_xfer->swboard;
 
-		nate_xfer->local_fp = fopen(purple_xfer_get_local_filename(nate_xfer->prpl_xfer),
+        nate_xfer->local_fp = g_fopen(purple_xfer_get_local_filename(nate_xfer->prpl_xfer),
 				"rb");
 		if (!(nate_xfer->local_fp))
 		{
@@ -1409,3 +1429,4 @@ nateon_new_xfer(PurpleConnection *gc, const char *who)
     xfer->swboard = nateon_session_get_swboard(xfer->session, xfer->who, NATEON_SB_FLAG_FT);
     return xfer->prpl_xfer;
 }
+*/

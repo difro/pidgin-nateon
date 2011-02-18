@@ -1385,7 +1385,7 @@ static void nateon_chat_leave(PurpleConnection *gc, int id)
 	NateonSwitchBoard *swboard;
 	PurpleConversation *conv;
 
-	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+	purple_debug_info("nateon", "%s id:%d\n", __FUNCTION__, id);
 
 	session = gc->proto_data;
 
@@ -2271,11 +2271,24 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,						/* send_raw */
 	NULL,						/* roomlist_room_serialize */
 
+    NULL,						/* unregister_user */
+    NULL,						/* send_attention */
+    NULL,						/* get_attention_types */
+    sizeof(PurplePluginProtocolInfo), /* struct_size */
+    NULL,						/* get_account_text_table */
+    NULL,						/* initiate_media */
+    NULL,						/* get_media_caps */
+    NULL,						/* get_moods */
+    NULL,						/* set_public_alias */
+    NULL,						/* get_public_alias */
+
 	/* padding */
+    /*
 	NULL,
 	NULL,
 	NULL,
 	NULL
+    */
 };
 
 static PurplePluginInfo info =
