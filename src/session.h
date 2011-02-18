@@ -64,6 +64,7 @@ typedef enum
 typedef enum
 {
 	NATEON_LOGIN_STEP_START,
+	NATEON_LOGIN_STEP_GET_TICKET,
 	NATEON_LOGIN_STEP_HANDSHAKE,
 	NATEON_LOGIN_STEP_TRANSFER,
 	NATEON_LOGIN_STEP_AUTH_START,
@@ -106,6 +107,7 @@ struct _NateonSession
 	int conv_seq; /**< The current conversation sequence number. */
 
 	char *ticket;
+	char *dpkey;
 //	struct
 //	{
 //		char *kv;

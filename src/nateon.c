@@ -296,16 +296,16 @@ send_memo(PurpleConnection *gc, const char *who, const char *entry)
 	nateon_cmdproc_send_trans(cmdproc, trans);
 }
 
-static void
-send_memo_cb(NateonSendData *data, const char *entry)
+void send_memo_cb(NateonSendData *data, const char *entry)
 {
+	purple_debug_info("nateon", "[%s] account(%s)\n", __FUNCTION__, data->account);
 	send_memo(data->gc, data->account, entry);
 	g_free(data);
 }
 
-static void
-close_memo_cb(NateonSendData *data, const char *entry)
+void close_memo_cb(NateonSendData *data, const char *entry)
 {
+	purple_debug_info("nateon", "[%s] account(%s)\n", __FUNCTION__, data->account);
 	g_free(data);
 }
 
@@ -650,6 +650,11 @@ nateon_can_receive_file(PurpleConnection *gc, const char *who)
 	/* Can't send more than one file at same time */
 	session = gc->proto_data;
 	ret = TRUE;
+	/*
+	if (!session) {
+		return FALSE;
+	}
+	*/
 	for (l = session->xfers; l != NULL; l = l->next)
 	{
 		NateonXfer *xfer;
@@ -2260,7 +2265,7 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,						/* roomlist_expand_category */
 	nateon_can_receive_file,	/* can_receive_file */
 	nateon_send_file,			/* send_file */
-	nateon_new_xfer,			/* new_xfer */
+	NULL, //nateon_new_xfer,	/* new_xfer */
 	NULL,						/* offline_message */
 	NULL,						/* whiteboard_prpl_ops */
 	NULL,						/* send_raw */

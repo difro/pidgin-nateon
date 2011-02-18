@@ -97,13 +97,100 @@ nateon_notification_destroy(NateonNotification *notification)
  * Connect
  **************************************************************************/
 
+char * makePCID()
+{
+	int ms = g_random_int_range(0,999); // micro-second. who cares?
+	const char * date = purple_utf8_strftime("%Y%m%d%H%M%S",NULL);
+	char * pcid = g_strdup_printf("0%s%03d", date, ms);
+	//printf( "PCID:%s\n", pcid );
+	return pcid;
+}
+
+/**
+ * jdj: copied from NateOn's code.
+ * only modifed random part.
+ * I'm not sure what this is at higher level.
+ */
+char *getLocKey() {
+
+  char chfl[]="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYGabcdefghijklmnopqrstuvwxyz";
+  int chfl_len=strlen(chfl);
+  char *result;
+  result=(char*)malloc(5);
+  memset(result, 0x00, 5);
+  int i=0;
+  int sr[4];
+
+  for(i=0; i<4; i++) {
+    sr[i]=g_random_int_range(0,chfl_len);
+    memcpy(result+i, &chfl[sr[i]], 1);
+    // printf("%d\n", sr[i]);
+  }
+  // printf("%s", result);
+  return result;
+}
+
+/**
+ * jdj: receive ticket from CGI (KNateon::connectDPWithAccount)
+ */
+char* makeTicketURL( const char *username, const char *password )
+{
+	// generate URL
+	char * pass = purple_url_encode( password );
+	char * url = g_strdup_printf( "https://nsl.nate.com/client/login.do?id=%s&pwd=%s",
+		username, pass );
+
+	// purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	// purple_debug_info("nateon", "Ticket URL: %s\n", url );
+
+	return url;
+}
+
+/**
+ * Generates command string required by authentication process.
+ * Does what Linux NateOn's void NateonDPConnection::putLSIN() does.
+ */
+char* makeLSIN( const char *username, const char *password, gchar *ticket )
+{
+	// Linux NateOn sends user id (YOUR PC LOGON!) and the HOSTNAME!
+	// I don't want that to happen. I'm sending the id from my mail address,
+	// which SK already knows.
+	// Also, instead of telling them my real hostname, I'm sending ubuntu,
+	// which is the default value for Ubuntu distro.
+	char * id = g_strdup(username);
+	strtok(id, "@");
+	char * pcname = g_strdup_printf( "%s@ubuntu", id );
+
+	/* NateOn saves PCID  on your PC. pidgin-nateon doesn't */
+	char * pcid = makePCID();
+	char * lockey = getLocKey();
+
+	char * info = g_strdup_printf( "SSL 1.1.0.301 UTF8 ko.linuxm %%00 %s %c %s %s",
+				 makePCID(),
+				 'N', /* silent login? */
+				 pcname, lockey );
+
+	char * cmd = g_strdup_printf("%s %s %s", username, ticket, info );
+
+	g_free( info );
+	g_free( pcname );
+	g_free( pcid );
+	//g_free( ticket );
+	free( lockey ); /* getLocKey uses malloc */
+
+	return cmd;
+}
+
+/**
+ * jdj
+ * The auth transfer step, where we are sending LSIN with ticket.
+ */
 static void
-connect_cb(NateonServConn *servconn)
+nateon_auth_step_transfer( NateonServConn *servconn, gchar *ticket )
 {
 	NateonCmdProc *cmdproc;
 	NateonSession *session;
 	PurpleAccount *account;
-	char *cmd = NULL;
 
 	g_return_if_fail(servconn != NULL);
 
@@ -111,21 +198,107 @@ connect_cb(NateonServConn *servconn)
 	session = servconn->session;
 	account = session->account;
 
+	const char *username = purple_account_get_username(account);
+	const char *password = purple_account_get_password(account);
 
+	char *cmd = makeLSIN( username, password, ticket );
+	// printf( "%s\n", cmd );
+
+	nateon_session_set_login_step(session, NATEON_LOGIN_STEP_AUTH_START);
+	nateon_cmdproc_send(cmdproc, "LSIN", "%s", cmd);
+
+	g_free(cmd);
+	g_free( ticket ); // it goes free here.
+}
+
+/**
+ * jdj
+ * received http data from ticket url.
+ */
+static void got_ticket(
+	PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *ret_data,
+	size_t len, const gchar *error_message )
+{
+	NateonServConn *servconn = user_data;
+	NateonSession *session = servconn->session;
+	PurpleConnection *gc = purple_account_get_connection(session->account);
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	purple_debug_info("nateon", "receiving ticket\n");
+
+	if( error_message != NULL ) {
+		purple_debug_error("nateon", "failed to get ticket\n");
+		purple_connection_error_reason(gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, error_message);
+		return;
+	}
+
+	/*
+	ret_data should look something like this:
+
+	100 OK
+	0001MIHnBgkrBgEEAYI3WAOggdkwgdYGCisGAQQBgjdYAwGggccwgcQCAwIAA...
+
+	We ALWAYS get 100 OK in the first line, even if the password in request URL
+	is wrong; it's only a ticket.
+	*/
+	gchar **split_data = g_strsplit( ret_data, "\r\n", -1 );
+	//printf( "0: %s\n", split_data[0] ); holds 100 OK
+	//printf( "1: %s\n", split_data[1] ); holds 0011MIHn...
+	gchar *ticket = g_strdup( split_data[1] );
+	g_strfreev(split_data);
+
+	nateon_auth_step_transfer( servconn, ticket ); // proceed to next step of auth
+}
+
+static void
+connect_cb(NateonServConn *servconn)
+{
+	NateonCmdProc *cmdproc;
+	NateonSession *session;
+	PurpleAccount *account;
+
+	g_return_if_fail(servconn != NULL);
+
+	cmdproc = servconn->cmdproc;
+	session = servconn->session;
+	account = session->account;
+	PurpleConnection *gc = purple_account_get_connection(account);
+
+	const char *username = purple_account_get_username(account);
+	const char *password = purple_account_get_password(account);
+
+	// printf( "step:%d\n", session->login_step );
 	if (session->login_step == NATEON_LOGIN_STEP_START)
 	{
-		cmd = g_strdup_printf("%1.3f %d.0", session->protocol_ver, NATEON_MAJOR_VERSION);
-
-		nateon_session_set_login_step(session, NATEON_LOGIN_STEP_HANDSHAKE);
+		nateon_session_set_login_step(session, NATEON_LOGIN_STEP_GET_TICKET);
 
 		//nateon_cmdproc_send(cmdproc, "PVER", "%s", cmd);
-		nateon_cmdproc_send(cmdproc, "PVER", "3.615 3.0");
-
+		nateon_cmdproc_send(cmdproc, "PVER", "1.1.0.301 3.0 ko.linuxm");
 	}
-	else
+	else if (session->login_step == NATEON_LOGIN_STEP_GET_TICKET)
 	{
-		const char *username = purple_account_get_username(account);
-		const char *password = purple_account_get_password(account);
+		char *url = makeTicketURL( username, password );
+		// connect https and get ticket.
+		purple_util_fetch_url_request_len_with_account(
+			NULL, /* account */
+			url, /* url */
+			1, /* true, is full URL. */
+			NULL, /* user agent */
+			0, /* use http/1.1 ? */
+			NULL, /* request */
+			0, /* no, don't include header in the response */
+			-1, /* infinite response len */
+			got_ticket, /* callback func */
+			servconn /* function params */
+		);
+		nateon_session_set_login_step(session, NATEON_LOGIN_STEP_TRANSFER);
+		g_free( url );
+	}
+	else /* STEP_TRANSFER */
+	{
+		purple_connection_error_reason(gc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, "um... you're not mean't to be here" );
+		return;
+		/*
 		char *token;
 		PurpleCipher *cipher;
 		PurpleCipherContext *context;
@@ -151,13 +324,8 @@ connect_cb(NateonServConn *servconn)
 			g_snprintf(buf + (i*2), 3, "%02x", digest[i]);
 
 		cmd = g_strdup_printf("%s %s MD5 %1.3f UTF8", username, buf, session->protocol_ver);
-		nateon_session_set_login_step(session, NATEON_LOGIN_STEP_AUTH_START);
-
-		nateon_cmdproc_send(cmdproc, "LSIN", "%s", cmd);
+		*/
 	}
-
-
-	g_free(cmd);
 }
 
 gboolean
@@ -366,7 +534,7 @@ static void reqs_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	host = g_strdup(cmd->params[2]);
 	port = atoi(cmd->params[3]);
 
-	nateon_session_set_login_step(session, NATEON_LOGIN_STEP_TRANSFER);
+	nateon_session_set_login_step(session, NATEON_LOGIN_STEP_GET_TICKET);
 	nateon_notification_connect(session->notification, host, port);
 
 	g_free(host);
@@ -437,6 +605,10 @@ static void lsin_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 		g_free(session->ticket);
 	session->ticket = g_strdup(cmd->params[6]);
 
+	if (session->dpkey != NULL )
+		g_free(session->dpkey);
+	session->dpkey = g_strdup(cmd->params[21]);
+
 	purple_connection_set_display_name(gc, user->store_name);
 
 	//nateon_cmdproc_send(cmdproc, "CONF", "0 0");
@@ -465,8 +637,13 @@ static void ntfy_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 	user = nateon_userlist_find_user_with_name(session->userlist, cmd->params[1]);
 
-	nateon_user_set_state(user, cmd->params[2]);
-	nateon_user_update(user);
+	// Myself could have loged in through "simultaneous login" thingy.
+	// aka 다중로그인.
+	// I, myself wouldn't be in buddy list!
+	if( user ) {
+		nateon_user_set_state(user, cmd->params[2]);
+		nateon_user_update(user);
+	}
 }
 
 static void ping_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
@@ -515,29 +692,62 @@ static void
 ctoc_cmd_post(NateonCmdProc *cmdproc, NateonCommand *cmd, char *payload,
 			 size_t len)
 {
-	char *cmd_string;
+	char *cmd_string, *sub_payload;
 	NateonCommand *new_cmd;
 
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
-	purple_debug_info("nateon", "[%s]\n%s\n", __FUNCTION__, payload);
+	// strlen(paylaod) could be larger than len!
+	// We only take what we need.
+	sub_payload = g_strndup( payload, len );
 
-	cmd_string = purple_strreplace(payload, "\r\n", " ");
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	purple_debug_info("nateon", "[%s]\n%s\n", __FUNCTION__, sub_payload);
+
+	cmd_string = purple_strreplace(sub_payload, "\r\n", " ");
 	new_cmd = nateon_command_from_string(cmd_string);
 
 	//nateon_cmdproc_process_cmd_text(cmdproc, command);
 	nateon_cmdproc_process_cmd(cmdproc, new_cmd);
 
 	g_free(cmd_string);
+	g_free(sub_payload);
 	nateon_command_unref(new_cmd);
+}
+
+/**
+ * Many commands carry payload...
+ */
+void payload_cmd(
+	NateonCmdProc *cmdproc, NateonCommand *cmd, int payload_index )
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	if( cmd->param_count == 0 )
+		return;
+
+	if( !strncmp( cmd->params[1], "0", 2 ) )
+	{
+		// do nothing, since payload == 0.
+		// CTOC 0
+		cmdproc->last_cmd->payload_cb  = NULL;
+		cmdproc->servconn->payload_len = 0;
+	}
+	else
+	{
+		cmdproc->last_cmd->payload_cb  = ctoc_cmd_post;
+		cmdproc->servconn->payload_len = atoi(cmd->params[payload_index]);
+	}
 }
 
 static void
 ctoc_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
-	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+	payload_cmd( cmdproc, cmd, 3 );
+}
 
-	cmdproc->last_cmd->payload_cb  = ctoc_cmd_post;
-	cmdproc->servconn->payload_len = atoi(cmd->params[2]);
+static void
+cmsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	payload_cmd( cmdproc, cmd, 2 );
 }
 
 ///**************************************************************************
@@ -1415,6 +1625,106 @@ static void tick_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	session->ticket = g_strdup(cmd->params[1]);
 }
 
+/**
+ * A struct to hold data, for imsg stuff.
+ */
+struct _NateonMemoImsg
+{
+	//NateonCmdProc *cmdproc;
+	PurpleConnection *gc;
+	char *win_title;
+	char *title;
+	char *contents;
+	char *date;
+	char *from;        // id of the sender
+	char *to;
+};
+typedef struct _NateonMemoImsg NateonMemoImsg;
+
+/**
+ * Retrieves data->from_friendly, guessed from data->from.
+ * get 대화명
+ */
+static char *
+imsg_get_store_name( const char *mail, NateonCmdProc *cmdproc)
+{
+	NateonUser *user = nateon_userlist_find_user_with_name(cmdproc->session->userlist, mail);
+	return nateon_user_get_store_name(user);
+}
+
+/**
+ * get 친구이름
+ * Retrieves data->from_friendly, guessed from data->from.
+ */
+static char *
+imsg_get_friendly_name( const char *mail, NateonCmdProc *cmdproc)
+{
+	NateonUser *user = nateon_userlist_find_user_with_name(cmdproc->session->userlist, mail);
+	return nateon_user_get_friendly_name(user);
+}
+
+/**
+ * Send reply, from imsg_cmd.
+ */
+// maybe we should factor imsg functions and memo.c?
+typedef struct
+{
+	PurpleConnection *gc;
+	const char *account;
+} NateonSendData;
+extern void send_memo_cb(NateonSendData *data, const char *entry);
+extern void close_memo_cb(NateonSendData *data, const char *entry);
+
+static void
+imsg_noreply( NateonMemoImsg *received_msg )
+{
+	g_free(received_msg->title);
+	g_free(received_msg->to);
+	g_free(received_msg->from);
+	g_free(received_msg->date);
+	g_free(received_msg->contents);
+	g_free(received_msg);
+}
+
+static void
+imsg_reply( NateonMemoImsg *received_msg )
+{
+	//PurpleAccount *account = received_msg->cmdproc->session->account;
+	//PurpleConnection *gc = purple_account_get_connection(account);
+	PurpleConnection *gc = received_msg->gc;
+	NateonSession *session = gc->proto_data;
+
+	NateonSendData *data = g_new0(NateonSendData, 1);
+	data->gc = gc;
+	data->account = g_strdup( received_msg->from );
+
+	purple_request_input(
+		gc,          /* handle */
+		NULL,        /* title */
+		received_msg->from,  /* primary */
+		NULL,        /* secondary */
+		NULL,        /* default value */
+		TRUE,        /* multiline? */
+		FALSE,       /* masked */
+		NULL,        /* hint */
+
+		_("_Send"),  /* OK text */
+		G_CALLBACK(send_memo_cb),          /* OK callback */
+		_("_Close"), /* Cancel text */
+		G_CALLBACK(close_memo_cb),         /* Cancel callback */
+
+		purple_connection_get_account(gc), /* Account associated /w this request */
+		NULL,        /* who */
+		NULL,        /* associated conversation */
+		data         /* user data */
+	);
+
+	imsg_noreply( received_msg ); // destroys received_msg.
+}
+
+/**
+ * Incoming memo handler. shows popup.
+ */
 static void
 imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
@@ -1422,48 +1732,84 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	PurpleRequestFields *fields;
 	PurpleRequestFieldGroup *g;
 	PurpleRequestField *f;
-	const char *buddy_name;
-	char *contents;
-	char *date;
+	PurpleAccount *account;
+
+	//NateonMemoImsg data; you CAN'T use plain structs and pass &data as callback param!
+	NateonMemoImsg *data = g_new0(NateonMemoImsg, 1);
 	int i;
 
 	gc = purple_account_get_connection(cmdproc->session->account);
+	account = purple_connection_get_account( gc );
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 	purple_debug_info("nateon", "[%s] param_count(%d)\n", __FUNCTION__, cmd->param_count);
 
+	data->gc = gc;
+	data->to = g_strdup( account->username );
+
+	// parse contents
 	for (i = 0; i < (cmd->param_count - 1); i++)
 	{
-		char **params;
-
 		purple_debug_info("nateon", "%d: [%s]\n", i, cmd->params[i]);
 
-		params = g_strsplit(cmd->params[i], ":", 0);
- 
-        if (params[0] == NULL || !strcmp(params[0], "uuid"))
-        {
-
-            params = &cmd->params[i+1];
-            contents = g_strjoinv(" ", params);
-            contents = purple_strreplace(contents, "\n", "<br>");
-            g_strstrip(contents);
-            break;
-        }
-        else if (!strcmp(params[0], "from"))
+		char **params = g_strsplit(cmd->params[i], ":", 0);
+		if( params[0] == NULL )
 		{
-			buddy_name = params[1];
+			continue;
+		}
+		else if (!strcmp(params[0], "uuid") )
+		{
+			char* hold;
+			params = &cmd->params[i+1];
+			hold = g_strjoinv(" ", params);
+			data->contents = purple_unescape_html( hold );
+			g_strstrip(data->contents);
+			g_free( hold );
+			break;
+		}
+		else if (!strcmp(params[0], "from"))
+		{
+			data->from = g_strdup( params[1] );
 		}
 		else if (!strcmp(params[0], "date"))
 		{
 			int year, mon, day, hour, min, sec;
 			sscanf(params[1], "%04d%02d%02d%02d%02d%02d", &year, &mon, &day, &hour, &min, &sec);
-			date = g_strdup_printf("%04d-%02d-%2d %02d:%02d:%02d", year, mon, day, hour, min, sec);
+			data->date = g_strdup_printf("%04d-%02d-%2d %02d:%02d:%02d", year, mon, day, hour, min, sec);
 		}
+		g_strfreev(params);
 	}
 
-	purple_debug_info("nateon", "[%s] contnets(%s)\n", __FUNCTION__, contents);
+	purple_debug_info("nateon", "[%s] contents(%s)\n", __FUNCTION__, data->contents);
 
-	purple_notify_formatted(gc, "쪽지", buddy_name, date, contents, NULL, gc);
+	{ // UI part of "reply" or "close" dialog.
+		// notifi_formatted SUCKS. it is "read only"
+		// purple_notify_formatted(gc, _("Incoming Memo"), buddy_name, date, contents, NULL, gc);
+		// pruple_request_input is quite fine too, but I couldn't make it "read only".
+
+		data->win_title = g_strdup_printf( _("Incoming Memo from %s"), data->from );
+		const char *store = imsg_get_store_name(data->from, cmdproc);
+		const char *real_name = imsg_get_friendly_name(data->from, cmdproc);
+		data->title = g_strdup_printf( "%s(%s)", real_name, store );
+		// these functions are NONBLOCKING.
+		// you must NOT use local variables in
+		// "data", bassed for callback functions.
+		// freeing is upto the callback functions, too.
+		purple_request_action(
+			gc,                   /* Connection */
+			data->win_title,      /* Window title */
+			data->title,          /* Bold "title" for message body */
+			data->contents,       /* Contents */
+			0,                    /* Default action == close */
+			account,              /* Current account */
+			data->from,           /* Your friend's id(mail) */
+			NULL,                 /* Conversation. NULL for this case */
+			data,                 /* Data sent to your callback functions */
+			2,                    /* number of actions(buttons) */
+			_("_Close"), G_CALLBACK(imsg_noreply), /* action 0: silently close  */
+			_("_Reply"), G_CALLBACK(imsg_reply)    /* imsg_reply */
+		);
+	}
 }
 
 /**************************************************************************
@@ -1473,14 +1819,14 @@ imsg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 static void
 invt_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
+	//       0    1      2      3
+	// INVT [id] [host] [port] [key]
 	NateonSession *session;
 	NateonSwitchBoard *swboard;
-	const char *session_id;
 	char *host;
 	int port;
 
 	session = cmdproc->session;
-	session_id = cmd->params[3];
 
 	host = g_strdup(cmd->params[1]);
 	port = atoi(cmd->params[2]);
@@ -1898,8 +2244,11 @@ nateon_notification_init(void)
 	nateon_table_add_cmd(cbs_table, NULL, "PING", ping_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "PONG", pong_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "CTOC", ctoc_cmd);
+	nateon_table_add_cmd(cbs_table, NULL, "SMSG", cmsg_cmd); // 서버쪽지
+	nateon_table_add_cmd(cbs_table, NULL, "CMSG", cmsg_cmd); // 사용자쪽지
+	nateon_table_add_cmd(cbs_table, NULL, "PMSG", cmsg_cmd); // 웹쪽지
 
-	// CTOC
+	// IMSG (separated from SMSG or others)
 	nateon_table_add_cmd(cbs_table, NULL, "IMSG", imsg_cmd);
 	// TICK
 	nateon_table_add_cmd(cbs_table, NULL, "TICK", tick_cmd);

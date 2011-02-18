@@ -38,6 +38,36 @@ nateon_xfer_cancel_recv_dummy(PurpleXfer *xfer)
 static void
 nateon_xfer_cancel_recv(PurpleXfer *xfer)
 {
+	NateonXfer *nate_xfer = xfer->data;
+
+	const char *filename;
+
+	NateonTransaction *trans;
+	NateonCmdProc *cmdproc = nate_xfer->swboard->cmdproc;
+
+	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+
+	filename = purple_strreplace(xfer->filename, " ", "%20");
+
+	// send
+	// WHSP 0 ccc@nate.com|dpc_10605:15962|NDhA FILE CANCEL%091%09723:10009502162:75
+	// ccc is the sender name.
+	trans = nateon_transaction_new(
+		cmdproc, "WHSP", "%s FILE CANCEL%%091%%09%s|%d|%s",
+			nate_xfer->who, filename,
+			xfer->size, nate_xfer->file_cookie );
+
+	nateon_cmdproc_send_trans(cmdproc, trans);
+
+	g_free(filename);
+
+	/* free NateonXfer */
+	nateon_xfer_end(xfer);
+}
+
+static void
+nateon_xfer_cancel_recv_old(PurpleXfer *xfer)
+{
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 	/* FIXME: send FILE NACK */
 	
@@ -49,16 +79,34 @@ static void
 nateon_xfer_cancel_send(PurpleXfer *xfer)
 {
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-	/* FIXME: send FILE NACK */
-	
-	/* free NateonXfer */
-	nateon_xfer_end(xfer);
+	nateon_xfer_cancel_recv( xfer );
 }
 
 static void
-nateon_xfer_request_denied(PurpleXfer *xfer)
+nateon_xfer_deny_request(PurpleXfer *xfer)
 {
+	NateonXfer *nate_xfer = xfer->data;
+	const char *filename;
+
+	NateonTransaction *trans;
+	NateonCmdProc *cmdproc = nate_xfer->swboard->cmdproc;
+
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+
+	filename = purple_strreplace(xfer->filename, " ", "%20");
+
+	// send this
+	// WHSP 0 xxx@nate.com|dpc_04903:8994|NDhA FILE NACK%091%09yr|2714|266:10009502162:427
+	trans = nateon_transaction_new(
+		cmdproc, "WHSP", "%s FILE NACK%%091%%09%s|%d|%s",
+			nate_xfer->who, filename,
+			xfer->size, nate_xfer->file_cookie );
+
+	nateon_cmdproc_send_trans(cmdproc, trans);
+
+	g_free(filename);
+
+	/* free NateonXfer */
 	nateon_xfer_end(xfer);
 }
 
@@ -256,7 +304,7 @@ nateon_xfer_sock_read(NateonXferConnection *conn, guchar **buffer)
 					purple_xfer_set_completed(nate_xfer->prpl_xfer, TRUE);
 
 					/* Send FILE END to sender */
-					buf = g_strdup_printf("ATHC 0 END N 0\r\n");
+					buf = g_strdup_printf("FILE 2 END N 0\r\n");
 					nateon_xfer_sock_write(&nate_xfer->conn, buf, strlen(buf));
 					g_free(buf);
 				}
@@ -952,6 +1000,7 @@ nateon_xfer_init(PurpleXfer *xfer)
 
 		new_filename = purple_strreplace(purple_xfer_get_filename(nate_xfer->prpl_xfer),
 											" ", "%20");
+
 		trans = nateon_transaction_new(swboard->cmdproc, "WHSP", \
 				"%s FILE REQUEST%%09%d%%09%s|%d|%s",
 				nate_xfer->who, 1, new_filename,
@@ -1034,17 +1083,24 @@ nateon_xfer_end(PurpleXfer *xfer)
 static NateonXfer*
 nateon_xfer_new(NateonSession *session, PurpleXferType type, const char *who)
 {
+	const char *sender_id, *dpkey, **split;
 	NateonXfer *xfer;
+
+	// who might have dpkey appended. Separate it.
+	split = g_strsplit( who, "|", 2 );
+	sender_id = split[0];
+	dpkey = split[1];
 
 	xfer = g_new0(NateonXfer, 1);
 
 	xfer->session = session;
 
-	xfer->prpl_xfer = purple_xfer_new(session->account, type, who);
+	xfer->prpl_xfer = purple_xfer_new(session->account, type, sender_id);
 
 	xfer->prpl_xfer->data = xfer;
 
-	xfer->who = g_strdup(who);
+	xfer->who = g_strdup(sender_id);
+	xfer->dpkey = g_strdup(dpkey);
 
 	session->xfers = g_list_append(session->xfers, xfer);
 
@@ -1052,6 +1108,8 @@ nateon_xfer_new(NateonSession *session, PurpleXferType type, const char *who)
 	xfer->conn.tx_buf = purple_circ_buffer_new(0);
 	xfer->conn.nate_xfer = xfer;
 	xfer->p2p_listen_pa = -1;
+
+	g_strfreev(split);
 
 	return xfer;
 }
@@ -1101,12 +1159,13 @@ nateon_xfer_parse_reqc(NateonSession *session, NateonCmdProc *cmdproc, char **pa
 			purple_debug_info("nateon", "no matching p2pcookie found for this xfer\n");
 			return;
 		}
-
-		split = g_strsplit(params[1], ":", 2);
-		xfer->p2p_connect_data = purple_proxy_connect(NULL, session->account, split[0], 
-				atoi(split[1]), p2p_connect_cb, xfer);
-		g_strfreev(split);
-
+		//if (xfer->conntype == NATEON_XFER_CONN_NONE)
+		//{
+			split = g_strsplit(params[1], ":", 2);
+			xfer->p2p_connect_data = purple_proxy_connect(NULL, session->account, split[0], 
+					atoi(split[1]), p2p_connect_cb, xfer);
+			g_strfreev(split);
+		//}
 	}
 	else if (param_count >= 3 && !strncmp(params[0], "NEW", 3))
 	{
@@ -1191,7 +1250,7 @@ nateon_xfer_receive_file(NateonSession *session, NateonSwitchBoard *swboard, \
 
 	purple_xfer_set_init_fnc(xfer->prpl_xfer, nateon_xfer_init);
 	purple_xfer_set_cancel_recv_fnc(xfer->prpl_xfer, nateon_xfer_cancel_recv);
-	purple_xfer_set_request_denied_fnc(xfer->prpl_xfer, nateon_xfer_request_denied);
+	purple_xfer_set_request_denied_fnc(xfer->prpl_xfer, nateon_xfer_deny_request);
 	purple_xfer_set_end_fnc(xfer->prpl_xfer, nateon_xfer_end);
 
 	purple_xfer_request(xfer->prpl_xfer);
@@ -1207,8 +1266,8 @@ nateon_xfer_send_file(NateonSession *session, const char *who, const char *filen
 	xfer = nateon_xfer_new(session, PURPLE_XFER_SEND, who);
 	xfer->content_type = NATEON_XFER_CONTENT_FILE;
 	purple_xfer_set_init_fnc(xfer->prpl_xfer, nateon_xfer_init);
-	purple_xfer_set_cancel_recv_fnc(xfer->prpl_xfer, nateon_xfer_cancel_recv);
-	purple_xfer_set_request_denied_fnc(xfer->prpl_xfer, nateon_xfer_request_denied);
+	purple_xfer_set_cancel_recv_fnc(xfer->prpl_xfer, nateon_xfer_cancel_recv_old);
+	// purple_xfer_set_request_denied_fnc(xfer->prpl_xfer, nateon_xfer_request_denied);
 	purple_xfer_set_end_fnc(xfer->prpl_xfer, nateon_xfer_end);
 	purple_xfer_set_cancel_send_fnc(xfer->prpl_xfer, nateon_xfer_cancel_send);
 
@@ -1225,30 +1284,86 @@ nateon_xfer_send_file(NateonSession *session, const char *who, const char *filen
 	}
 }
 
-void
-nateon_xfer_cancel_transfer(NateonSession *session, const char *who, const char *filename, const char *cookie)
+/**
+ * Comapres the "signature" of two NateonXfers.
+ */
+gint xfer_sig_cmp( gconstpointer a, gconstpointer b )
 {
-	NateonXfer *xfer = NULL;
-	GList *l;
+	int t;
+	NateonXfer *da = a;
+	NateonXfer *db = b;
+	gchar *fa, *fb;
 
-	for (l = session->xfers; l; l = l->next)
-	{
-		NateonXfer *tmp;
-		tmp = l->data;
-		if ( !strcmp(tmp->who, who) && \
-				((filename == NULL) || !strcmp(purple_xfer_get_filename(tmp->prpl_xfer), filename)) && \
-				tmp->file_cookie && !strcmp(tmp->file_cookie, cookie) )
-		{
-			xfer = tmp;
-			break;
-		}
+	t = strcmp( da->who, db->who );
+	if( t != 0 ) return t;
+
+	// CANCEL request may have filename of NULL.
+	fa = da->prpl_xfer->filename;
+	fb = db->prpl_xfer->filename;
+	if( fa && fb ) {
+		t = strcmp( fa, fb );
+		if( t != 0 ) return t;
 	}
+
+	t = strcmp( da->file_cookie, db->file_cookie );
+	return t;
+}
+
+NateonXfer*
+nateon_xfer_find_transfer(
+	NateonSession *session, const char *who, const char *filename, const char *cookie)
+{
+	GList *node = NULL;
+	NateonXfer *xfer = NULL;
+	gchar **split;
+	NateonXfer sig; // dummy
+	PurpleXfer sig2; // dummy
+
+	// 'who' might have dpkey. remove it.
+	split = g_strsplit( who, "|", 2 );
+
+	// data to find
+	sig.prpl_xfer = &sig2;
+	sig.who = split[0];
+	sig.prpl_xfer->filename = filename;
+	sig.file_cookie = cookie;
+
+	node = g_list_find_custom( session->xfers, &sig, xfer_sig_cmp );
+	if( node )
+		xfer = node->data;
+
+	g_strfreev(split);
+
+	return xfer;
+}
+
+void
+nateon_xfer_request_denied(
+	NateonSession *session, const char *who, const char *filename, const char *cookie)
+{
+	NateonXfer *xfer = nateon_xfer_find_transfer(session, who, filename, cookie);
 	if (!xfer)
 	{
 		purple_debug_info("nateon", "%s: no matching xfer found for deny request\n", __FUNCTION__);
 		return;
 	}
+	purple_xfer_cancel_remote( xfer->prpl_xfer );
+	//purple_xfer_request_denied( xfer->prpl_xfer );
+}
 
+/**
+ * When the sender canceled the request.
+ */
+void
+nateon_xfer_cancel_transfer(NateonSession *session, const char *who, const char *filename, const char *cookie)
+{
+	purple_debug_info("nateon", "%s\n", __FUNCTION__);
+	NateonXfer *xfer = nateon_xfer_find_transfer(session, who, filename, cookie);
+	if (!xfer)
+	{
+		purple_debug_info("nateon", "%s: no matching xfer found for cancel request\n", __FUNCTION__);
+		return;
+	}
 	purple_xfer_cancel_remote(xfer->prpl_xfer);
 }
 
@@ -1275,6 +1390,7 @@ nateon_xfer_receive_buddyimage(NateonSession *session, NateonSwitchBoard *swboar
 	nateon_xfer_init(xfer->prpl_xfer);
 }
 
+/*
 PurpleXfer*
 nateon_new_xfer(PurpleConnection *gc, const char *who)
 {

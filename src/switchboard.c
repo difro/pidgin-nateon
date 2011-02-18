@@ -725,29 +725,48 @@ join_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 }
 
 static void
-whsp_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+file_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
-	NateonSession *session;
-	NateonSwitchBoard *swboard;
-	const char *account_name;
+	char **split = g_strsplit(cmd->params[3], "%09", 0);
+	const char *account_name = cmd->params[1];
+	NateonSession *session = cmdproc->session;
+	NateonSwitchBoard *swboard = cmdproc->data;
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
-	session = cmdproc->session;
-	swboard = cmdproc->data;
-	account_name = cmd->params[1];
+	// It is fine to use strcmp (not strncmp)
+	// when not both of the params are variables.
+	// e.g strcmp(var1,"const") or strcmp("const",var1).
+	// not file when strcmp(var1,var2)
 
-	if (cmd->param_count == 4 && !strcmp(cmd->params[2], "FILE") && \
-			!strncmp(cmd->params[3], "REQUEST", strlen("REQUEST")))
+	if( !strcmp(split[0], "REQUEST") )
 	{
 		/* Receiving File Transfer */
-		char **split;
 		int i;
-		int num_files;
+		int num_files = atoi(split[1]);
+		for (i = 0; i < num_files; i++) {
+			char **file_data;
+			char *filename;
 
-		split = g_strsplit(cmd->params[3], "%09", 0);
+			printf(" receiving trtansmission!!\n" );
 
-		num_files = atoi(split[1]);
+			file_data = g_strsplit(split[i+2], "|", 0);	
+			filename = purple_strreplace(file_data[0], "%20", " ");
+
+			nateon_xfer_receive_file(session, swboard, account_name,
+				filename, atoi(file_data[1]), file_data[2]);
+
+			g_free(filename);
+			g_strfreev(file_data);
+		}
+	}
+	else if( !strcmp(split[0], "NACK" ) )
+	{
+		/* Your friend rejected your file transfer */
+		// xxx@nate.com|dpc_01003:28058|bwzc \
+		// FILE NACK%091%09harry_16k.wav|420262|224:10026452103:448
+		int i;
+		int num_files = atoi(split[1]);
 
 		for (i = 0; i < num_files; i++) {
 			char **file_data;
@@ -756,55 +775,45 @@ whsp_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 			file_data = g_strsplit(split[i+2], "|", 0);	
 			filename = purple_strreplace(file_data[0], "%20", " ");
 
-			nateon_xfer_receive_file(session, swboard, account_name, filename, \
-										atoi(file_data[1]), file_data[2]);
+			nateon_xfer_request_denied(session, account_name, filename, file_data[2]);
 
 			g_free(filename);
 			g_strfreev(file_data);
 		}
-
-		g_strfreev(split);
 	}
-	else if (cmd->param_count == 4 && !strcmp(cmd->params[2], "FILE") && \
-			!strncmp(cmd->params[3], "NACK", strlen("NACK")) )
+	else if ( !strcmp(split[0], "CANCEL") )
 	{
-		/* file transfer denied */
-		char **split;
-		int i;
-		int num_files;
-		split = g_strsplit(cmd->params[3], "%09", 0);
-
-		num_files = atoi(split[1]);
-
-		for (i = 0; i < num_files; i++) {
-			char **file_data;
-			char *filename;
-
-			file_data = g_strsplit(split[i+2], "|", 0);	
-			filename = purple_strreplace(file_data[0], "%20", " ");
-
-			nateon_xfer_cancel_transfer(session, account_name, filename, file_data[2]);
-
-			g_free(filename);
-			g_strfreev(file_data);
-		}
-
-		g_strfreev(split);
-	}
-	else if (cmd->param_count == 4 && !strcmp(cmd->params[2], "FILE") && \
-			!strncmp(cmd->params[3], "CANCEL", strlen("CANCEL")) )
-	{
-		/* file transfer cancelled */
-		char **split;
-		int i;
-		int num_files;
-		split = g_strsplit(cmd->params[3], "%09", 0);
-
-		num_files = atoi(split[1]);
-
+		/* Your friend canceled transfer */
 		nateon_xfer_cancel_transfer(session, account_name, NULL, split[2]);
+	}
+	else if ( !strcmp(split[0], "ACK") )
+	{
+		// do nothing?
+		// we DO get CTOC REQC NEW anyway, coming with ACK.
+	}
+	else
+	{
+		purple_debug_info("nateon", "[%s] You must not see this!\n", __FUNCTION__);
+	}
 
-		g_strfreev(split);
+	g_strfreev(split);
+}
+
+static void
+whsp_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	// It is possible that we get WHSP 2 or something like that;
+	// no command what-so-ever.
+	if( cmd->param_count == 0 )
+		return;
+
+
+	// FILE transfer commands
+	if ( cmd->param_count >= 3 && !strcmp(cmd->params[2], "FILE") )
+	{
+		file_cmd( cmdproc, cmd );
 	}
 	else if (cmd->param_count == 4 && !strcmp(cmd->params[2], "DPIMG") && \
 			!strncmp(cmd->params[3], "REQUEST", strlen("REQUEST")) )
@@ -814,6 +823,14 @@ whsp_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 		char **file_data;
 		PurpleBuddyIcon *icon;
 		char *icon_checksum;
+		NateonSession *session;
+		NateonSwitchBoard *swboard;
+		const char *account_name;
+
+		session = cmdproc->session;
+		swboard = cmdproc->data;
+
+		account_name = cmd->params[1];
 
 		split = g_strsplit(cmd->params[3], "%09", 0);
 		file_data = g_strsplit(split[2], "|", 0);
@@ -1269,21 +1286,14 @@ connect_cb(NateonServConn *servconn)
 	{
 		purple_debug_info("nateon", "== invited ==\n");
 		swboard->empty = FALSE;
-
-		trans = nateon_transaction_new(cmdproc, "ENTR", "%s %s %s %s UTF8 P",
-				purple_account_get_username(account),
-				purple_strreplace(user->store_name, " ", "%20"),
-				user->friendly_name,
-				swboard->auth_key);
 	}
-	else
-	{
-		trans = nateon_transaction_new(cmdproc, "ENTR", "%s %s %s %s UTF8 P",
-				purple_account_get_username(account),
-				purple_strreplace(user->store_name, " ", "%20"),
-				user->friendly_name,
-				swboard->auth_key);
-	}
+	trans = nateon_transaction_new(cmdproc,
+		"ENTR", "%s|%s %s %s %s UTF8 P 3.0 1",
+			purple_account_get_username(account),
+			cmdproc->session->dpkey,
+			purple_strreplace(user->store_name, " ", "%20"),
+			user->friendly_name,
+			swboard->auth_key);
 
 	nateon_transaction_set_error_cb(trans, entr_error);
 	nateon_transaction_set_data(trans, swboard);

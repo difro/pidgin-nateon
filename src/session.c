@@ -73,6 +73,9 @@ nateon_session_destroy(NateonSession *session)
 	if (session->ticket != NULL)
 		g_free(session->ticket);
 
+	if (session->dpkey != NULL)
+		g_free(session->dpkey);
+
 //	if (session->passport_info.kv != NULL)
 //		g_free(session->passport_info.kv);
 //

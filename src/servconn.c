@@ -424,6 +424,8 @@ read_cb(gpointer data, gint source, PurpleInputCondition cond)
 
 		if (servconn->payload_len)
 		{
+			// for commands that have PAYLOAD. e.g, CTOC, SMSG.
+			// payload_len does not consider the final \r\n as its length.
 			if (servconn->payload_len > servconn->rx_len)
 				/* The payload is still not complete. */
 				break;

@@ -70,7 +70,7 @@ struct _NateonSwitchBoard
 	NateonSession *session;
 	NateonServConn *servconn;
 	NateonCmdProc *cmdproc;
-	char *im_user;
+	char *im_user; /* Seems to be my NateOn ID */
 
 	NateonSBFlag flag;
 	char *auth_key;

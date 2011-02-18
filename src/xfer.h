@@ -74,6 +74,7 @@ struct _NateonXfer
 	PurpleXfer *prpl_xfer;
 
 	char *who;	/**< peer's account name */
+	char *dpkey;
 	char *my_ip;
 
     NateonXferConnType content_type;
@@ -117,7 +118,7 @@ struct _NateonXfer
  * Start File-receive process.
  *
  * @param session Nateon Session
- * @param who file sender account
+ * @param who file sender account, with dpkey appended.
  * @param filename filename
  * @param filesize size of the file receiving
  * @param cookie file cookie
@@ -139,11 +140,17 @@ void nateon_xfer_parse_reqc(NateonSession *session, NateonCmdProc *cmdproc, char
 
 void nateon_xfer_parse_refr(NateonSession *session, char **params, int param_count);
 
+NateonXfer* nateon_xfer_find_transfer(NateonSession *session, const char *who, const char *filename,\
+									const char *cookie);
+
 void nateon_xfer_cancel_transfer(NateonSession *session, const char *who, const char *filename,\
+									const char *cookie);
+
+void nateon_xfer_request_denied(NateonSession *session, const char *who, const char *filename,\
 									const char *cookie);
 
 void nateon_xfer_receive_buddyimage(NateonSession *session, NateonSwitchBoard *swboard, \
 		const char *who, const char *uniq_name, const int filesize, const char *cookie);
 
-PurpleXfer* nateon_new_xfer(PurpleConnection *gc, const char *who);
+//PurpleXfer* nateon_new_xfer(PurpleConnection *gc, const char *who);
 #endif /* _NATEON_XFER_H_ */

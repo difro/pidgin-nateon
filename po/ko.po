@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pidgin-nateon\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-02-26 16:48+0900\n"
+"POT-Creation-Date: 2010-06-12 00:39+0900\n"
 "PO-Revision-Date: 2008-03-06 17:24+0900\n"
 "Last-Translator: Hansun Lee <hansun.lee@gmail.com>\n"
 "Language-Team: Hansun Lee <hansun.lee@gmail.com>\n"
@@ -23,13 +23,22 @@ msgstr "%s (%s) 에서 친구 목록의 동기가 발생했습니다."
 
 #: ../src/dialog.c:118
 #, c-format
-msgid "%s on the local list is inside the group \"%s\" but not on the server list. Do you want this buddy to be added?"
-msgstr "로컬 친구 목록에 기록되어 있는 %s 님은 그룹 \"%s\" 에 소속되어 있으나, 서버 상의 목록에서는 그렇게 되어 있지 않습니다. 서버 상의 목록에 그 친구를 추가하시겠습니까?"
+msgid ""
+"%s on the local list is inside the group \"%s\" but not on the server list. "
+"Do you want this buddy to be added?"
+msgstr ""
+"로컬 친구 목록에 기록되어 있는 %s 님은 그룹 \"%s\" 에 소속되어 있으나, 서버 "
+"상의 목록에서는 그렇게 되어 있지 않습니다. 서버 상의 목록에 그 친구를 추가하"
+"시겠습니까?"
 
 #: ../src/dialog.c:126
 #, c-format
-msgid "%s is on the local list but not on the server list. Do you want this buddy to be added?"
-msgstr "로컬 친구 목록에 기술되어 있는 %s 님은 서버 상의 목록에 존재하지 않습니다. 서버 상의 목록에 그 친구를 추가하시겠습니까?"
+msgid ""
+"%s is on the local list but not on the server list. Do you want this buddy "
+"to be added?"
+msgstr ""
+"로컬 친구 목록에 기술되어 있는 %s 님은 서버 상의 목록에 존재하지 않습니다. 서"
+"버 상의 목록에 그 친구를 추가하시겠습니까?"
 
 #: ../src/dialog.c:135
 msgid "Yes"
@@ -51,92 +60,96 @@ msgid "NATEON Error: %s\n"
 msgstr "네이트온 오류: %s\n"
 
 # nateon message
-#: ../src/nateon.c:138
+#: ../src/nateon.c:139
 msgid "Your new NateOn friendly name is too long."
 msgstr "새 네이트온의 공개명이 너무 깁니다."
 
 # nateon message
-#: ../src/nateon.c:333
+#: ../src/nateon.c:316
 msgid "Set your friendly name."
 msgstr "공개명을 설정해 주십시오."
 
 # nateon message
-#: ../src/nateon.c:334
+#: ../src/nateon.c:317
 msgid "This is the name that other NATEON buddies will see you as."
 msgstr "네이트온의 다른 친구가 나를 볼 때 표시되는 이름입니다."
 
-#: ../src/nateon.c:337
-#: ../src/nateon.c:355
+#: ../src/nateon.c:320 ../src/nateon.c:338
 msgid "OK"
 msgstr "확인"
 
-#: ../src/nateon.c:338
-#: ../src/nateon.c:356
+#: ../src/nateon.c:321 ../src/nateon.c:339
 msgid "Cancel"
 msgstr "취소"
 
-#: ../src/nateon.c:352
-#: ../src/nateon.c:353
+#: ../src/nateon.c:335 ../src/nateon.c:336
 msgid "View Buddies By."
 msgstr "친구 보기 방식"
 
-#: ../src/nateon.c:359
-#: ../src/nateon.c:737
+#: ../src/nateon.c:342 ../src/nateon.c:699
 msgid "Name"
 msgstr "이름"
 
 # nateon message
-#: ../src/nateon.c:360
+#: ../src/nateon.c:343
 msgid "Screen Name"
 msgstr "대화명"
 
-#: ../src/nateon.c:361
+#: ../src/nateon.c:344
 msgid "Name and ID"
 msgstr "이름+아이디"
 
-#: ../src/nateon.c:362
+#: ../src/nateon.c:345
 msgid "Name and Screen Name"
 msgstr "이름+대화명"
 
-#: ../src/nateon.c:532
+#. handle
+#. title
+#. primary
+#. secondary
+#. default value
+#. multiline?
+#. masked
+#. hint
+#: ../src/nateon.c:497 ../src/notification.c:1448
 msgid "_Send"
 msgstr "보내기(_S)"
 
-#: ../src/nateon.c:533
+#: ../src/nateon.c:498
 msgid "Close"
 msgstr "닫기"
 
-#: ../src/nateon.c:742
+#: ../src/nateon.c:704
 msgid "Status"
 msgstr "상태"
 
-#: ../src/nateon.c:742
+#: ../src/nateon.c:704
 msgid "Idle"
 msgstr "대기 상태"
 
-#: ../src/nateon.c:776
+#: ../src/nateon.c:738
 msgid "Busy"
 msgstr "다른 용무 중입니다."
 
-#: ../src/nateon.c:780
+#: ../src/nateon.c:742
 msgid "On The Phone"
 msgstr "전화 중입니다."
 
 # nateon message
-#: ../src/nateon.c:784
+#: ../src/nateon.c:746
 msgid "In meeting"
 msgstr "회의 중입니다"
 
-#: ../src/nateon.c:808
+#: ../src/nateon.c:770
 msgid "Set Friendly Name..."
 msgstr "공개명 설정..."
 
-#: ../src/nateon.c:812
+#: ../src/nateon.c:774
 msgid "View Buddies By..."
 msgstr "친구 보기 방식..."
 
 # nateon message
-#: ../src/nateon.c:816
+#: ../src/nateon.c:778
 msgid "Send SMS message..."
 msgstr "SMS 메시지 전송..."
 
@@ -149,25 +162,26 @@ msgstr "SMS 메시지 전송..."
 #. m = g_list_append(m, act);
 #. }
 #.
-#: ../src/nateon.c:882
+#: ../src/nateon.c:844
 msgid "Send memo"
 msgstr "쪽지 전송"
 
 # nateon message
-#: ../src/nateon.c:885
+#: ../src/nateon.c:847
 msgid "Send SMS message"
 msgstr "SMS 메세지 전송"
 
 # nateon message
-#: ../src/nateon.c:899
+#: ../src/nateon.c:861
 msgid "Copy buddy"
 msgstr "친구 복사"
 
-#: ../src/nateon.c:906
+#. act = purple_menu_action_new(_("Initiate _Chat"), NULL, NULL, NULL);
+#: ../src/nateon.c:869
 msgid "Initiate _Chat"
 msgstr "대화 시작(_C)"
 
-#: ../src/nateon.c:971
+#: ../src/nateon.c:933
 msgid "Failed to connect to server."
 msgstr "서버 접속에 실패했습니다."
 
@@ -182,37 +196,74 @@ msgstr "서버 접속에 실패했습니다."
 #. *< version
 #. *  summary
 #. *  description
-#: ../src/nateon.c:2320
-#: ../src/nateon.c:2322
+#: ../src/nateon.c:2286 ../src/nateon.c:2288
 msgid "NateOn Protocol Plugin"
 msgstr "네이트온 프로토콜 플러그인"
 
-#: ../src/nateon.c:2352
+#: ../src/nateon.c:2318
 msgid "Server"
 msgstr "서버"
 
-#: ../src/nateon.c:2357
+#: ../src/nateon.c:2321
 msgid "Port"
 msgstr "포트 번호"
 
-#: ../src/notification.c:207
+#: ../src/nateon.c:2324
+msgid "Use PRS Method"
+msgstr ""
+
+#: ../src/nateon.c:2327
+msgid "PRS Method Server"
+msgstr ""
+
+#: ../src/notification.c:208
 #, c-format
 msgid "%s is not a valid group."
 msgstr "%s 은(는) 올바은 그룹이 아닙니다."
 
-#: ../src/notification.c:212
-#: ../src/session.c:340
+#: ../src/notification.c:213 ../src/session.c:339
 msgid "Unknown error."
 msgstr "알 수 없는 오류입니다."
 
-#: ../src/notification.c:215
+#: ../src/notification.c:216
 #, c-format
 msgid "%s on %s (%s)"
 msgstr "%2$s (%3$s) 의 %1$s"
 
-#: ../src/notification.c:1058
+#: ../src/notification.c:1071
 msgid "Unable to rename group"
 msgstr "그룹명을 변경할 수 없습니다."
+
+#. OK text
+#. OK callback
+#. Connection
+#. Window title
+#. Bold "title" for message body
+#. Contents
+#. Default action == close
+#. Current account
+#. Your friend's id(mail)
+#. Conversation. NULL for this case
+#. Data sent to your callback functions
+#. number of actions(buttons)
+#: ../src/notification.c:1450 ../src/notification.c:1539
+#, fuzzy
+msgid "_Close"
+msgstr "닫기"
+
+#. UI part of "reply" or "close" dialog.
+#. notifi_formatted SUCKS. it is "read only"
+#. purple_notify_formatted(gc, _("Incoming Memo"), buddy_name, date, contents, NULL, gc);
+#. pruple_request_input is quite fine too, but I couldn't make it "read only".
+#: ../src/notification.c:1522
+#, fuzzy, c-format
+msgid "Incoming Memo from %s"
+msgstr "쪽지"
+
+#. action 0: silently close
+#: ../src/notification.c:1540
+msgid "_Reply"
+msgstr "답장(_R)"
 
 #: ../src/servconn.c:127
 msgid "Unable to connect"
@@ -226,8 +277,7 @@ msgstr "쓰는 중 오류"
 msgid "Reading error"
 msgstr "읽는 중 오류"
 
-#: ../src/servconn.c:133
-#: ../src/session.c:332
+#: ../src/servconn.c:133 ../src/session.c:331
 msgid "Unknown error"
 msgstr "알 수 없는 오류"
 
@@ -240,45 +290,44 @@ msgstr ""
 "서버 %s 에서 접속 오류:\n"
 "%s"
 
-#: ../src/session.c:318
+#: ../src/session.c:317
 msgid "You have signed on from another location."
 msgstr "다른 장소로부터 접속되어 있습니다."
 
-#: ../src/session.c:330
+#: ../src/session.c:329
 #, c-format
 msgid "Unable to authenticate: %s"
 msgstr "인증할 수 없습니다: %s"
 
-#: ../src/session.c:355
+#: ../src/session.c:354
 msgid "Connecting"
 msgstr "접속 중입니다."
 
-#: ../src/session.c:356
-#: ../src/session.c:358
+#: ../src/session.c:355 ../src/session.c:357
 msgid "Handshaking"
 msgstr "통신에 접속 중입니다."
 
-#: ../src/session.c:357
+#: ../src/session.c:356
 msgid "Transferring"
 msgstr "전송 중 입니다."
 
-#: ../src/session.c:359
+#: ../src/session.c:358
 msgid "Starting authentication"
 msgstr "인증 시작 중입니다."
 
-#: ../src/session.c:360
+#: ../src/session.c:359
 msgid "Getting cookie"
 msgstr "쿠키를 가져오는 중입니다."
 
-#: ../src/session.c:361
+#: ../src/session.c:360
 msgid "Authenticating"
 msgstr "인증 중"
 
-#: ../src/session.c:362
+#: ../src/session.c:361
 msgid "Sending cookie"
 msgstr "쿠키를 보내는 중입니다."
 
-#: ../src/session.c:363
+#: ../src/session.c:362
 msgid "Retrieving buddy list"
 msgstr "친구 목록을 수신하고 있습니다."
 
