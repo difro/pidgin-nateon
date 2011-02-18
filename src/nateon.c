@@ -48,6 +48,8 @@
 #include "xfer.h"
 //#include "slplink.h"
 
+#include "smiley.h"
+
 #if PHOTO_SUPPORT
 #include "imgstore.h"
 #endif
@@ -58,6 +60,18 @@ typedef struct
 	const char *account;
 
 } NateonSendData;
+
+typedef struct _NateonSmiley
+{
+	char *shortcut;
+	PurpleSmiley *ps;
+	// MsnObject *obj;
+} NateonSmiley;
+
+void nateon_act_id_(PurpleConnection *gc, const char *entry);
+void send_memo_cb(NateonSendData *data, const char *entry);
+void close_memo_cb(NateonSendData *data, const char *entry);
+GString *nateon_make_msg_about_emoticons(GSList *smileys, const char *me);
 
 //typedef struct
 //{
@@ -650,11 +664,11 @@ nateon_can_receive_file(PurpleConnection *gc, const char *who)
 	/* Can't send more than one file at same time */
 	session = gc->proto_data;
 	ret = TRUE;
-	/*
-	if (!session) {
-		return FALSE;
-	}
-	*/
+
+	// For temporary fix.
+	// It was fine without this check before...
+	g_return_val_if_fail( session, FALSE );
+
 	for (l = session->xfers; l != NULL; l = l->next)
 	{
 		NateonXfer *xfer;
@@ -841,7 +855,7 @@ nateon_buddy_menu(PurpleBuddy *buddy)
 	{
 		PurpleBlistNode *gnode;
 		GList *m_copy = NULL;
-		GList *m_move = NULL;
+		// GList *m_move = NULL;
 
 		//		if (user->mobile)
 		//		{
@@ -928,7 +942,9 @@ nateon_login(PurpleAccount *account)
 	session = nateon_session_new(account);
 
 	gc->proto_data = session;
-	gc->flags |= PURPLE_CONNECTION_HTML | PURPLE_CONNECTION_FORMATTING_WBFO | PURPLE_CONNECTION_NO_BGCOLOR | PURPLE_CONNECTION_NO_FONTSIZE | PURPLE_CONNECTION_NO_URLDESC;
+	gc->flags |= PURPLE_CONNECTION_HTML | PURPLE_CONNECTION_FORMATTING_WBFO |
+		PURPLE_CONNECTION_NO_BGCOLOR | PURPLE_CONNECTION_NO_FONTSIZE |
+		PURPLE_CONNECTION_NO_URLDESC | PURPLE_CONNECTION_ALLOW_CUSTOM_SMILEY;
 
 	nateon_session_set_login_step(session, NATEON_LOGIN_STEP_START);
 
@@ -957,6 +973,134 @@ nateon_close(PurpleConnection *gc)
 	gc->proto_data = NULL;
 }
 
+/**
+ * Scan message and extract emoticons that appears in msg.
+ */
+	static GSList*
+nateon_msg_grab_emoticons(const char *msg, const char *username)
+{
+	GSList *list = NULL;
+	GList *smileys;
+	int length = strlen(msg);
+
+	// printf( "msg: %s\n", msg );
+
+	smileys = purple_smileys_get_all();
+
+	for (; smileys; smileys = g_list_delete_link(smileys, smileys)) {
+		NateonSmiley *ns;
+		//PurpleStoredImage *img;
+		PurpleSmiley *smiley = smileys->data;
+
+		char *ptr = g_strstr_len(msg, length, purple_smiley_get_shortcut(smiley));
+
+		if (!ptr)
+			continue;
+
+		//img = purple_smiley_get_stored_image(smiley);
+
+		ns = g_new0(NateonSmiley, 1);
+		ns->shortcut = g_strdup(purple_smiley_get_shortcut(smiley));
+		ns->ps = smiley;
+
+		//purple_imgstore_unref(img);
+		list = g_slist_prepend(list, ns);
+	}
+
+	return list;
+}
+
+/**
+ * smileys is the list of emoticons appearing in a message.
+ * We convert this information to nateon protocol string.
+ *
+ * Returns NULL if no emoticon is present in the list.
+ * If any,
+ * The returned string should look like this:
+ *
+ * MESG 0 ssss@nate.com EMOTICON OBJECT%090000001%091%09NCE20110218225246.bmp%09+_+%092
+ *
+ * MESG 0 ssss@nate.com EMOTICON OBJECT%090000001%092%09NCE20110218225246.bmp%09+_+%09NCE20110218225251.bmp%09;-%092
+ */
+	GString*
+nateon_make_msg_about_emoticons(GSList *smileys, const char *me)
+{
+	GString *msg;
+	guint cnt = g_slist_length(smileys);
+
+	if( cnt == 0 ) {
+		// no emoticons
+		// we also assert that for this case,
+		// smileys == NULL so we don't have to free anything.
+		return NULL;
+	}
+
+	// MESG 0
+	// ssss@nate.com (my id)
+	// EMOTICON OBJECT
+	// %09
+	// 0000001 (?? always this.)
+	// %09
+	// 2 (# of emoticons in one message)
+	// %09
+
+		// NCE20110218225246.bmp (file name 1)
+		// %09
+		// +_+ (shortcut 1)
+		// %09
+
+		// NCE20110218225251.bmp (file name 2)
+		// %09
+		// ;- (shortcut 2)
+		// %09
+
+	// 2 (?? always this)
+
+	msg = g_string_new( "EMOTICON OBJECT%090000001%09" );
+	g_string_append_printf(msg, "%d%%09", cnt);
+
+	while (smileys) {
+		NateonSmiley *smile = smileys->data;
+		PurpleSmiley *ps = smile->ps;
+		PurpleStoredImage *img = purple_smiley_get_stored_image(ps);
+
+		g_string_append_printf(msg, "%s%%09", purple_imgstore_get_filename(img) );
+		g_string_append_printf(msg, "%s%%09", smile->shortcut );
+
+		purple_imgstore_unref(img);
+		smileys = g_slist_delete_link(smileys, smileys);
+	}
+	g_string_append_printf(msg, "2");
+
+	g_assert( smileys == NULL ); // smiles should be consumed.
+
+	return msg;
+}
+
+/**
+ * Send emoticons.
+ *
+ * Does combined actions of msn_send_im_message and msn_send_emoticons.
+ * That is, we scan emoticons in msg and sends the info through protocol.
+ */
+	static void
+nateon_send_emoticons( NateonSwitchBoard *swboard, const char *msg, const char *me )
+{
+	GSList *smileys = nateon_msg_grab_emoticons(msg, me);
+	GString *emo_msg = nateon_make_msg_about_emoticons(smileys, me);
+
+	// send the message
+	if( emo_msg )
+	{
+		NateonMessage *msg = nateon_message_new(NATEON_MSG_EMOTICON);
+		nateon_message_set_bin_data(msg, emo_msg->str, strlen(emo_msg->str));
+		nateon_switchboard_send_msg(swboard, msg, TRUE);
+		nateon_message_destroy(msg);
+	}
+
+	g_string_free( emo_msg, TRUE );
+}
+
 	static int
 nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 		PurpleMessageFlags flags)
@@ -966,6 +1110,7 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 	NateonMessage *msg;
 	//	char *msgformat;
 	char *msgtext;
+	const char *me;
 
 	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
 
@@ -1000,15 +1145,19 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 	//	nateon_message_set_attr(msg, "X-MMS-IM-Format", msgformat);
 
 	//	g_free(msgformat);
-	g_free(msgtext);
 
-	if (g_ascii_strcasecmp(who, purple_account_get_username(account)))
+	me = purple_account_get_username(account);
+
+	if (g_ascii_strcasecmp(who, me))
 	{
 		NateonSession *session;
 		NateonSwitchBoard *swboard;
 
 		session = gc->proto_data;
 		swboard = nateon_session_get_swboard(session, who, NATEON_SB_FLAG_IM);
+
+		if (purple_account_get_bool(session->account, "custom_smileys", TRUE))
+			nateon_send_emoticons(swboard, msgtext, me);
 
 		nateon_switchboard_send_msg(swboard, msg, TRUE);
 	}
@@ -1037,6 +1186,7 @@ nateon_send_im(PurpleConnection *gc, const char *who, const char *message,
 	//		g_free(body_str);
 	//	}
 
+	g_free(msgtext);
 	nateon_message_destroy(msg);
 
 	return 1;
@@ -2270,7 +2420,6 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,						/* whiteboard_prpl_ops */
 	NULL,						/* send_raw */
 	NULL,						/* roomlist_room_serialize */
-
     NULL,						/* unregister_user */
     NULL,						/* send_attention */
     NULL,						/* get_attention_types */
@@ -2349,9 +2498,10 @@ init_plugin(PurplePlugin *plugin)
 
 	option = purple_account_option_string_new(_("PRS Method Server"), "prs_method_server", NATEON_PRS_SERVER);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
-	//	option = purple_account_option_bool_new(_("Show custom smileys"),
-	//										  "custom_smileys", TRUE);
-	//	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,
+
+	option = purple_account_option_bool_new(_("Show custom smileys"),
+		"custom_smileys", TRUE);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 
 	purple_prefs_remove("/plugins/prpl/nateon");
 }

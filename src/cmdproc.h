@@ -40,6 +40,10 @@ struct _NateonCmdProc
 
 	GQueue *txqueue;
 
+	int emoticon_download_cnt; // # of emoticon downloads in progress
+	GQueue *rxqueue; // queue to hold commands that are waiting for
+		// emoticon downloads to be done.
+
 	NateonCommand *last_cmd;
 
 	NateonTable *cbs_table;
@@ -52,10 +56,13 @@ struct _NateonCmdProc
 NateonCmdProc *nateon_cmdproc_new(NateonSession *session);
 void nateon_cmdproc_destroy(NateonCmdProc *cmdproc);
 
-void nateon_cmdproc_process_queue(NateonCmdProc *cmdproc);
+void nateon_cmdproc_process_rxqueue(NateonCmdProc *cmdproc);
+void nateon_cmdproc_queue_rx(NateonCmdProc *cmdproc, NateonCommand *cmd);
+
+void nateon_cmdproc_process_txqueue(NateonCmdProc *cmdproc);
 
 void nateon_cmdproc_send_trans(NateonCmdProc *cmdproc, NateonTransaction *trans);
-void nateon_cmdproc_queue_trans(NateonCmdProc *cmdproc, NateonTransaction *trans);
+void nateon_cmdproc_queue_tx(NateonCmdProc *cmdproc, NateonTransaction *trans);
 void nateon_cmdproc_send(NateonCmdProc *cmdproc, const char *command,
 					  const char *format, ...);
 //void nateon_cmdproc_send_quick(NateonCmdProc *cmdproc, const char *command,

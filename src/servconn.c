@@ -455,6 +455,10 @@ read_cb(gpointer data, gint source, PurpleInputCondition cond)
 		}
 		else
 		{
+			#if 0
+			purple_debug_info("nateon", "[%s] raw cmd in buffer:\n\t%s\n",
+			                __FUNCTION__, cur);
+			#endif
 			nateon_cmdproc_process_cmd_text(servconn->cmdproc, cur);
 		}
 	} while (servconn->connected && !servconn->wasted && servconn->rx_len > 0);

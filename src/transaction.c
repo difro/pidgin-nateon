@@ -151,9 +151,14 @@ nateon_transaction_set_payload(NateonTransaction *trans,
 {
 	g_return_if_fail(trans   != NULL);
 	g_return_if_fail(payload != NULL);
+	g_return_if_fail(payload_len > 0);
 
-	trans->payload = g_strdup(payload);
-	trans->payload_len = payload_len ? payload_len : strlen(trans->payload);
+	// trans->payload = g_strdup(payload);
+	// trans->payload_len = payload_len ? payload_len : strlen(trans->payload);
+
+	// strdup does not copy EXACT binary data and stops on \0 == NULL.
+	trans->payload = g_memdup(payload,payload_len);
+	trans->payload_len = payload_len;
 }
 
 void

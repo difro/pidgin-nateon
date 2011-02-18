@@ -36,6 +36,46 @@ is_num(char *str)
 	return TRUE;
 }
 
+/**
+ * Creates a new command from CMD+binary data payload.
+ * e.g, EMFL	NCE20110221112917.bmp	1498	:_	BM....
+ *
+ * @param sz     Length of data.
+ * @param data   Binary data. Note that data will NOT copied but will be referenced
+ *               by the new output NateonCommand.
+ *               The data will be destroyed when command is destroyed by
+ *               nateon_command_destroy.
+ */
+NateonCommand *
+nateon_command_from_binary(char *data, int sz)
+{
+	int i;
+	NateonCommand *cmd;
+
+	g_return_val_if_fail(data != NULL, NULL);
+
+	cmd = g_new0(NateonCommand, 1);
+
+	// find the first tab character
+	for( i = 0 ; i < sz && data[i] != '\t' ; ++i );
+	g_assert( i < sz && data[i] == '\t' ); // we are expecting at least one tab char.
+
+	// from data[0] to data[i-1], it is the command string.
+	cmd->command = g_strndup(data, i);
+	//printf("new command from binary: \"%s\\""\n", cmd->command);
+
+	cmd->trId = 0; // might not have trId. for EMFL, certainly not.
+
+	// We'll leave parameter parsing as each handler's job,
+	// since we might have '\t' in binary data.
+	cmd->bin_data_sz = sz;
+	cmd->bin_data = data;
+
+	nateon_command_ref(cmd);
+
+	return cmd;
+}
+
 NateonCommand *
 nateon_command_from_string(const char *string)
 {
@@ -87,6 +127,9 @@ nateon_command_destroy(NateonCommand *cmd)
 
 	if (cmd->payload != NULL)
 		g_free(cmd->payload);
+
+	if (cmd->bin_data != NULL)
+		g_free(cmd->bin_data);
 
 	g_free(cmd->command);
 	g_strfreev(cmd->params);

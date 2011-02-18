@@ -94,6 +94,11 @@ nateon_table_add_cmd(NateonTable *table,
 			cbs = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
 			g_hash_table_insert(table->cmds, command, cbs);
 		}
+		else
+		{
+			purple_debug_error( "nateon", "Hash table collision!\n" );
+			g_assert( 0 );
+		}
 	}
 
 	if (cb == NULL)

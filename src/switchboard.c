@@ -27,18 +27,239 @@
 #include "switchboard.h"
 #include "notification.h"
 #include "nateon-utils.h"
+#include "smiley.h"
 #include "xfer.h"
 
 #include "error.h"
 
 static NateonTable *cbs_table;
 
+/**
+ * Volatile emoticon, just for this switchboard, not saved to disk.
+ */
+typedef struct _SwboardEmoticon
+{
+	guchar *data;
+	size_t size;
+} SwboardEmoticon;
+
+/**************************************************************************
+ * Prototypes
+ **************************************************************************/
 static void msg_error_helper(NateonCmdProc *cmdproc, NateonMessage *msg,
 							 NateonMsgErrorType error);
+
+static void nateon_swboard_emoticon_destroy( gpointer ptr );
+
+static void emoticon_done_download(NateonCmdProc *cmdproc);
+
+gboolean
+is_int( const char *str );
+
+gchar *no_dp( const gchar *id );
+
+SwboardEmoticon*
+nateon_conv_custom_smiley_find( NateonSwitchBoard *swboard, const char *shortcut );
+
+static void
+nateon_conv_custom_smiley_draw( NateonCmdProc *cmdproc, const char *msg );
+
+static void
+nateon_conv_custom_smiley_add( NateonSwitchBoard *swboard,
+	const char *shortcut, const guchar *img_data, size_t img_sz );
+
+static void
+emoticon_timeout(NateonCmdProc *cmdproc, NateonTransaction *trans);
+
+/**************************************************************************
+ * helper functions
+ **************************************************************************/
+
+static void
+emoticon_done_download(NateonCmdProc *cmdproc)
+{
+	cmdproc->emoticon_download_cnt--; // cancel transfer and allow message to be run.
+	#if 1
+	purple_debug_info("nateon", "[%s] %d emoticon downloads in progress\n",
+		__FUNCTION__, cmdproc->emoticon_download_cnt);
+	if( cmdproc->emoticon_download_cnt == 0 )
+	{
+		// all downloads done. process rxqueue
+		nateon_cmdproc_process_rxqueue(cmdproc);
+	}
+	#endif
+}
+
+/**
+ * Destroy a SwboardEmoticon.
+ */
+static void nateon_swboard_emoticon_destroy( gpointer ptr )
+{
+	SwboardEmoticon *im = ptr;
+
+	// free data
+	if( im->data )
+		g_free( im->data );
+	
+	// free itself
+	g_free( ptr );
+}
+
+/**
+ * Check if given str matches regexp -?[0-9]+
+ * Hmm... I suspect that libpurple or glib has something like this,
+ * but I can't find it.
+ */
+gboolean
+is_int( const char *str )
+{   
+	long int len = strlen(str);
+	char *end;
+	strtol(str, &end, 10);
+	return (end-str) == len;
+}
+
+/**
+ * input: ssss@nate.com|dpc_03805:12876|X0HA
+ * output: ssss@nate.com
+ * The output must be g_free()'ed when no longer needed.
+ */
+gchar *no_dp( const gchar *id )
+{
+	gchar *ret = g_strdup(id);
+	gchar *pos = g_strstr_len(ret, -1, "|");
+	if( pos )
+		*pos = '\0';
+	return ret;
+}
+
+/**
+ * Scan the hash table for list of shortcuts.
+ * For each shortcut, look it up in the msg and if it should be
+ * drawn to UI, draw it.
+ */
+static void
+nateon_conv_custom_smiley_draw( NateonCmdProc *cmdproc, const char *msg )
+{
+	GHashTableIter iter;
+	gpointer key, value;
+	NateonSwitchBoard *swboard;
+	PurpleConversation *ps;
+
+	g_return_if_fail( cmdproc );
+
+	swboard = cmdproc->data;
+	g_return_if_fail( swboard );
+	ps = swboard->conv;
+	g_return_if_fail( swboard->emo_table );
+
+	purple_debug_info("nateon", "[%s:%d]\n", __FUNCTION__, __LINE__);
+
+	// copied from M$N messenger code:
+	/* If the conversation doesn't exist then this is a custom smiley
+	 * used in the first message in a conversation: we need to create
+	 * the conversation now, otherwise the custom smiley won't be shown.
+	 * This happens because every GtkIMHtml has its own smiley tree: if
+	 * the conversation doesn't exist then we cannot associate the new
+	 * smiley with its GtkIMHtml widget. */
+	if (!ps) {
+		ps = purple_conversation_new(PURPLE_CONV_TYPE_IM,
+			cmdproc->session->account, swboard->im_user);
+		// Hmm, it seems that ps is not getting freed, for M$N messenger.
+		// I tried freeing it then the first MESSAGE (not just emoticon)
+		// goes missing forever.
+	}
+
+	// iterate over all custom emoticon shortcuts
+	g_hash_table_iter_init(&iter, swboard->emo_table);
+	while (g_hash_table_iter_next (&iter, &key, &value)) 
+	{
+		const char *shortcut = key;
+		SwboardEmoticon *se = value;
+
+		// if emoticon should be drawn to GUI, draw it.
+		if( purple_conv_custom_smiley_add(ps, shortcut, "sha1", "", TRUE ) )
+		{
+			purple_debug_info("nateon", "[%s:%d] drawing %s\n",
+				__FUNCTION__, __LINE__, shortcut);
+			purple_conv_custom_smiley_write( ps, shortcut, se->data, se->size );
+			purple_conv_custom_smiley_close( ps, shortcut );
+		}
+	}
+};
 
 /**************************************************************************
  * Main
  **************************************************************************/
+
+/**
+ * Return true if emoticon with shortcut is downloaded, otherwise false.
+ */
+SwboardEmoticon*
+nateon_conv_custom_smiley_find( NateonSwitchBoard *swboard, const char *shortcut )
+{
+	return g_hash_table_lookup( swboard->emo_table, shortcut );
+}
+
+/**
+ * Make EMFL data for emoticon transfer.
+ * returns:
+ * EMFL filename filesz shortcut [binarydata].
+ * @param [out] sz emfl_sz: sizeof(emfl)
+ */
+static char*
+make_emfl( size_t *emfl_sz, const char *shortcut )
+{
+	char *emfl = NULL;
+	char *header;
+	size_t img_sz;
+	size_t header_sz;
+
+	PurpleSmiley *ps = purple_smileys_find_by_shortcut(shortcut);
+	PurpleStoredImage* img = purple_smiley_get_stored_image(ps);
+	img_sz = purple_imgstore_get_size(img);
+
+	header =  g_strdup_printf("EMFL\t%s\t%ld\t%s\t",
+		purple_imgstore_get_filename(img), img_sz, shortcut);
+	header_sz = strlen(header);
+
+	*emfl_sz = header_sz + img_sz;
+	emfl = g_new( char, *emfl_sz );
+	g_memmove( emfl, header, header_sz );
+	g_memmove( &emfl[header_sz], purple_imgstore_get_data(img), img_sz );
+
+	#if 0
+	{
+		int i;
+		for( i = 0 ; i < *emfl_sz ; ++i )
+		{
+			printf( "%c", emfl[i] );
+		}
+		printf( "\n" );
+	}
+	#endif
+	
+	g_free(header);
+	return emfl;
+}
+
+/**
+ * Add downloaded image to our hash table.
+ */
+static void
+nateon_conv_custom_smiley_add( NateonSwitchBoard *swboard,
+	const char *shortcut, const guchar *img_data, size_t img_sz )
+{
+	SwboardEmoticon *se;
+	g_return_if_fail( swboard );
+	g_return_if_fail( swboard->emo_table );
+
+	se = g_new0(SwboardEmoticon, 1);
+	se->data = g_memdup(img_data, img_sz);
+	se->size = img_sz;
+
+	g_hash_table_insert( swboard->emo_table, g_strdup(shortcut), se );
+}
 
 NateonSwitchBoard *
 nateon_switchboard_new(NateonSession *session)
@@ -59,6 +280,8 @@ nateon_switchboard_new(NateonSession *session)
 
 	swboard->cmdproc->data = swboard;
 	swboard->cmdproc->cbs_table = cbs_table;
+	swboard->emo_table = g_hash_table_new_full(g_str_hash,
+		g_str_equal, g_free, nateon_swboard_emoticon_destroy);
 
 	session->switches = g_list_append(session->switches, swboard);
 
@@ -111,6 +334,9 @@ nateon_switchboard_destroy(NateonSwitchBoard *swboard)
 
 	if (swboard->auth_key != NULL)
 		g_free(swboard->auth_key);
+	
+	if( swboard->emo_table )
+		g_hash_table_destroy(swboard->emo_table);
 
 //	if (swboard->session_id != NULL)
 //		g_free(swboard->session_id);
@@ -374,7 +600,7 @@ invt_error_helper(NateonTransaction *trans, int reason)
 static void
 msg_error_helper(NateonCmdProc *cmdproc, NateonMessage *msg, NateonMsgErrorType error)
 {
-	NateonSwitchBoard *swboard;
+	// NateonSwitchBoard *swboard;
 
 	g_return_if_fail(cmdproc != NULL);
 	g_return_if_fail(msg     != NULL);
@@ -643,7 +869,88 @@ entr_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	swboard->ready = TRUE;
 	notification = swboard->session->notification;
 
-	nateon_cmdproc_process_queue(notification->cmdproc);
+	nateon_cmdproc_process_txqueue(notification->cmdproc);
+}
+
+/**
+ * Switchboard CTOC, different from session CTOC.
+ */
+static void
+swb_ctoc_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	payload_cmd(cmdproc, cmd, 3);
+}
+
+/**
+ * EMFL command
+ * EMoticon FiLe command?
+ */
+static void
+swb_emfl_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	// Expected cmd->bin_data format:
+	//
+	// EMFL\t (this command)
+		// NCE20110221112917.bmp\t (filename)... not needed!
+		// 1498\t (binary data size)
+		// :_\t (shortcut)
+		// [binary data]
+
+	int i, hold;
+	char *shortcut;
+
+	size_t sz = cmd->bin_data_sz;
+	char *data = cmd->bin_data;
+
+	size_t pic_sz;
+	const guchar *pic_data;
+
+	NateonSwitchBoard *swboard = cmdproc->data;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	for( i = 0 ; i < sz && data[i] != '\t' ; ++i ); // find 1st tab. (EMFL)
+
+
+	for( ++i ; i < sz && data[i] != '\t' ; ++i ); // find 2nd tab. (filename)
+
+	++i;
+	hold = i;
+	for( ; i < sz && data[i] != '\t' ; ++i ); // find 3rd tab. (real data size)
+
+	// extract size information
+	data[i] = '\0'; // temporarily make it \0.
+	g_return_if_fail( is_int( &data[hold] ) );
+	pic_sz = atoi( &data[hold] );
+	data[i] = '\t'; // restore it to tab.
+
+	++i;
+	hold = i;
+	for( ; i < sz && data[i] != '\t' ; ++i ); // find 4th tab. (shortcut)
+
+	// extract shortcut information
+	data[i] = '\0'; // temporarily make it \0.
+	shortcut = g_strdup( &data[hold] );
+	data[i] = '\t'; // restore
+
+	// lastly, here comes binary data.
+	++i;
+	pic_data = (guchar*) &data[i];
+
+	i += pic_sz;
+
+	#if 0
+	purple_debug_info("nateon", "[%s]\n"
+		"\tshortcut: %s\n"
+		"\tpic size: %ld\n", __FUNCTION__, shortcut, pic_sz );
+	#endif
+
+	nateon_conv_custom_smiley_add(swboard, shortcut, pic_data, pic_sz);
+
+	// By now, our download is complete. Tell it to cmdproc
+	emoticon_done_download(cmdproc);
+
+	g_free(shortcut);
 }
 
 static void
@@ -715,13 +1022,162 @@ join_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 	process_queue(swboard);
 
-	nateon_cmdproc_process_queue(swboard->cmdproc);
+	nateon_cmdproc_process_txqueue(swboard->cmdproc);
 
 //	if (!session->http_method)
 //		send_clientcaps(swboard);
 
 	if (swboard->closed)
 		nateon_switchboard_close(swboard);
+}
+
+static void
+whsp_emoticon_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	char **split = g_strsplit(cmd->params[3], "%09", 0);
+	// const char *account_name = cmd->params[1];
+	NateonSession *session = cmdproc->session;
+	// NateonSwitchBoard *swboard = cmdproc->data;
+
+	purple_debug_info("nateon", "[%s]\n", __FUNCTION__);
+
+	if (!purple_account_get_bool(session->account, "custom_smileys", TRUE))
+		return;
+
+	// It is fine to use strcmp (not strncmp)
+	// when not both of the params are variables.
+	// e.g strcmp(var1,"const") or strcmp("const",var1).
+	// not file when strcmp(var1,var2)
+
+	if( !strcmp(split[0], "REQUEST2") )
+	{
+		// Peer want to send me emoticons:
+		// REQUEST2 = split[0]
+		// 2 = emoticon request count = split[1]
+			// 헣 shortcut1
+			// 킄 shortcut2
+		// 2 ??? always 2
+
+		// I confirm the request with ACK2 like this:
+		// WHSP 0
+		// ssss@nate.com|dpc_03805:12876|X0HA
+		// EMOTICON ACK2%09
+		// 2%09 (cnt)
+			// NCE20110218225301.bmp%09 (filename1)
+			// 1498%09 (sz1)
+			// :_%09 (shortcut1)
+			// NCE20110218225251.bmp%09 (filename2)
+			// 1498%09 (sz2)
+			// ;-%09 (shortcut2)
+		// received emoticon request.
+
+		int i;
+		int emo_cnt = atoi(split[1]);
+		NateonTransaction *trans;
+		GString *list = g_string_new("");
+		char *who = no_dp(cmd->params[1]); // peer id, without dpkey.
+
+		for (i = 0; i < emo_cnt; i++)
+		{
+			const char *shortcut = split[2+i];
+			PurpleSmiley *ps = purple_smileys_find_by_shortcut(shortcut);
+			PurpleStoredImage *img = purple_smiley_get_stored_image(ps);
+
+			g_string_append_printf(list, "%s%%09%ld%%09%s%%09",
+				purple_imgstore_get_filename(img),
+				purple_imgstore_get_size(img),
+				shortcut );
+
+			purple_imgstore_unref(img);
+		}
+
+		trans = nateon_transaction_new(
+			cmdproc, "WHSP", "%s EMOTICON ACK2%%09%d%%09%s",
+			who, emo_cnt, list->str );
+		nateon_cmdproc_send_trans(cmdproc, trans);
+
+		g_free(who);
+		g_string_free(list,TRUE);
+	}
+	else if( !strcmp(split[0], "ACK2" ) )
+	{
+		// Our will to send emoticon (EMOTICON REQUEST) has been
+		// ack'ed. We say that we are ready to receive data in response.
+
+		// input: ACK2%09 [0]
+		// 2%09 (cnt) [1]
+		// ec785ae80a50a5e2d5aa7164043e0c17d2a96785.png%09 (fname1) [2]
+		// 3815%09 (sz1) [3]
+		// 헣%09 (shortcut1) [4]
+		// 0e6ef82641976f9d4860f01b235bb653c66afcd0.png%09 (fname2) [5]
+		// 3639%09 (sz2) [6]
+		// 킄%09 (shortcut2) [7]
+
+		// output:
+		// WHSP 0 
+		// ssss@nate.com
+		// EMOTICON REQDATA%09
+		// 2%09 (cnt)
+		// 헣%09 (sc1)
+		// 킄%09 (sc2)
+		int i;
+		int emo_cnt = atoi(split[1]);
+		NateonTransaction *trans;
+		GString *list = g_string_new("");
+		char *who = no_dp(cmd->params[1]); // peer id, without dpkey.
+
+		for (i = 0; i < emo_cnt; i++)
+		{
+			const char *shortcut = split[3*i+4];
+			g_string_append_printf(list, "%s%%09", shortcut);
+		}
+
+		trans = nateon_transaction_new(
+			cmdproc, "WHSP", "%s EMOTICON REQDATA%%09%d%%09%s",
+			who, emo_cnt, list->str );
+		nateon_transaction_set_timeout_cb(trans, emoticon_timeout);
+		nateon_cmdproc_send_trans(cmdproc, trans);
+
+		g_free(who);
+		g_string_free(list,TRUE);
+	}
+	else if( !strcmp(split[0], "REQDATA" ) )
+	{
+		// input:
+		// REQDATA [0]
+		// 1 [1] (cnt)
+		// 헣 [2] (shortcut1)
+		// 킄 [3] (shortcut2)
+
+		// As of Windows version of NateOn 4.x, there is a bug
+		// (or it might be a feature!) which only sends data
+		// of one  emoticon...
+		// We'll do that too and only send image of shortcut1.
+		// Our response will be...
+		// CTOC who U len
+		// EMFL filename filesz shortcut [binarydata].
+		size_t emfl_sz;
+		NateonTransaction *trans;
+		char  *emfl;
+		char *who = no_dp(cmd->params[1]); // peer id, without dpkey.
+		
+		emfl = make_emfl(&emfl_sz, split[2]);
+
+		trans = nateon_transaction_new(cmdproc, "CTOC", "%s U %ld", who, emfl_sz );
+		nateon_transaction_set_payload(trans, emfl, emfl_sz);
+
+		nateon_cmdproc_send_trans(cmdproc, trans);
+		g_free(who);
+		g_free(emfl);
+	}
+	else
+	{
+		purple_debug_info("nateon",
+			"[%s] Unhandled command:\n"
+			"\t%s\n", __FUNCTION__, split[0]);
+	}
+
+	g_strfreev(split);
 }
 
 static void
@@ -748,8 +1204,6 @@ file_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 			char **file_data;
 			char *filename;
 
-			printf(" receiving trtansmission!!\n" );
-
 			file_data = g_strsplit(split[i+2], "|", 0);	
 			filename = purple_strreplace(file_data[0], "%20", " ");
 
@@ -763,7 +1217,7 @@ file_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	else if( !strcmp(split[0], "NACK" ) )
 	{
 		/* Your friend rejected your file transfer */
-		// xxx@nate.com|dpc_01003:28058|bwzc \
+		// xxx@nate.com|dpc_01003:28058|bwzc
 		// FILE NACK%091%09harry_16k.wav|420262|224:10026452103:448
 		int i;
 		int num_files = atoi(split[1]);
@@ -808,12 +1262,20 @@ whsp_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	// no command what-so-ever.
 	if( cmd->param_count == 0 )
 		return;
-
+	if( cmd->param_count == 1 && is_int(cmd->params[0]) )
+		return;
 
 	// FILE transfer commands
-	if ( cmd->param_count >= 3 && !strcmp(cmd->params[2], "FILE") )
+	if ( cmd->param_count == 4 && !strcmp(cmd->params[2], "FILE") )
 	{
 		file_cmd( cmdproc, cmd );
+	}
+	else if (!strcmp(cmd->params[2], "AVCHAT2")) {} // ignore this cmd
+	else if (!strcmp(cmd->params[2], "MAIL")) {} // ignore this cmd
+	else if (!strcmp(cmd->params[2], "FONT")) {} // ignore this cmd
+	else if (cmd->param_count == 4 && !strcmp(cmd->params[2], "EMOTICON"))
+	{
+		whsp_emoticon_cmd( cmdproc, cmd );
 	}
 	else if (cmd->param_count == 4 && !strcmp(cmd->params[2], "DPIMG") && \
 			!strncmp(cmd->params[3], "REQUEST", strlen("REQUEST")) )
@@ -822,7 +1284,7 @@ whsp_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 		char **split;
 		char **file_data;
 		PurpleBuddyIcon *icon;
-		char *icon_checksum;
+		// char *icon_checksum;
 		NateonSession *session;
 		NateonSwitchBoard *swboard;
 		const char *account_name;
@@ -846,6 +1308,16 @@ whsp_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 			purple_buddy_icon_unref(icon);
 
 		g_strfreev(split);
+	}
+	else
+	{
+		int i;
+		purple_debug_info("nateon", "[%s] Unhandled command...\n", __FUNCTION__);
+		for( i = 0 ; i < cmd->param_count ; ++i )
+		{
+			purple_debug_info("nateon", "[%s] par%d: %s\n",
+				__FUNCTION__, i, cmd->params[i] );
+		}
 	}
 }
 
@@ -901,6 +1373,18 @@ msg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
 
+	// when emoticon is being downloaded, postpone showing it.
+	if( cmdproc->emoticon_download_cnt > 0 )
+	{
+		purple_debug_info("nateon",
+			"[%s] %d emoticons are being downloaded, queueing instead.\n",
+			__FUNCTION__, cmdproc->emoticon_download_cnt);
+		nateon_command_ref(cmd); // add reference count that this cmd will not be freed
+			// until dequeued from rx queue.
+		nateon_cmdproc_queue_rx(cmdproc, cmd);
+		return;
+	}
+
 	account_name = cmd->params[1];
 	body_str = cmd->params[3];
 
@@ -915,6 +1399,11 @@ msg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	body_final = nateon_parse_format(body_enc);
 
 	purple_debug_info("nateon", "%s - %s %s\n", __FUNCTION__, account_name, body_final);
+
+	// Now we expect our downloads to be complete.
+	// Scan for emoticons in message and draw it
+	if (purple_account_get_bool(cmdproc->session->account, "custom_smileys", TRUE))
+		nateon_conv_custom_smiley_draw(cmdproc, body_final);
 
 //	account_name = msg->remote_user;
 
@@ -983,6 +1472,74 @@ msg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	g_free(body_final);
 }
 
+/**
+ * handle EMOTICON subcommand in MESG command.
+ */
+static void
+mesg_emoticon_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd, const char *who)
+{
+	const char *args = cmd->params[3];
+	char **split = g_strsplit(args, "%09", 0);
+	NateonSwitchBoard *swboard = cmdproc->data;
+
+	if( !strcmp(split[0], "OBJECT") )
+	{
+		// input:
+		// OBJECT [0] this subcommand.
+		// 0000001 [1] ??? always this.
+		// 2 [2], # emoticons
+			// NCE20110218225246.bmp [fname1]
+			// +_+ [shortcut1]
+			// NCE20110218225251.bmp [fname2]
+			// ;-%09 [shortcut2]
+		// 2 [last], always 2.
+		
+		// output:
+		// send this whisper back, because we want to receive the actual emoticon.
+		// WHSP 0 ssss@nate.com|dpc_06401:29694|X0HA EMOTICON REQUEST2%092%09+_+%09;-%092
+		// WHSP 0 ssss@nate.com|dpc_01202:26225|bEOi EMOTICON REQUEST2%091%09;-%092
+		GString *list;
+		NateonTransaction *trans;
+		int cnt = atoi(split[2]);
+		int i;
+		int req_cnt = 0; // # of not downloaded emoticons
+
+		if( cnt >= 1 ) // we sometimes get cnt == 0, too.
+		{
+			list = g_string_new("");
+			for( i = 0 ; i < cnt ; ++i )
+			{
+				const char *shortcut = split[2*i+4];
+				if( !nateon_conv_custom_smiley_find(swboard, shortcut) )
+				{
+					// If smiley is not available, make request for it.
+					++req_cnt;
+					g_string_append_printf(list, "%s%%09", shortcut);
+				}
+			}
+
+			if( req_cnt > 0 )
+			{
+				trans = nateon_transaction_new(
+					cmdproc, "WHSP", "%s EMOTICON REQUEST2%%09%d%%09%s2",
+					who, req_cnt, list->str );
+				nateon_transaction_set_timeout_cb(trans, emoticon_timeout);
+				cmdproc->emoticon_download_cnt++; // Turn on download flag.
+				// Note that we only add 1, due to nateon 4.x bug, which
+				// would only transmit us only one emoticon even though we made
+				// multiple request with req_cnt.
+				// Ideally, it should be:
+				// cmdproc->emoticon_download_cnt += req_cnt;
+				nateon_cmdproc_send_trans(cmdproc, trans);
+			}
+
+			g_string_free(list,TRUE);
+		}
+	}
+
+	g_strfreev(split);
+}
+
 static void
 mesg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 {
@@ -1014,6 +1571,18 @@ mesg_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 		{
 			serv_got_typing_stopped(gc, swboard->im_user);
 		}
+	}
+	else if (!strcmp(subcmd, "EMOTICON"))
+	{
+		if (!purple_account_get_bool(cmdproc->session->account, "custom_smileys", TRUE))
+			return;
+		swboard = cmdproc->data;
+		mesg_emoticon_cmd(cmdproc, cmd, swboard->im_user);
+	}
+	else
+	{
+		purple_debug_info("nateon", "[%s] Unhandled command %s\n",
+			__FUNCTION__, subcmd);
 	}
 }
 
@@ -1100,7 +1669,7 @@ user_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 #endif
 
 	swboard->ready = TRUE;
-	nateon_cmdproc_process_queue(cmdproc);
+	nateon_cmdproc_process_txqueue(cmdproc);
 }
 
 ///**************************************************************************
@@ -1386,6 +1955,20 @@ invt_timeout(NateonCmdProc *cmdproc, NateonTransaction *trans)
 	invt_error_helper(trans, NATEON_SB_ERROR_UNKNOWN);
 }
 
+/**
+ * When emoticon download request is timed out...
+ * It is possible to get packet loss and I'm prepared to handle it!
+ */
+static void
+emoticon_timeout(NateonCmdProc *cmdproc, NateonTransaction *trans)
+{
+	purple_debug_warning("nateon", "Emoticon data request timeout");
+
+	emoticon_done_download(cmdproc);
+
+	invt_error_helper(trans, NATEON_SB_ERROR_UNKNOWN);
+}
+
 static void
 invt_error(NateonCmdProc *cmdproc, NateonTransaction *trans, int error)
 {
@@ -1433,7 +2016,7 @@ nateon_switchboard_request_add_user(NateonSwitchBoard *swboard, const char *user
 	else
 	{
 		purple_debug_info("nateon", "[%s] queue_trans\n", __FUNCTION__);
-		nateon_cmdproc_queue_trans(cmdproc, trans);
+		nateon_cmdproc_queue_tx(cmdproc, trans);
 	}
 }
 
@@ -1639,6 +2222,9 @@ nateon_switchboard_init(void)
 //	nateon_table_add_cmd(cbs_table, NULL, "OUT", out_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "WHSP", whsp_cmd);
 	nateon_table_add_cmd(cbs_table, NULL, "QUIT", quit_cmd);
+
+	nateon_table_add_cmd(cbs_table, NULL, "CTOC", swb_ctoc_cmd);
+	nateon_table_add_cmd(cbs_table, NULL, "EMFL", swb_emfl_cmd);
 //
 //#if 0
 //	/* They might skip the history */

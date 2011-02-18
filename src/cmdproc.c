@@ -33,6 +33,7 @@ nateon_cmdproc_new(NateonSession *session)
 
 	cmdproc->session = session;
 	cmdproc->txqueue = g_queue_new();
+	cmdproc->rxqueue = g_queue_new();
 	cmdproc->history = nateon_history_new();
 
 	return cmdproc;
@@ -42,11 +43,16 @@ void
 nateon_cmdproc_destroy(NateonCmdProc *cmdproc)
 {
 	NateonTransaction *trans;
+	NateonCommand *cmd;
 
 	while ((trans = g_queue_pop_head(cmdproc->txqueue)) != NULL)
 		nateon_transaction_destroy(trans);
 
+	while ((cmd = g_queue_pop_head(cmdproc->rxqueue)) != NULL)
+		nateon_command_destroy(cmd);
+
 	g_queue_free(cmdproc->txqueue);
+	g_queue_free(cmdproc->rxqueue);
 
 	nateon_history_destroy(cmdproc->history);
 
@@ -57,7 +63,30 @@ nateon_cmdproc_destroy(NateonCmdProc *cmdproc)
 }
 
 void
-nateon_cmdproc_process_queue(NateonCmdProc *cmdproc)
+nateon_cmdproc_process_rxqueue(NateonCmdProc *cmdproc)
+{
+	NateonCommand *cmd;
+
+	while ((cmd = g_queue_pop_head(cmdproc->rxqueue)) != NULL)
+	{
+		g_assert( cmdproc->emoticon_download_cnt == 0 );
+		nateon_cmdproc_process_cmd(cmdproc, cmd);
+		nateon_command_ref(cmd);
+	}
+}
+
+void
+nateon_cmdproc_queue_rx(NateonCmdProc *cmdproc, NateonCommand *cmd)
+{
+	g_return_if_fail(cmdproc != NULL);
+	g_return_if_fail(cmd   != NULL);
+
+	g_queue_push_tail(cmdproc->rxqueue, cmd);
+}
+
+
+void
+nateon_cmdproc_process_txqueue(NateonCmdProc *cmdproc)
 {
 	NateonTransaction *trans;
 
@@ -66,7 +95,7 @@ nateon_cmdproc_process_queue(NateonCmdProc *cmdproc)
 }
 
 void
-nateon_cmdproc_queue_trans(NateonCmdProc *cmdproc, NateonTransaction *trans)
+nateon_cmdproc_queue_tx(NateonCmdProc *cmdproc, NateonTransaction *trans)
 {
 	g_return_if_fail(cmdproc != NULL);
 	g_return_if_fail(trans   != NULL);
@@ -295,7 +324,7 @@ nateon_cmdproc_process_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 
 	if (cmdproc->cbs_table->async != NULL)
 		cb = g_hash_table_lookup(cmdproc->cbs_table->async, cmd->command);
-
+	
 	if (cb == NULL && trans != NULL)
 	{
 		cmd->trans = trans;
@@ -313,8 +342,8 @@ nateon_cmdproc_process_cmd(NateonCmdProc *cmdproc, NateonCommand *cmd)
 	}
 	else
 	{
-		purple_debug_warning("nateon", "Unhandled command '%s'\n",
-						   cmd->command);
+		purple_debug_warning("nateon", "[%s] Unhandled command '%s'\n",
+			__FUNCTION__, cmd->command);
 	}
 
 //	if (trans != NULL && trans->pendent_cmd != NULL)

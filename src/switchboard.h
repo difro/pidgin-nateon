@@ -70,7 +70,7 @@ struct _NateonSwitchBoard
 	NateonSession *session;
 	NateonServConn *servconn;
 	NateonCmdProc *cmdproc;
-	char *im_user; /* Seems to be my NateOn ID */
+	char *im_user; /* Inviter ID */
 
 	NateonSBFlag flag;
 	char *auth_key;
@@ -79,6 +79,11 @@ struct _NateonSwitchBoard
 	PurpleConversation *conv; /**< The conversation that displays the
 							  messages of this switchboard, or @c NULL if
 							  this is a helper switchboard. */
+
+	GHashTable *emo_table; /***
+		A table X->Y...
+		If peer emoticon shortcut X has been downloaded, then Y==1.
+	*/
 
 	gboolean empty;			/**< A flag that states if the swithcboard has no
 							  users in it. */

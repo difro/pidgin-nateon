@@ -10,6 +10,7 @@
 static void nateon_xfer_end(PurpleXfer *xfer);
 static ssize_t nateon_xfer_sock_write(NateonXferConnection *conn, const char *buf, size_t len);
 static void nateon_xfer_send_next(NateonXfer *nate_xfer);
+gint xfer_sig_cmp( gconstpointer a, gconstpointer b );
 
 static char*
 generate_p2p_cookie(NateonSession *session)
@@ -40,7 +41,7 @@ nateon_xfer_cancel_recv(PurpleXfer *xfer)
 {
 	NateonXfer *nate_xfer = xfer->data;
 
-	const char *filename;
+	char *filename;
 
 	NateonTransaction *trans;
 	NateonCmdProc *cmdproc = nate_xfer->swboard->cmdproc;
@@ -86,7 +87,7 @@ static void
 nateon_xfer_deny_request(PurpleXfer *xfer)
 {
 	NateonXfer *nate_xfer = xfer->data;
-	const char *filename;
+	char *filename;
 
 	NateonTransaction *trans;
 	NateonCmdProc *cmdproc = nate_xfer->swboard->cmdproc;
@@ -215,7 +216,7 @@ nateon_xfer_process_p2p_cmd_send(NateonXfer *xfer, char *cmd)
 			purple_xfer_cancel_remote(xfer->prpl_xfer);
 			return;
 		}
-        buf = g_strdup_printf("FILE %s INFO FILENAME %d CHAT 0\r\n",
+        buf = g_strdup_printf("FILE %s INFO FILENAME %ld CHAT 0\r\n",
 				split[1], purple_xfer_get_size(xfer->prpl_xfer));
 		nateon_xfer_sock_write(&xfer->conn, buf, strlen(buf));
 		g_free(buf);
@@ -1035,8 +1036,8 @@ nateon_xfer_init(PurpleXfer *xfer)
 		}
 		else
 		{
-			purple_debug_info("nateon", "[%s] queue_trans\n", __FUNCTION__);
-			nateon_cmdproc_queue_trans(swboard->cmdproc, trans);
+			purple_debug_info("nateon", "[%s] queue_tx\n", __FUNCTION__);
+			nateon_cmdproc_queue_tx(swboard->cmdproc, trans);
 		}
 	}
 }
@@ -1103,7 +1104,8 @@ nateon_xfer_end(PurpleXfer *xfer)
 static NateonXfer*
 nateon_xfer_new(NateonSession *session, PurpleXferType type, const char *who)
 {
-	const char *sender_id, *dpkey, **split;
+	const char *sender_id, *dpkey;
+	gchar **split;
 	NateonXfer *xfer;
 
 	// who might have dpkey appended. Separate it.
@@ -1310,8 +1312,8 @@ nateon_xfer_send_file(NateonSession *session, const char *who, const char *filen
 gint xfer_sig_cmp( gconstpointer a, gconstpointer b )
 {
 	int t;
-	NateonXfer *da = a;
-	NateonXfer *db = b;
+	const NateonXfer *da = a;
+	const NateonXfer *db = b;
 	gchar *fa, *fb;
 
 	t = strcmp( da->who, db->who );
@@ -1345,14 +1347,16 @@ nateon_xfer_find_transfer(
 	// data to find
 	sig.prpl_xfer = &sig2;
 	sig.who = split[0];
-	sig.prpl_xfer->filename = filename;
-	sig.file_cookie = cookie;
+	sig.prpl_xfer->filename = g_strdup(filename); // Can do it /wo g_strdup
+	sig.file_cookie = g_strdup(cookie); // but it emits "warning".
 
 	node = g_list_find_custom( session->xfers, &sig, xfer_sig_cmp );
 	if( node )
 		xfer = node->data;
 
 	g_strfreev(split);
+	g_free( sig.prpl_xfer->filename );
+	g_free( sig.file_cookie );
 
 	return xfer;
 }
@@ -1377,8 +1381,9 @@ nateon_xfer_request_denied(
 void
 nateon_xfer_cancel_transfer(NateonSession *session, const char *who, const char *filename, const char *cookie)
 {
+	NateonXfer *xfer;
 	purple_debug_info("nateon", "%s\n", __FUNCTION__);
-	NateonXfer *xfer = nateon_xfer_find_transfer(session, who, filename, cookie);
+	xfer = nateon_xfer_find_transfer(session, who, filename, cookie);
 	if (!xfer)
 	{
 		purple_debug_info("nateon", "%s: no matching xfer found for cancel request\n", __FUNCTION__);

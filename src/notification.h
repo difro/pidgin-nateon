@@ -68,4 +68,7 @@ void nateon_notification_close(NateonNotification *notification);
 
 //void nateon_got_login_params(NateonSession *session, const char *login_params);
 
+// We have payload commands in switchboards, too...
+void payload_cmd( NateonCmdProc *cmdproc, NateonCommand *cmd, int payload_index );
+
 #endif /* _NATEON_NOTIFICATION_H_ */

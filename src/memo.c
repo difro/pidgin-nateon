@@ -58,7 +58,7 @@ char *
 nateon_memo_gen_payload(const NateonMemo *memo, size_t *ret_size)
 {
 	const char *body;
-	char *date;
+	const char *date;
 	time_t now_t;
 	struct tm *now;
 	char *str;
@@ -82,7 +82,7 @@ nateon_memo_gen_payload(const NateonMemo *memo, size_t *ret_size)
 			"ref:%s\r\n"
 			"date:%s\r\n"
 			"contenttype:text\r\n"
-			"length:%d\r\n"
+			"length:%ld\r\n"
 			"\r\n"
 			"%s\r\n",
 			memo->to, memo->from, memo->to, date, strlen(body), body);

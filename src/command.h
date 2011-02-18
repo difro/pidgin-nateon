@@ -49,6 +49,11 @@ struct _NateonCommand
 	char *payload;
 	size_t payload_len;
 
+	size_t bin_data_sz;
+	char *bin_data; // for commands with binary data, this var holds it.
+		// introduced for emoticon support.
+		// Maybe we could merge this with payload variable?
+
 	NateonPayloadCb payload_cb;
 };
 
@@ -56,5 +61,7 @@ NateonCommand *nateon_command_from_string(const char *string);
 void nateon_command_destroy(NateonCommand *cmd);
 NateonCommand *nateon_command_ref(NateonCommand *cmd);
 NateonCommand *nateon_command_unref(NateonCommand *cmd);
+NateonCommand *nateon_command_from_binary(char *data, int sz);
+
 
 #endif /* _NATEON_COMMAND_H */

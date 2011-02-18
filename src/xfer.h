@@ -50,14 +50,14 @@ struct _NateonXferConnection {
 	NateonXfer *nate_xfer;
 };
 
-typedef enum
+typedef enum _NateonXferConnType
 {
 	NATEON_XFER_CONN_NONE,
 	NATEON_XFER_CONN_P2P,
 	NATEON_XFER_CONN_FR
 } NateonXferConnType;
 
-typedef enum
+typedef enum _NateonXferContentType
 {
     NATEON_XFER_CONTENT_FILE,
     NATEON_XFER_CONTENT_BUDDYIMG
@@ -77,7 +77,7 @@ struct _NateonXfer
 	char *dpkey;
 	char *my_ip;
 
-    NateonXferConnType content_type;
+    NateonXferContentType content_type;
 
 	/* P2P related */
 	PurpleNetworkListenData	*p2p_listen_data;
