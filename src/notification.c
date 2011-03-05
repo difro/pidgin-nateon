@@ -755,6 +755,12 @@ void payload_cmd( NateonCmdProc *cmdproc, NateonCommand *cmd, int payload_index 
 
 	if( cmd->param_count == 0 )
 		return;
+	
+	if( cmd->param_count <= payload_index )
+	{
+		// probably some ack signal like CMSG 8 0
+		return;
+	}
 
 	// set expected payload length
 	len = atoi(cmd->params[payload_index]);
