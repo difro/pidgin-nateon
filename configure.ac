@@ -193,5 +193,7 @@ AC_OUTPUT([Makefile
 		pixmaps/protocols/22/scalable/Makefile
 		pixmaps/protocols/48/Makefile
 		pixmaps/protocols/48/scalable/Makefile
+		pixmaps/emotes/Makefile
+		pixmaps/emotes/nateon_plus/Makefile
 		po/Makefile.in
 		])
