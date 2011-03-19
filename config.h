@@ -5,7 +5,7 @@
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
 /* display version info */
-#define DISPLAY_VERSION "2.7.10"
+#define DISPLAY_VERSION "2.7.11"
 
 /* always defined to indicate that i18n is enabled */
 #define ENABLE_NLS 1
