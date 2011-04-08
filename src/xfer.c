@@ -303,6 +303,7 @@ nateon_xfer_sock_read(NateonXferConnection *conn, guchar **buffer)
 					nate_xfer->chunk_len = 0;
 				}
 
+				// Transfer complete!
 				if (nate_xfer->recv_len == purple_xfer_get_size(nate_xfer->prpl_xfer)) {
 					gchar *buf;
 
@@ -405,6 +406,7 @@ nateon_xfer_sock_read_cb(gpointer data, gint source, PurpleInputCondition condit
 	if (purple_xfer_get_type(nate_xfer->prpl_xfer) == PURPLE_XFER_RECEIVE)
 	{
 		r = nateon_xfer_sock_read(&nate_xfer->conn, &buffer);
+		printf( "JDJ: RECEIVED %d BYTES\n", r );
 		if (r > 0)
 		{
 			const size_t wc = fwrite(buffer, 1, r, nate_xfer->dest_fp);
@@ -418,9 +420,11 @@ nateon_xfer_sock_read_cb(gpointer data, gint source, PurpleInputCondition condit
 				g_free(buffer);
 				return;
 			}
+
+			// Let libpurple know the progress.
 			if (nate_xfer->content_type == NATEON_XFER_CONTENT_FILE)
 			{
-				purple_xfer_set_bytes_sent(nate_xfer->prpl_xfer, nate_xfer->recv_len);
+				purple_xfer_set_bytes_sent(nate_xfer->prpl_xfer, nate_xfer->recv_len); // actually, received bytes.
 				purple_xfer_update_progress(nate_xfer->prpl_xfer);
 			}
 		}
@@ -572,6 +576,8 @@ nateon_xfer_send_next(NateonXfer *nate_xfer)
 		conn->tx_handler = -1;
 		return;
 	}
+
+	// determine chunk length.
 	if (purple_xfer_get_size(nate_xfer->prpl_xfer)-nate_xfer->sent_len > NATEON_XFER_SEND_BUFFER_SIZE)
 	{
 		nate_xfer->chunk_len = NATEON_XFER_SEND_BUFFER_SIZE;
@@ -1348,7 +1354,7 @@ nateon_xfer_find_transfer(
 	sig.prpl_xfer = &sig2;
 	sig.who = split[0];
 	sig.prpl_xfer->filename = g_strdup(filename); // Can do it /wo g_strdup
-	sig.file_cookie = g_strdup(cookie); // but it emits "warning".
+	sig.file_cookie = g_strdup(cookie); // but it emits compiler warning.
 
 	node = g_list_find_custom( session->xfers, &sig, xfer_sig_cmp );
 	if( node )

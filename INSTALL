@@ -51,13 +51,9 @@ The simplest way to compile this package is:
      all sorts of other programs in order to regenerate files that came
      with the distribution.
 
-  6. To regenerate configure script from updated configure.ac:
-     (You need to do this only if you are a developer)
-     aclocal
-     autoheader
-     autoconf
-     libtoolize
-     automake
+  6. To regenerate configure script from updated configure.ac,
+     execute autogen.sh:
+	 ./autogen.sh
      then do ./configure, make, make install as usual.
 
      fakeroot debian/rules binary to generate Debian package.
